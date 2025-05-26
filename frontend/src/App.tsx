@@ -1,12 +1,13 @@
-import React from 'react';
-import './index.css';
+import { Outlet } from "react-router-dom";
+import AppSideBar from "./components/AppSideBar";
 
-function App() {
+export default function App() {
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600">Welcome to the Employee Learning System</h1>
+    <div className="flex h-screen">
+      <AppSideBar />
+      <div className="flex-1 p-4 overflow-y-auto">
+        <Outlet />
+      </div>
     </div>
-  );
+  )
 }
-
-export default App;
