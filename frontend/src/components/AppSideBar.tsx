@@ -11,8 +11,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const AppSideBar: React.FC = () => {
-    const navigate = useNavigate();
-
     const user = {
         name: "Alex Johnson",
         role: "Product Manager",
