@@ -5,7 +5,7 @@ export default function App() {
   return (
     <div className="flex h-screen">
       <AppSideBar />
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto bg-els-secondarybackground">
         <Outlet />
       </div>
     </div>
