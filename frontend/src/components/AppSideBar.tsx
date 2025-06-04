@@ -8,8 +8,6 @@ import {
     faUser,
     faGear,
     faTrophy,
-    faRightFromBracket,
-    faBars,
 } from "@fortawesome/free-solid-svg-icons";
 
 const AppSideBar: React.FC = () => {
