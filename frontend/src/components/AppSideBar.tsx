@@ -9,18 +9,10 @@ import {
     faGear,
     faTrophy,
 } from "@fortawesome/free-solid-svg-icons";
+import UserAvatar from "./UserAvatar";
+import { user } from "../data/userData";
 
 const AppSideBar: React.FC = () => {
-    const user = {
-        name: "Alex Johnson",
-        role: "Product Manager",
-        level: 3,
-        xp: 340,
-        maxXp: 500,
-        initials: "AJ",
-        badgeCount: 7,
-    };
-
     const navItems = [
         { label: "AI Assistant", icon: faComments, to: "/" },
         { label: "Documents", icon: faFileAlt, to: "/documents" },
@@ -33,9 +25,7 @@ const AppSideBar: React.FC = () => {
             {/* Top Section */}
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-els-teal flex items-center justify-center text-lg font-semibold text-white">
-                        {user.initials}
-                    </div>
+                    <UserAvatar initials={user.initials} />
                     <div>
                         <div className="text-base font-semibold">{user.name}</div>
                         <div className="text-sm text-white/70">{user.role}</div>
