@@ -3,7 +3,7 @@ const Documents = () => {
         <div>
             test Documents
         </div>
-    )
-}
+    );
+};
 
-export default Documents
+export default Documents;

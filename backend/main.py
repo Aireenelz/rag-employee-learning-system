@@ -9,10 +9,10 @@ from openai import OpenAI
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
-# Initialize OpenAI client
+# Initialise an openai client instance
 client = OpenAI(api_key=openai_api_key)
 
-# Initialize FastAPI app
+# Initialise fastapi app
 app = FastAPI()
 
 # Add CORS middleware to allow frontend requests
@@ -21,14 +21,14 @@ app.add_middleware(
     allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
 # Define request model for chat messages
 class ChatRequest(BaseModel):
     message: str
 
-# Define response model
+# Define response model for data returned by the API
 class ChatResponse(BaseModel):
     response: str
 
@@ -36,16 +36,19 @@ class ChatResponse(BaseModel):
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     try:
-        # Call OpenAI API
+        # Call openai api to generate a chat response
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an AI assistant for an employee learning system. Provide helpful and concise answers."},
-                {"role": "user", "content": request.message},
+                {"role": "user", "content": request.message}
             ],
-            max_tokens=150,
+            max_tokens=150
         )
+
+        # Extract the AI's response text from the openai api response
         response_text = completion.choices[0].message.content.strip()
         return ChatResponse(response=response_text)
     except Exception as e:
-        return ChatResponse(response=f"Error: {str(e)}")
+        print(f"Error log: {str(e)}") # log for debugging
+        return ChatResponse(response="Error: An issue occured. Please try again later.")

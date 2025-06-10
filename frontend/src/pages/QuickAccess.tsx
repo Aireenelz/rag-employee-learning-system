@@ -3,7 +3,7 @@ const QuickAccess = () => {
         <div>
             test QuickAccess
         </div>
-    )
-}
+    );
+};
 
-export default QuickAccess
+export default QuickAccess;

@@ -3,7 +3,7 @@ const ProfileAchievements = () => {
         <div>
             test ProfileAchievements
         </div>
-    )
-}
+    );
+};
 
-export default ProfileAchievements
+export default ProfileAchievements;
