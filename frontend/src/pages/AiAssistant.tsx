@@ -128,7 +128,7 @@ const AiAssistant = () => {
                     />
                     <button
                         onClick={handleSend}
-                        className="bg-els-primarybutton text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                        className="bg-els-primarybutton text-white px-4 py-2 rounded-lg hover:bg-els-primarybuttonhover"
                         disabled={isLoading}
                     >
                         <FontAwesomeIcon icon={faPaperPlane}/>

@@ -14,6 +14,11 @@ export default {
           chatuser: '#3662E3',
           chatrobot: '#F2F5F8',
           primarybutton: '#3662E3',
+          secondarybutton: '#F8FAFC',
+          deletebutton: '#FCF1F1',
+          primarybuttonhover: '#2A4DD0',
+          secondarybuttonhover: '#E0E6EA',
+          deletebuttonhover: '#CC0000',
 					teal: '#5CD6C0',
 				}
       }
