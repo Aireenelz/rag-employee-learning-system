@@ -17,7 +17,7 @@ const AppSideBar: React.FC = () => {
         { label: "AI Assistant", icon: faComments, to: "/" },
         { label: "Documents", icon: faFileAlt, to: "/documents" },
         { label: "Quick Access", icon: faBookmark, to: "/quickaccess" },
-        { label: "Profile & Achievements", icon: faUser, to: "/profile" },
+        //{ label: "Profile & Achievements", icon: faUser, to: "/profile" },
     ];
 
     return (
