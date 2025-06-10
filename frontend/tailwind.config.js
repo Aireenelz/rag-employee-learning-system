@@ -12,7 +12,7 @@ export default {
           secondarybackground: '#F8FAFC',
           mainpanelbackground: '#FFFFFF',
           chatuser: '#3662E3',
-          chatrobot: 'F2F5F8',
+          chatrobot: '#F2F5F8',
           primarybutton: '#3662E3',
 					teal: '#5CD6C0',
 				}
