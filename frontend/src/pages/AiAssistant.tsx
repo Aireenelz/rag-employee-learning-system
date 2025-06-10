@@ -84,7 +84,9 @@ const AiAssistant = () => {
                         {/* Render the message content */}
                         <div
                             className={`max-w-md px-4 py-2 rounded-lg text-sm ${
-                                msg.role === "user" ? "bg-els-chatuser text-white rounded-lg" : "bg-els-chatrobot border rounded-lg"
+                                msg.role === "user" 
+                                ? "bg-els-chatuser text-white rounded-lg" 
+                                : "bg-els-chatrobot border rounded-lg"
                             }`}
                         >
                             {msg.content}
