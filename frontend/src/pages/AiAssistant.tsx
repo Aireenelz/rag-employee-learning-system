@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import RobotAvatar from "../components/RobotAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +17,7 @@ const AiAssistant = () => {
     ]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
@@ -62,6 +63,11 @@ const AiAssistant = () => {
         }
     };
 
+    // Scroll to the latest message when messages or isLoading changes
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth"});
+    }, [messages, isLoading]);
+
     return (
         <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground p-3">
             {/* Header */}
@@ -103,6 +109,9 @@ const AiAssistant = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Placeholder div to trigger scroll */}
+                <div ref={messagesEndRef}/>
             </div>
 
             {/* Input field */}
