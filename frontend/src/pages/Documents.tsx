@@ -44,7 +44,7 @@ const Documents: React.FC = () => {
                         <input
                             type="text"
                             placeholder="Search by document name or tags..."
-                            className="px-4 py-2 bg-els-secondarybackground text-sm font-semibold"
+                            className="w-full px-4 py-2 bg-els-secondarybackground text-sm font-semibold focus:outline-none"
                         />
                     </div>
 
