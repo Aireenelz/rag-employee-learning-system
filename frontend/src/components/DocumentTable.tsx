@@ -1,6 +1,6 @@
 const DocumentTable: React.FC = () => {
     return (
-        <div>
+        <div className="border rounded">
             DocumentTable
         </div>
     );
