@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faFilter,
     faSearch,
-    faTrash,
+    faTrashCan,
     faUpload
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -23,7 +23,7 @@ const Documents: React.FC = () => {
                     <button
                         className="flex items-center gap-2 bg-els-deletebutton text-sm text-red-700 font-semibold py-2 px-5 rounded-lg hover:bg-els-deletebuttonhover hover:text-white"
                     >
-                        <FontAwesomeIcon icon={faTrash} className="h-3 w-3" />
+                        <FontAwesomeIcon icon={faTrashCan} className="h-3 w-3" />
                         Delete
                     </button>
 

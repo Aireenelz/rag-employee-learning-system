@@ -92,7 +92,7 @@ const AiAssistant = () => {
                             className={`max-w-md px-4 py-2 rounded-lg text-sm ${
                                 msg.role === "user" 
                                 ? "bg-els-chatuser text-white rounded-lg" 
-                                : "bg-els-chatrobot border rounded-lg"
+                                : "bg-els-chatrobot rounded-lg"
                             }`}
                         >
                             {msg.content}
@@ -102,9 +102,9 @@ const AiAssistant = () => {
 
                 {/* Render "Typing..." if API request is being processed */}
                 {isLoading && (
-                    <div className="flex items-center gap-2 justify-start">
+                    <div className="flex items-center gap-2 py-2 justify-start">
                         <RobotAvatar/>
-                        <div className="max-w-md px-4 py-2 rounded-lg text-sm bg-els-chatrobot border rounded-lg">
+                        <div className="max-w-md px-4 py-2 rounded-lg text-sm bg-els-chatrobot rounded-lg">
                             Typing...
                         </div>
                     </div>
