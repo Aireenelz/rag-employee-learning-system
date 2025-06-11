@@ -17,7 +17,7 @@ interface Document {
 const documents: Document[] = [
     {
         name: "Employee Handbook 2023",
-        tags: ["HR", "Policies"],
+        tags: ["HR", "Policies", "Onboarding"],
         version: "v1.2",
         uploadDate: "5/15/2023",
         size: "2.4 MB"
@@ -93,13 +93,13 @@ const DocumentTable: React.FC = () => {
             <table className="w-full border-collapse">
                 <thead>
                     <tr className="text-left border-b">
-                        <th className="py-2 pl-3"><input type="checkbox"/></th>
+                        <th className="py-2 pl-3"></th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Document</th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Tags</th>
-                        <th className="p-2 text-sm font-semibold text-gray-400">Version</th>
+                        <th className="py-2 px-1 text-sm font-semibold text-gray-400">Version</th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Upload Date</th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Size</th>
-                        <th className="p-2 text-sm font-semibold text-gray-400">Actions</th>
+                        <th className="p-2 text-sm font-semibold text-gray-400 text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -143,8 +143,10 @@ const DocumentTable: React.FC = () => {
                             <td className="py-4 px-2 text-sm font-semibold text-gray-400">{doc.size}</td>
 
                             {/* Actions */}
-                            <td className="py-4 px-2 text-sm font-semibold flex items-center align-center">
-                                <button>
+                            <td className="py-4 px-2 text-sm font-semibold flex items-center justify-center">
+                                <button
+                                    className="px-2 rounded-full hover:bg-els-secondarybuttonhover"
+                                >
                                     <FontAwesomeIcon icon={faEllipsisVertical}/>
                                 </button>
                             </td>
