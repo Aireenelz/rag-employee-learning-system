@@ -8,6 +8,7 @@ import {
     faUser,
     faGear,
     faTrophy,
+    faBars,
 } from "@fortawesome/free-solid-svg-icons";
 import UserAvatar from "./UserAvatar";
 import { user } from "../data/userData";
@@ -22,6 +23,11 @@ const AppSideBar: React.FC = () => {
 
     return (
         <div className="w-64 bg-els-primarybackground text-white flex flex-col h-screen p-5">
+            {/* Hide side bar */}
+            <button className="flex justify-end pb-5 text-white hover:text-gray-200">
+                <FontAwesomeIcon icon={faBars} />
+            </button>
+
             {/* Top Section */}
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
