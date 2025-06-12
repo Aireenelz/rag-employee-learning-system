@@ -1,3 +1,4 @@
+import { useState } from "react";
 import DocumentTable from "../components/DocumentTable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,30 +7,46 @@ import {
     faTrashCan,
     faUpload
 } from "@fortawesome/free-solid-svg-icons";
+import UploadModal from "../components/UploadModal";
+
+interface Document {
+    id: string;
+    filename: string;
+    tags: string[];
+    uploadDate: string;
+    size: string;
+}
 
 const Documents: React.FC = () => {
-    const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
+    const [documents, setDocuments] = useState<Document[]>([]);
+    const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-        if (file && file.type === "application/pdf") {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            try {
-                const response = await fetch("http://localhost:8000/api/upload", {
-                    method: "POST",
-                    body: formData,
-                });
+    // Fetch documents from  API
+    const fetchDocuments = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch("http://localhost:8000/api/documents");
+            if (response.ok) {
                 const data = await response.json();
-
-                console.log("Upload response: ", data);
-            } catch (error) {
-                console.error("Upload error: ", error);
-                alert("Upload failed. Please try again later.");
+                setDocuments(data);
+                setFilteredDocuments(data);
+            } else {
+                console.error("Failed to fetch documents");
             }
-        } else {
-            alert("Please upload a PDF file.");
+        } catch (error) {
+            console.error("Error fetching documents.", error);
+        } finally {
+            setIsLoading(false);
         }
+    }
+
+    // Refresh document list after successful upload
+    const handleUploadSuccess = () => {
+        fetchDocuments();
     };
 
     return (
@@ -39,6 +56,7 @@ const Documents: React.FC = () => {
                 Document Management
             </h1>
 
+            {/* Main */}
             <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground">
                 {/* Buttons */}
                 <div className="flex justify-end gap-2 p-3 border-b">
@@ -51,11 +69,13 @@ const Documents: React.FC = () => {
                     </button>
 
                     {/* Upload button */}
-                    <label className="flex items-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer">
+                    <button
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="flex items-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
+                    >
                         <FontAwesomeIcon icon={faUpload} className="h-3 w-3" />
                         Upload
-                        <input type="file" className="hidden" onChange={handleUpload} accept=".pdf"/>
-                    </label>
+                    </button>
                 </div>
                 
                 {/* Bar for search and filter */}
@@ -83,6 +103,13 @@ const Documents: React.FC = () => {
                     <DocumentTable/>
                 </div>
             </div>
+
+            {/* Upload Modal */}
+            <UploadModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+                onUploadSuccess={handleUploadSuccess}
+            />
         </div>
     );
 };
