@@ -4,6 +4,7 @@ import {
     faFileAlt,
     faEllipsisVertical,
     faCalendar,
+    faBookmark,
 } from "@fortawesome/free-solid-svg-icons";
 
 interface Document {
@@ -12,7 +13,7 @@ interface Document {
     tags: string[];
     uploadDate: string;
     size: string;
-};
+}
 
 interface DocumentTableProps {
     documents: Document[];
@@ -77,7 +78,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
 
     // Date formatting
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("en-US", {
+        return new Date(dateString).toLocaleDateString("en-GB", {
             day: "numeric",
             month: "numeric",
             year: "numeric"
@@ -146,7 +147,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                             <tr key={doc.id} className="border-b hover:bg-gray-50">
                                 {/* Checkbox */}
                                 <td className="py-2 pl-3">
-                                    <input
+                                    <input 
                                         type="checkbox"
                                         checked={selectedDocuments.includes(doc.id)}
                                         onChange={() => handleSelectDocument(doc.id)}
@@ -155,12 +156,42 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                                 </td>
                                 
                                 {/* Document name */}
+                                <td className="py-4 px-2 text-sm font-semibold">
+                                    <div className="flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faFileAlt} className="text-blue-400"/>
+                                        {doc.filename}
+                                        {bookmarkedDocuments.includes(doc.id) && (
+                                            <FontAwesomeIcon icon={faBookmark} className="text-yellow-500 h-3 w-3"/>
+                                        )}
+                                    </div>
+                                </td>
 
                                 {/* Tags */}
+                                <td className="py-4 px-2">
+                                    <div className="flex gap-1 flex-wrap">
+                                        {doc.tags.map((tag, i) => (
+                                            <span
+                                                key={i}
+                                                className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-0.5 rounder-full"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </td>
 
                                 {/* Upload date */}
+                                <td className="py-4 px-2 text-sm font-semibold text-gray-400">
+                                    <div className="flex items-center gap-1">
+                                        <FontAwesomeIcon icon={faCalendar}/>
+                                        {formatDate(doc.uploadDate)}
+                                    </div>
+                                </td>
 
                                 {/* Size */}
+                                <td className="py-4 px-2 text-sm font-semibold text-gray-400">
+                                    {doc.size}
+                                </td>
 
                                 {/* Actions */}
                                 
