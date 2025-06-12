@@ -47,20 +47,35 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Define request model for chat messages
+# Models
+class Message(BaseModel):
+    role: str
+    content: str
+
 class ChatRequest(BaseModel):
     message: str
 
-# Define response model for data returned by the API
 class ChatResponse(BaseModel):
     response: str
+    sources: list[str] = []
+
+class UploadRequest(BaseModel):
+    file: UploadFile
+    tags: list[str] = []
+
+class UploadResponse(BaseModel):
+    message: str
+    id: str
+
+class DeleteRequest(BaseModel):
+    id: str
 
 # Chat endpoint
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     try:
         # Call openai api to generate a chat response
-        completion = client.chat.completions.create(
+        completion = openai_client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an AI assistant for an employee learning system. Provide helpful and concise answers."},
