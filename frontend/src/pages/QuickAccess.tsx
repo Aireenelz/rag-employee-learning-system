@@ -58,7 +58,7 @@ const QuickAccess: React.FC = () => {
                 {/* Your Bookmarks | Frequently Asked Questions */}
                 <div className="mt-8 flex flex-col gap-2">
                     {/* Toggle tabs */}
-                    <div className="flex mb-1 w-full py-1 px-2 bg-els-mutedbackground rounded-lg text-sm">
+                    <div className="flex mb-1 w-full py-1 px-1 bg-els-mutedbackground rounded-lg text-sm">
                         {/* Your Bookmarks */}
                         <button
                             className={`flex-1 text-center py-1 font-semibold ${
