@@ -11,6 +11,8 @@ export default {
 					primarybackground: '#3662E3',
           secondarybackground: '#F8FAFC',
           mainpanelbackground: '#FFFFFF',
+          mutedbackground: '#E5E7EA',
+          cardheaderbackground: '#FBFBFD',
           chatuser: '#3662E3',
           chatrobot: '#F2F5F8',
           primarybutton: '#3662E3',
