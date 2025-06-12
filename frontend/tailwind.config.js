@@ -13,6 +13,7 @@ export default {
           mainpanelbackground: '#FFFFFF',
           mutedbackground: '#E5E7EA',
           cardheaderbackground: '#FBFBFD',
+          bookmarkeddocumentbackground: '#EAEFFC',
           chatuser: '#3662E3',
           chatrobot: '#F2F5F8',
           primarybutton: '#3662E3',

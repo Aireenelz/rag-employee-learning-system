@@ -54,7 +54,7 @@ const FAQs: React.FC = () => {
                 {filteredFaqs.map((faq, index) => (
                     <div
                         key={index}
-                        className="border rounded-md my-6"
+                        className="border rounded-md my-6 pb-3"
                     >
                         {/* Icon and question */}
                         <div className="bg-els-cardheaderbackground border-b py-2 px-4">
