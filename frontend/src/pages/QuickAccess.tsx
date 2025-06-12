@@ -13,7 +13,7 @@ const QuickAccess: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'bookmarks' | 'faq'>('bookmarks');
 
     return (
-        <div>
+        <div className="pb-5">
             {/* Header */}
             <h1 className="text-2xl font-bold mb-3">
                 Quick Access
