@@ -8,6 +8,30 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const Documents: React.FC = () => {
+    const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+
+        if (file && file.type === "application/pdf") {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch("http://localhost:8000/api/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+                const data = await response.json();
+
+                console.log("Upload response: ", data);
+            } catch (error) {
+                console.error("Upload error: ", error);
+                alert("Upload failed. Please try again later.");
+            }
+        } else {
+            alert("Please upload a PDF file.");
+        }
+    };
+
     return (
         <div>
             {/* Header */}
@@ -27,12 +51,11 @@ const Documents: React.FC = () => {
                     </button>
 
                     {/* Upload button */}
-                    <button
-                        className="flex items-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-5 text-white rounded-lg hover:bg-els-primarybuttonhover"
-                    >
+                    <label className="flex items-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer">
                         <FontAwesomeIcon icon={faUpload} className="h-3 w-3" />
                         Upload
-                    </button>
+                        <input type="file" className="hidden" onChange={handleUpload} accept=".pdf"/>
+                    </label>
                 </div>
                 
                 {/* Bar for search and filter */}
