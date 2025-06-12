@@ -121,7 +121,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                             className="cursor-pointer flex flex-col items-center"
                         >
                             <FontAwesomeIcon icon={faUpload} className="h-8 w-8 text-gray-400 mb-2" />
-                            <span className="text-sm text-gray-600">
+                            <span className={`text-sm text-gray-600 ${selectedFile ? "text-blue-700" : ""}`}>
                                 {selectedFile ? selectedFile.name : "Click to select PDF file"}
                             </span>
                         </label>

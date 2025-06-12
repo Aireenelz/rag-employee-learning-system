@@ -153,7 +153,12 @@ const Documents: React.FC = () => {
 
                 {/* Document table */}
                 <div className="px-3 pb-3">
-                    <DocumentTable/>
+                    <DocumentTable
+                        documents={filteredDocuments}
+                        selectedDocuments={selectedDocuments}
+                        onSelectionChange={setSelectedDocuments}
+                        isLoading={isLoading}
+                    />
                 </div>
             </div>
 

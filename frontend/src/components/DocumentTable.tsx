@@ -9,7 +9,6 @@ import {
 interface Document {
     name: string;
     tags: string[];
-    version: string;
     uploadDate: string;
     size: string;
 };
@@ -18,70 +17,60 @@ const documents: Document[] = [
     {
         name: "Employee Handbook 2023",
         tags: ["HR", "Policies", "Onboarding"],
-        version: "v1.2",
         uploadDate: "5/15/2023",
         size: "2.4 MB"
     },
     {
         name: "Product Roadmap Q2 2023",
         tags: ["Product", "Strategy"],
-        version: "v2.0",
         uploadDate: "4/1/2023",
         size: "5.7 MB"
     },
     {
         name: "Security Guidelines 2024",
         tags: ["Security", "IT"],
-        version: "v1.0",
         uploadDate: "3/12/2023",
         size: "1.2 MB"
     },
     {
         name: "Onboarding Checklist",
         tags: ["HR", "Onboarding"],
-        version: "v3.1",
         uploadDate: "2/28/2023",
         size: "0.8 MB"
     },
     {
         name: "Q1 Financial Report",
         tags: ["Finance", "Reports"],
-        version: "v1.0",
         uploadDate: "4/15/2023",
         size: "3.2 MB"
     },
     {
         name: "Employee Handbook 2023",
         tags: ["HR", "Policies"],
-        version: "v1.2",
         uploadDate: "5/15/2023",
         size: "2.4 MB"
     },
     {
         name: "Product Roadmap Q2 2023",
         tags: ["Product", "Strategy"],
-        version: "v2.0",
         uploadDate: "4/1/2023",
         size: "5.7 MB"
     },
     {
         name: "Security Guidelines 2024",
         tags: ["Security", "IT"],
-        version: "v1.0",
         uploadDate: "3/12/2023",
         size: "1.2 MB"
     },
     {
         name: "Onboarding Checklist",
         tags: ["HR", "Onboarding"],
-        version: "v3.1",
         uploadDate: "2/28/2023",
         size: "0.8 MB"
     },
     {
         name: "Q1 Financial Report",
         tags: ["Finance", "Reports"],
-        version: "v1.0",
         uploadDate: "4/15/2023",
         size: "3.2 MB"
     }
@@ -96,7 +85,6 @@ const DocumentTable: React.FC = () => {
                         <th className="py-2 pl-3"></th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Document</th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Tags</th>
-                        <th className="py-2 px-1 text-sm font-semibold text-gray-400">Version</th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Upload Date</th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Size</th>
                         <th className="p-2 text-sm font-semibold text-gray-400 text-center">Actions</th>
@@ -127,12 +115,7 @@ const DocumentTable: React.FC = () => {
                                     ))}
                                 </div>
                             </td>
-
-                            {/* Version */}
-                            <td className="py-4 px-2 text-sm font-semibold">
-                                {doc.version}
-                            </td>
-
+                            
                             {/* Upload date*/}
                             <td className="py-4 px-2 text-sm font-semibold text-gray-400 flex items-center gap-1">
                                 <FontAwesomeIcon icon={faCalendar}/>
