@@ -5,7 +5,7 @@ import {
     faComments,
     faFileAlt,
     faBookmark,
-    faUser,
+    //faUser,
     faGear,
     faTrophy,
     faBars,
