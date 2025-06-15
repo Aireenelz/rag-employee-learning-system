@@ -99,6 +99,8 @@ async def upload_document(file: UploadFile = File(...), tags: str = ""):
         file_size = len(file_content)
         
         # Store file in GridFS
+        # This creates entries in fs.files (one per uploaded file) and fs.chunks (multiple entries per file, depending on its size)
+        # The file_id returned is stored in the company_documents_collection as file_id, linking the metadata to the gridfs-stored file
         file_id = fs.put(
             file_content,
             filename=file.filename,
@@ -116,7 +118,7 @@ async def upload_document(file: UploadFile = File(...), tags: str = ""):
             "size_bytes": file_size
         }
         
-        # Insert document metadata
+        # Insert document metadata to company_documents_collection
         result = company_documents_collection.insert_one(document_data)
         
         return {
@@ -161,10 +163,6 @@ async def download_document(document_id: str):
         file_data = fs.get(document["file_id"])
         if not file_data:
             raise HTTPException(status_code=404, detail="File not found")
-        
-        # Create streaming response
-        def generate():
-            yield file_data.read()
         
         return StreamingResponse(
             io.BytesIO(file_data.read()),
