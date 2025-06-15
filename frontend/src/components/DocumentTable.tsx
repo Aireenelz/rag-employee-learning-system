@@ -173,7 +173,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                                         {doc.tags.map((tag, i) => (
                                             <span
                                                 key={i}
-                                                className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-0.5 rounder-full"
+                                                className="bg-gray-100 text-gray-800 text-xs font-semibold px-1.5 py-0.5 rounded-full"
                                             >
                                                 {tag}
                                             </span>

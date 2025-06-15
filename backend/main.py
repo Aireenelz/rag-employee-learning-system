@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -120,7 +120,7 @@ def process_and_store_document(file_content: bytes, doc_id: str, filename: str, 
 
 # Upload endpoint
 @app.post("/api/upload")
-async def upload_document(file: UploadFile = File(...), tags: str = ""):
+async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
     try:
         # Validate file type
         if not file.filename.endswith('.pdf'):
