@@ -36,7 +36,7 @@ company_documents_collection = db["company_documents"]
 # Initialise FastAPI app
 app = FastAPI()
 
-# Add CORS middleware to allow frontend requests
+# CORS middleware to allow frontend requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -61,10 +61,6 @@ class DocumentResponse(BaseModel):
 
 class DocumentDelete(BaseModel):
     document_ids: List[str]
-
-class Message(BaseModel):
-    role: str
-    content: str
 
 class ChatRequest(BaseModel):
     message: str
@@ -134,7 +130,7 @@ async def upload_document(file: UploadFile = File(...), tags: str = ""):
         print(f"Upload error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
-# Get all documents endpoint
+# Retrieve documents endpoint
 @app.get("/api/documents", response_model=List[DocumentResponse])
 async def get_documents():
     try:
