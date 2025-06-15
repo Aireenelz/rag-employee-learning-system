@@ -135,7 +135,7 @@ async def upload_document(file: UploadFile = File(...), tags: str = ""):
 async def get_documents():
     try:
         documents = []
-        for doc in company_documents_collection.find().sort("upload_date", -1):
+        for doc in company_documents_collection.find().sort("filename", 1):
             documents.append(DocumentResponse(
                 id=str(doc["_id"]),
                 filename=doc["filename"],
