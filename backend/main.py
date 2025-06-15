@@ -16,7 +16,7 @@ from datetime import datetime
 
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains import retrieval_qa
+from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 import pdfplumber
@@ -32,6 +32,11 @@ mongodb_client = MongoClient(mongodb_uri, tls=True, tlsAllowInvalidCertificates=
 db = mongodb_client["els_db"]
 fs = GridFS(db)
 company_documents_collection = db["company_documents"]
+
+# Initialise Chroma vector store
+persist_directory = "./chroma_db"
+embeddings = OpenAIEmbeddings(api_key=openai_api_key)
+chroma_client = Chroma(persist_directory=persist_directory, embedding_function=embeddings)
 
 # Initialise FastAPI app
 app = FastAPI()
@@ -80,6 +85,39 @@ def format_file_size(size_bytes: int) -> str:
         i += 1
     return f"{size_bytes:.1f} {size_names[i]}"
 
+# Function to process and store uploaded document embeddings in Chroma
+def process_and_store_document(file_content: bytes, doc_id: str, filename: str, tags_list: List[str], chroma_client: Chroma):
+    try:
+        # Extract text from PDF
+        with pdfplumber.open(io.BytesIO(file_content)) as pdf:
+            text = ""
+            for page in pdf.pages:
+                page_text = page.extract_text() or ""
+                text += page_text
+        
+        # Split text into chunks
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        chunks = text_splitter.split_text(text)
+
+        # Convert tags_list to a string for Chroma compatibility
+        tags_str = ",".join(tags_list) if tags_list else ""
+
+        # Generate metadata for each chunk
+        metadatas = [
+            {"doc_id": doc_id, "filename": filename, "tags": tags_str}
+            for _ in range(len(chunks))
+        ]
+
+        # Add texts to Chroma
+        chroma_client.add_texts(
+            texts=chunks,
+            metadatas=metadatas,
+            ids=[f"{doc_id}_{i}" for i in range(len(chunks))]
+        )
+    except Exception as e:
+        print(f"Error processing document: {str(e)}")
+        raise
+
 # Upload endpoint
 @app.post("/api/upload")
 async def upload_document(file: UploadFile = File(...), tags: str = ""):
@@ -120,7 +158,11 @@ async def upload_document(file: UploadFile = File(...), tags: str = ""):
         
         # Insert document metadata to company_documents_collection
         result = company_documents_collection.insert_one(document_data)
+        doc_id = str(result.inserted_id)
         
+        # Call function to process and store uploaded document embeddings in Chroma
+        process_and_store_document(file_content, doc_id, file.filename, tags_list, chroma_client)
+
         return {
             "message": "Document uploaded successfully",
             "document_id": str(result.inserted_id),
@@ -187,8 +229,12 @@ async def delete_documents(request: DocumentDelete):
                 # Delete file from GridFS
                 fs.delete(document["file_id"])
                 
-                # Delete document metadata
+                # Delete document metadata from company_documents collection
                 company_documents_collection.delete_one({"_id": ObjectId(doc_id)})
+                
+                # Delete from Chroma
+                chroma_client.delete(ids=[f"{doc_id}_{i}" for i in range(100)])
+
                 deleted_count += 1
         
         return {
@@ -200,23 +246,39 @@ async def delete_documents(request: DocumentDelete):
         print(f"Delete error: {str(e)}")
         raise HTTPException(status_code=500, detail="Delete failed")
 
-# Chat endpoint
+# Chat endpoint with naive RAG
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     try:
-        # Call openai api to generate a chat response
-        completion = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are an AI assistant for an employee learning system. Provide helpful and concise answers."},
-                {"role": "user", "content": request.message}
-            ],
-            max_tokens=150
+        # Initialise llm and retriever
+        llm = ChatOpenAI(api_key=openai_api_key, model="gpt-3.5-turbo", temperature=0.2)
+        retriever = chroma_client.as_retriever(search_kwargs={"k": 3}) # retrieve top 3 similar documents
+
+        # Define prompt template
+        prompt_template = """
+        You are an AI assistant for an employee learning system. Use the following context to answer the question.
+        If the context is insufficient, provide a general response based on your knowledge.
+        Context: {context}
+        Question: {question}
+        Answer:
+        """
+        prompt = PromptTemplate(input_variables=["context", "question"], template=prompt_template)
+
+        # Initialise rag chain
+        qa_chain = RetrievalQA.from_chain_type(
+            llm=llm,
+            chain_type="stuff",
+            retriever=retriever,
+            return_source_documents=True,
+            chain_type_kwargs={"prompt": prompt}
         )
 
-        # Extract the AI's response text from the openai api response
-        response_text = completion.choices[0].message.content.strip()
-        return ChatResponse(response=response_text)
+        # Get response and sources
+        result = qa_chain({"query": request.message})
+        response_text = result["result"].strip()
+        sources = [doc.metadata["doc_id"] for doc in result["source_documents"]]
+
+        return ChatResponse(response=response_text, sources=sources)
     except Exception as e:
         print(f"Error log: {str(e)}") # log for debugging
         return ChatResponse(response="Error: An issue occured. Please try again later.")
