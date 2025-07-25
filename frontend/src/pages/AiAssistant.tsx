@@ -6,7 +6,7 @@ import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 interface Message {
     role: "user" | "assistant";
     content: string;
-};
+}
 
 const AiAssistant = () => {
     const [messages, setMessages] = useState<Message[]>([
@@ -18,6 +18,7 @@ const AiAssistant = () => {
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
@@ -60,13 +61,44 @@ const AiAssistant = () => {
             ]);
         } finally {
             setIsLoading(false);
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
         }
     };
+
+    // Focus input on component mount and after messages update
+    useEffect(() => {
+        inputRef.current?.focus();
+    }, []);
 
     // Scroll to the latest message when messages or isLoading changes
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth"});
     }, [messages, isLoading]);
+
+    // Global keydown handler for auto focus
+    useEffect(() => {
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            // Focus input if user starts typing (alphabet/number)
+            if (
+                !isLoading &&
+                inputRef.current &&
+                document.activeElement !== inputRef.current &&
+                e.key.length === 1 &&
+                !e.ctrlKey &&
+                !e.altKey &&
+                !e.metaKey
+            ) {
+                inputRef.current.focus();
+                setInput(e.key);
+            }
+        };
+
+        document.addEventListener('keydown', handleGlobalKeyDown);
+        return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+
+    }, [isLoading]);
 
     return (
         <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground p-3">
@@ -118,6 +150,7 @@ const AiAssistant = () => {
             <div className="p-4 border-t">
                 <div className="flex items-center space-x-2">
                     <input
+                        ref={inputRef}
                         className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground"
                         type="text"
                         value={input}
