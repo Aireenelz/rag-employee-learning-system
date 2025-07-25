@@ -6,7 +6,7 @@ interface AvatarProps {
 
 const UserAvatar: React.FC<AvatarProps> = ({ initials }) => {
     return (
-        <div className="h-12 w-12 rounded-full bg-els-teal flex items-center justify-center text-lg font-semibold text-white">
+        <div className="h-7 w-7 rounded-full bg-els-teal flex items-center justify-center text-xs font-semibold text-white">
             {initials}
         </div>
     );

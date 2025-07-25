@@ -61,8 +61,8 @@ const QuickAccess: React.FC = () => {
                     <div className="flex mb-1 w-full py-1 px-1 bg-els-mutedbackground rounded-lg text-sm">
                         {/* Your Bookmarks */}
                         <button
-                            className={`flex-1 text-center py-1 font-semibold rounded-md ${
-                                activeTab === 'bookmarks' ? 'bg-els-secondarybackground' : 'text-gray-400'
+                            className={`flex-1 text-center py-1 font-semibold rounded-md hover:bg-els-secondarybuttonhover hover:text-gray-500 ${
+                                activeTab === 'bookmarks' ? 'bg-els-secondarybackground hover:bg-els-secondarybackground hover:text-gray-900' : 'text-gray-400'
                             }`}
                             onClick={() => setActiveTab('bookmarks')}
                         >
@@ -72,8 +72,8 @@ const QuickAccess: React.FC = () => {
 
                         {/* Frequently Asked Questions */}
                         <button
-                            className={`flex-1 text-center py-1 font-semibold rounded-md ${
-                                activeTab === 'faq' ? 'bg-els-secondarybackground' : 'text-gray-400'
+                            className={`flex-1 text-center py-1 font-semibold rounded-md hover:bg-els-secondarybuttonhover hover:text-gray-500 ${
+                                activeTab === 'faq' ? 'bg-els-secondarybackground hover:bg-els-secondarybackground hover:text-gray-900' : 'text-gray-400'
                             }`}
                             onClick={() => setActiveTab('faq')}
                         >
