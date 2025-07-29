@@ -47,7 +47,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
     };
 
     // Action to open a document
-    const handleOpenDocument = async (documentId: string, filename: string) => {
+    const handleOpenDocument = async (documentId: string) => {
         try {
             const response = await fetch(`http://localhost:8000/api/documents/${documentId}/download`);
             if (response.ok) {
@@ -213,7 +213,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                                                 <div className="py-1">
                                                     {/* Action button to open file */}
                                                     <button
-                                                        onClick={() => handleOpenDocument(doc.id, doc.filename)}
+                                                        onClick={() => handleOpenDocument(doc.id)}
                                                         className="w-full text-left px-4 py-2 text-sm font-normal hover:bg-gray-50 flex items-center gap-2"
                                                     >
                                                         <FontAwesomeIcon icon={faExternalLink} className="h-3 w-3"/>
