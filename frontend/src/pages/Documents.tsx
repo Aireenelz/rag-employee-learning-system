@@ -29,7 +29,7 @@ const Documents: React.FC = () => {
     const fetchDocuments = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch("http://localhost:8000/api/documents");
+            const response = await fetch("https://employee-learning-api.onrender.com/api/documents");
             if (response.ok) {
                 const data = await response.json();
                 setDocuments(data);
@@ -76,7 +76,7 @@ const Documents: React.FC = () => {
 
         if (confirm(`Are you sure you want to delete ${selectedDocuments.length} documents(s)?`)) {
             try {
-                const response = await fetch("http://localhost:8000/api/documents", {
+                const response = await fetch("https://employee-learning-api.onrender.com/api/documents", {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",

@@ -49,7 +49,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
     // Action to open a document
     const handleOpenDocument = async (documentId: string) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/documents/${documentId}/download`);
+            const response = await fetch(`https://employee-learning-api.onrender.com/api/documents/${documentId}/download`);
             if (response.ok) {
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);

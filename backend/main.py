@@ -44,7 +44,10 @@ app = FastAPI()
 # CORS middleware to allow frontend requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://rag-employee-learning-system.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
@@ -283,6 +286,12 @@ async def chat(request: ChatRequest):
         print(f"Error log: {str(e)}") # log for debugging
         return ChatResponse(response="Error: An issue occured. Please try again later.")
 
+@app.get("/healthcheck")
+def health_check():
+    return {"status": "Backend running"}
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import os
+    port = int(os.environ.get("PORT", 8000))  # Use environment PORT or fallback to 8000
+    uvicorn.run(app, host="0.0.0.0", port=port)
