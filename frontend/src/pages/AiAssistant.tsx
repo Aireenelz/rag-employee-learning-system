@@ -24,7 +24,7 @@ const AiAssistant = () => {
         if (!input.trim() || isLoading) return;
 
         // Add userMessage to messages array
-        const userMessage = {
+        const userMessage: Message = {
             role: "user",
             content: input
         }
