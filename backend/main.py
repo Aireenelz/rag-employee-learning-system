@@ -2,24 +2,23 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from typing import List
 import os
 from dotenv import load_dotenv
 import json
-from typing import List
 import io
+from datetime import datetime
+from bson import ObjectId
 
 from openai import OpenAI
 from pymongo import MongoClient
 from gridfs import GridFS
-from bson import ObjectId
-from datetime import datetime
-
+import pdfplumber
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-import pdfplumber
 
 # Load environment variables
 load_dotenv()
@@ -53,7 +52,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Models
+# Pydantic models
 class DocumentCreate(BaseModel):
     filename: str
     tags: List[str] = []
@@ -119,7 +118,7 @@ def process_and_store_document(file_content: bytes, doc_id: str, filename: str, 
         )
     except Exception as e:
         print(f"Error processing document: {str(e)}")
-        raise
+        raise HTTPException(status_code=500, detail=f"Error processing document: {str(e)}")
 
 # Upload endpoint
 @app.post("/api/upload")
@@ -214,7 +213,6 @@ async def download_document(document_id: str):
             media_type="application/pdf",
             headers={"Content-Disposition": f"attachment; filename={document['filename']}"}
         )
-    
     except Exception as e:
         print(f"Download error: {str(e)}")
         raise HTTPException(status_code=500, detail="Download failed")
@@ -244,7 +242,6 @@ async def delete_documents(request: DocumentDelete):
             "message": f"Successfully deleted {deleted_count} document(s)",
             "deleted_count": deleted_count
         }
-    
     except Exception as e:
         print(f"Delete error: {str(e)}")
         raise HTTPException(status_code=500, detail="Delete failed")
@@ -280,18 +277,18 @@ async def chat(request: ChatRequest):
         result = qa_chain({"query": request.message})
         response_text = result["result"].strip()
         sources = [doc.metadata["doc_id"] for doc in result["source_documents"]]
-
+        
         return ChatResponse(response=response_text, sources=sources)
     except Exception as e:
         print(f"Error log: {str(e)}") # log for debugging
         return ChatResponse(response="Error: An issue occured. Please try again later.")
 
+# Health check endpoint
 @app.get("/healthcheck")
 def health_check():
     return {"status": "Backend running"}
 
 if __name__ == "__main__":
     import uvicorn
-    import os
-    port = int(os.environ.get("PORT", 8000))  # Use environment PORT or fallback to 8000
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
