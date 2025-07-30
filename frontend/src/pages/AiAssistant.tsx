@@ -8,6 +8,8 @@ interface Message {
     content: string;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const AiAssistant = () => {
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -19,8 +21,6 @@ const AiAssistant = () => {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;

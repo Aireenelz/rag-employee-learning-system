@@ -17,6 +17,8 @@ interface Document {
     size: string;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Documents: React.FC = () => {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
@@ -26,7 +28,6 @@ const Documents: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     // Fetch documents from  API
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const fetchDocuments = async () => {
         try {
             setIsLoading(true);

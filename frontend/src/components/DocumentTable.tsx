@@ -23,11 +23,12 @@ interface DocumentTableProps {
     isLoading: boolean;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocuments, onSelectionChange, isLoading}) => {
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
     const [bookmarkedDocuments, setBookmarkedDocuments] = useState<string[]>([]);
     const menuRef = useRef<HTMLDivElement>(null);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     // Selecting all documents
     const handleSelectAll = () => {

@@ -11,11 +11,12 @@ interface UploadModalProps {
     onUploadSuccess: () => void;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSuccess }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isUploading, setIsUploading] = useState(false);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     const availableTags = ["HR", "IT", "Policies", "Operations", "Products", "Services", ];
 
