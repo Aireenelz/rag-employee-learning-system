@@ -27,6 +27,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
     const [bookmarkedDocuments, setBookmarkedDocuments] = useState<string[]>([]);
     const menuRef = useRef<HTMLDivElement>(null);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     // Selecting all documents
     const handleSelectAll = () => {
@@ -49,7 +50,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
     // Action to open a document
     const handleOpenDocument = async (documentId: string) => {
         try {
-            const response = await fetch(`https://employee-learning-api.onrender.com/api/documents/${documentId}/download`);
+            const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}/download`);
             if (response.ok) {
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);

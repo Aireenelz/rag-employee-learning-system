@@ -20,6 +20,8 @@ const AiAssistant = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
 
@@ -34,7 +36,7 @@ const AiAssistant = () => {
 
         try {
             // Send POST request to backend API to get AI response
-            const response = await fetch("https://employee-learning-api.onrender.com/api/chat", {
+            const response = await fetch(`${API_BASE_URL}/api/chat`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
                 body: JSON.stringify({ message: input}),

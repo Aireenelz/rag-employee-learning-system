@@ -15,6 +15,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isUploading, setIsUploading] = useState(false);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     const availableTags = ["HR", "IT", "Policies", "Operations", "Products", "Services", ];
 
@@ -54,7 +55,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
         formData.append("tags", JSON.stringify(selectedTags));
 
         try {
-            const response = await fetch("https://employee-learning-api.onrender.com/api/upload", {
+            const response = await fetch(`${API_BASE_URL}/api/upload`, {
                 method: "POST",
                 body: formData,
             });
