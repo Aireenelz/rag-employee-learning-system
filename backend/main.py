@@ -274,7 +274,7 @@ async def chat(request: ChatRequest):
         )
 
         # Get response and sources
-        result = qa_chain({"query": request.message})
+        result = qa_chain.invoke({"query": request.message})
         response_text = result["result"].strip()
         sources = [doc.metadata["doc_id"] for doc in result["source_documents"]]
         
