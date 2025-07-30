@@ -54,7 +54,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
         formData.append("tags", JSON.stringify(selectedTags));
 
         try {
-            const response = await fetch("https://employee-learning-api.onrender.com/api/upload", {
+            const response = await fetch("http://localhost:8000/api/upload", {
                 method: "POST",
                 body: formData,
             });
