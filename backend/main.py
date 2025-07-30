@@ -256,7 +256,7 @@ async def chat(request: ChatRequest):
 
         # Define prompt template
         prompt_template = """
-        You are an AI assistant for an employee learning system. Use the following context to answer the question.
+        You are an AI assistant for an employee learning system in THINKCODEX SDN BHD. Use the following context to answer the question.
         If the context is insufficient, provide a general response based on your knowledge.
         Context: {context}
         Question: {question}
