@@ -87,7 +87,7 @@ const Documents: React.FC = () => {
                 });
 
                 if (response.ok) {
-                    alert("Documents deleted successfully!");
+                    alert(`${selectedDocuments.length} document(s) deleted successfully!`);
                     setSelectedDocuments([]);
                     fetchDocuments();
                 } else {

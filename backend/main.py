@@ -14,16 +14,20 @@ from openai import OpenAI
 from pymongo import MongoClient
 from gridfs import GridFS
 import pdfplumber
-from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_chroma import Chroma
 
 # Load environment variables
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 mongodb_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
+chroma_api_key = os.getenv("CHROMA_API_KEY")
+chroma_tenant = os.getenv("CHROMA_TENANT")
+chroma_database = os.getenv("CHROMA_DATABASE")
+chroma_server = os.getenv("CHROMA_SERVER")
 
 # Initialise clients
 openai_client = OpenAI(api_key=openai_api_key)
@@ -32,10 +36,15 @@ db = mongodb_client["els_db"]
 fs = GridFS(db)
 company_documents_collection = db["company_documents"]
 
-# Initialise Chroma vector store
-persist_directory = "./chroma_db"
+# Initialise Chroma Cloud client
 embeddings = OpenAIEmbeddings(api_key=openai_api_key)
-chroma_client = Chroma(persist_directory=persist_directory, embedding_function=embeddings)
+chroma_client = Chroma(
+    collection_name="company_documents",
+    embedding_function=embeddings,
+    chroma_cloud_api_key=chroma_api_key,
+    tenant=chroma_tenant,
+    database=chroma_database
+)
 
 # Initialise FastAPI app
 app = FastAPI()
@@ -110,11 +119,11 @@ def process_and_store_document(file_content: bytes, doc_id: str, filename: str, 
             for _ in range(len(chunks))
         ]
 
-        # Add texts to Chroma
+        # Add texts to Chroma Cloud
         chroma_client.add_texts(
+            ids=[f"{doc_id}_{i}" for i in range(len(chunks))],
             texts=chunks,
-            metadatas=metadatas,
-            ids=[f"{doc_id}_{i}" for i in range(len(chunks))]
+            metadatas=metadatas
         )
     except Exception as e:
         print(f"Error processing document: {str(e)}")
@@ -233,7 +242,7 @@ async def delete_documents(request: DocumentDelete):
                 # Delete document metadata from company_documents collection
                 company_documents_collection.delete_one({"_id": ObjectId(doc_id)})
                 
-                # Delete from Chroma
+                # Delete from Chroma Cloud
                 chroma_client.delete(ids=[f"{doc_id}_{i}" for i in range(100)])
 
                 deleted_count += 1
@@ -252,12 +261,12 @@ async def chat(request: ChatRequest):
     try:
         # Initialise llm and retriever
         llm = ChatOpenAI(api_key=openai_api_key, model="gpt-3.5-turbo", temperature=0.2)
-        retriever = chroma_client.as_retriever(search_kwargs={"k": 3}) # retrieve top 3 similar documents
+        retriever = chroma_client.as_retriever(search_kwargs={"k":3})
 
-        # Define prompt template
+        # Prompt template
         prompt_template = """
-        You are an AI assistant for an employee learning system in THINKCODEX SDN BHD. Use the following context to answer the question.
-        If the context is insufficient, provide a general response based on your knowledge.
+        You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd. Use the following context to answer the question.
+        If the context is insufficient, provide a general response based on your knowledge or say you do not know.
         Context: {context}
         Question: {question}
         Answer:
