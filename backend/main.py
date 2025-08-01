@@ -27,7 +27,6 @@ mongodb_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
 chroma_api_key = os.getenv("CHROMA_API_KEY")
 chroma_tenant = os.getenv("CHROMA_TENANT")
 chroma_database = os.getenv("CHROMA_DATABASE")
-chroma_server = os.getenv("CHROMA_SERVER")
 
 # Initialise clients
 openai_client = OpenAI(api_key=openai_api_key)
