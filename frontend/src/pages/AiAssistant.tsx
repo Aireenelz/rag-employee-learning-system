@@ -116,10 +116,14 @@ const AiAssistant = () => {
                 {messages.map((msg, idx) => (
                     <div
                         key={idx}
-                        className={`flex items-center gap-2 py-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                        className={`flex items-start gap-2 py-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                     >
                         {/* Render robot avatar if role is assistant */}
-                        {msg.role === "assistant" && <RobotAvatar/>}
+                        {msg.role === "assistant" && (
+                            <div className="flex-shrink-0">
+                                <RobotAvatar/>
+                            </div>
+                        )}
 
                         {/* Render the message content */}
                         <div
