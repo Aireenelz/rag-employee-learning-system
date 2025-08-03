@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List
+from typing import List, Dict
 import os
 from dotenv import load_dotenv
 import json
@@ -80,9 +80,14 @@ class DocumentDelete(BaseModel):
 class ChatRequest(BaseModel):
     message: str
 
+class SourceInfo(BaseModel):
+    document_id: str
+    filename: str
+    tags: str
+
 class ChatResponse(BaseModel):
     response: str
-    sources: List[str] = []
+    sources: List[SourceInfo] = []
 
 # Helper function to format file size
 def format_file_size(size_bytes: int) -> str:
@@ -284,9 +289,28 @@ async def chat(request: ChatRequest):
         # Get response and sources
         result = qa_chain.invoke({"query": request.message})
         response_text = result["result"].strip()
-        sources = [doc.metadata["doc_id"] for doc in result["source_documents"]]
-        
-        return ChatResponse(response=response_text, sources=sources)
+
+        print(result)
+
+        # Process sources directly from metadata
+        sources_info = []
+        seen_doc_ids = set()
+
+        for doc in result["source_documents"]:
+            doc_id = doc.metadata.get("doc_id")
+            if doc_id and doc_id not in seen_doc_ids:
+                filename = doc.metadata.get("filename", "Unknown Document")
+                tags_str = doc.metadata.get("tags", "")
+                
+                sources_info.append(SourceInfo(
+                    document_id=doc_id,
+                    filename=filename,
+                    tags=tags_str
+                ))
+
+                seen_doc_ids.add(doc_id)
+
+        return ChatResponse(response=response_text, sources=sources_info)
     except Exception as e:
         print(f"Error log: {str(e)}") # log for debugging
         return ChatResponse(response="Error: An issue occured. Please try again later.")
