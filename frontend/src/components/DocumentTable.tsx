@@ -49,24 +49,10 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
     };
 
     // Action to open a document
-    const handleOpenDocument = async (documentId: string) => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}/download`);
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-
-                // Clean up the URL after a delay to ensure it's loaded
-                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-            } else {
-                alert("Failed to open document");
-            }
-        } catch (error) {
-            console.error("Open document error: ", error);
-            alert("Error opening document");
-        }
-        setOpenActionMenu(null);
+    const handleOpenDocument = (documentId: string) => {
+        const downloadUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
+        window.open(downloadUrl, '_blank');
+        setOpenActionMenu
     };
 
     // Action to bookmark a document
@@ -164,7 +150,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                                         <FontAwesomeIcon icon={faFileAlt} className="text-blue-400"/>
                                         {doc.filename}
                                         {bookmarkedDocuments.includes(doc.id) && (
-                                            <FontAwesomeIcon icon={faBookmark} className="text-yellow-500"/>
+                                            <FontAwesomeIcon icon={faBookmark} className="text-yellow-400"/>
                                         )}
                                     </div>
                                 </td>
@@ -210,7 +196,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                                         {openActionMenu === doc.id && (
                                             <div
                                                 ref={menuRef}
-                                                className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-48"
+                                                className="absolute right-0 bottom-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-48"
                                             >
                                                 <div className="py-1">
                                                     {/* Action button to open file */}

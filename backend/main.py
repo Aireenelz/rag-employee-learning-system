@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List
 import os
 from dotenv import load_dotenv
 import json
@@ -221,10 +221,25 @@ async def download_document(document_id: str):
         if not file_data:
             raise HTTPException(status_code=404, detail="File not found")
         
+        # For inline viewing (not download)
+        headers = {
+            "Content-Disposition": f"inline; filename={document['filename']}",
+            "Content-Type": "application/pdf",
+            "Cache-Control": "public, max-age=3600" # cache for 1 hour
+        }
+
+        # Stream the response
+        def generate():
+            while True:
+                chunk = file_data.read(8192) # read in 8KB chunks
+                if not chunk:
+                    break
+                yield chunk
+        
         return StreamingResponse(
-            io.BytesIO(file_data.read()),
+            generate(),
             media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename={document['filename']}"}
+            headers=headers
         )
     except Exception as e:
         print(f"Download error: {str(e)}")
@@ -290,7 +305,7 @@ async def chat(request: ChatRequest):
         result = qa_chain.invoke({"query": request.message})
         response_text = result["result"].strip()
 
-        print(result)
+        #print(result)
 
         # Process sources directly from metadata
         sources_info = []
