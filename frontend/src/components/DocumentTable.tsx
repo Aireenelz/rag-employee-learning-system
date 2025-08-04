@@ -52,7 +52,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
     const handleOpenDocument = (documentId: string) => {
         const downloadUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
         window.open(downloadUrl, '_blank');
-        setOpenActionMenu
+        setOpenActionMenu(null);
     };
 
     // Action to bookmark a document
