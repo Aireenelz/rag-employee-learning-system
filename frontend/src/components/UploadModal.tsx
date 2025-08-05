@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+    faFileAlt,
     faTimes,
     faUpload,
 } from "@fortawesome/free-solid-svg-icons";
@@ -12,22 +13,42 @@ interface UploadModalProps {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
 const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSuccess }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isUploading, setIsUploading] = useState(false);
+    const [fileError, setFileError] = useState<string>("");
 
     const availableTags = ["HR", "IT", "Policies", "Operations", "Products", "Services", ];
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file && file.type === "application/pdf") {
-            setSelectedFile(file);
-        } else {
-            alert("Please select a PDF file.");
-            event.target.value = "";
+        setFileError("");
+
+        if (!file) {
+            setSelectedFile(null);
+            return;
         }
+
+        // Validate file type
+        if (file.type !== "application/pdf") {
+            setFileError("Please select a PDF file.");
+            setSelectedFile(null);
+            event.target.value = "";
+            return;
+        }
+
+        // Validate file size
+        if (file.size > MAX_FILE_SIZE) {
+            setFileError("File size must be less that 10MB.");
+            setSelectedFile(null);
+            event.target.value = "";
+            return;
+        }
+
+        setSelectedFile(file);
     };
 
     const handleTagToggle = (tag: string) => {
@@ -46,6 +67,11 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
         
         if (selectedTags.length === 0) {
             alert("Please select at least one tag.");
+            return;
+        }
+
+        if (selectedFile.size > MAX_FILE_SIZE) {
+            alert("File size must be less than 10MB.")
             return;
         }
 
@@ -69,6 +95,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                 // Reset form
                 setSelectedFile(null);
                 setSelectedTags([]);
+                setFileError("");
                 onUploadSuccess();
                 onClose();
             } else {
@@ -86,6 +113,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
     const handleClose = () => {
         setSelectedFile(null);
         setSelectedTags([]);
+        setFileError("");
         onClose();
     };
 
@@ -108,9 +136,16 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                 {/* File upload */}
                 <div className="mb-6">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Select PDF File
+                        Select PDF File (Max 10MB)
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    <div className={`border-2 border-dashed rounded-lg p-4 text-center 
+                        ${fileError 
+                        ? 'border-red-300 bg-red-50' 
+                        : selectedFile
+                        ? 'border-blue-300 bg-blue-50'
+                        : 'border-gray-300'
+                        }
+                    `}>
                         <input
                             type="file"
                             accept=".pdf"
@@ -122,12 +157,25 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                             htmlFor="file-upload"
                             className="cursor-pointer flex flex-col items-center"
                         >
-                            <FontAwesomeIcon icon={faUpload} className="h-8 w-8 text-gray-400 mb-2" />
-                            <span className={`text-sm text-gray-600 ${selectedFile ? "text-blue-500" : ""}`}>
-                                {selectedFile ? selectedFile.name : "Click to select PDF file"}
+                            <FontAwesomeIcon 
+                                icon={fileError ? faUpload : selectedFile ? faFileAlt : faUpload} 
+                                className={`h-8 w-8 mb-2
+                                    ${fileError
+                                        ? "text-gray-400"
+                                        : selectedFile
+                                        ? "text-blue-400"
+                                        : "text-gray-400"
+                                    }    
+                                `} 
+                            />
+                            <span className="text-sm text-gray-600">
+                                {selectedFile ? `${selectedFile.name}` : "Click to select PDF file"}
                             </span>
                         </label>
                     </div>
+                    {fileError && (
+                        <p className="mt-2 text-sm text-red-600">{fileError}</p>
+                    )}
                 </div>
 
                 {/* Tags selection */}
@@ -164,7 +212,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                     {/* Upload button */}
                     <button
                         onClick={handleUpload}
-                        disabled={isUploading || !selectedFile}
+                        disabled={isUploading || !selectedFile || !!fileError}
                         className="px-4 py-2 bg-els-primarybutton text-white rounded-lg hover:bg-els-primarybuttonhover disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                         {isUploading ? "Uploading..." : "Upload"}

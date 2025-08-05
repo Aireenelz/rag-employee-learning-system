@@ -28,6 +28,8 @@ chroma_api_key = os.getenv("CHROMA_API_KEY")
 chroma_tenant = os.getenv("CHROMA_TENANT")
 chroma_database = os.getenv("CHROMA_DATABASE")
 
+MAX_FILE_SIZE = 10 * 1024 * 1024 # 10MB in bytes
+
 # Initialise clients
 openai_client = OpenAI(api_key=openai_api_key)
 mongodb_client = MongoClient(mongodb_uri, tls=True, tlsAllowInvalidCertificates=True)
@@ -150,6 +152,17 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
         # Read file content
         file_content = await file.read()
         file_size = len(file_content)
+
+        # Validate file size
+        if file_size > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File too large. Maximum size allowed is {MAX_FILE_SIZE // (1024*1024)}MB."
+            )
+        
+        # Validate file is not empty
+        if file_size == 0:
+            raise HTTPException(status_code=400, detail="File is empty.")
         
         # Store file in GridFS
         # This creates entries in fs.files (one per uploaded file) and fs.chunks (multiple entries per file, depending on its size)
@@ -176,7 +189,13 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
         doc_id = str(result.inserted_id)
         
         # Call function to process and store uploaded document embeddings in Chroma
-        process_and_store_document(file_content, doc_id, file.filename, tags_list, chroma_client)
+        try:
+            process_and_store_document(file_content, doc_id, file.filename, tags_list, chroma_client)
+        except Exception as e:
+            # If embedding fails, clean up Mongodb entries
+            company_documents_collection.delete_one({"_id": result.inserted_id})
+            fs.delete(file_id)
+            raise HTTPException(status_code=500, detail=f"Failed to process document: {str(e)}")
 
         return {
             "message": "Document uploaded successfully",
