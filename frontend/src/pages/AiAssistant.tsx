@@ -1,11 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import RobotAvatar from "../components/RobotAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { faFileText, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+
+interface SourceInfo {
+    document_id: string;
+    filename: string;
+    tags: string;
+}
 
 interface Message {
     role: "user" | "assistant";
     content: string;
+    sources?: SourceInfo[];
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -50,7 +57,8 @@ const AiAssistant = () => {
                 ...prev,
                 {
                     role: "assistant",
-                    content: data.response
+                    content: data.response,
+                    sources: data.sources || []
                 }
             ]);
         } catch (error) {
@@ -134,6 +142,25 @@ const AiAssistant = () => {
                             }`}
                         >
                             {msg.content}
+                            {msg.role === "assistant" && msg.sources && msg.sources.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-1 max-w-md">
+                                    <span className="text-xs text-gray-600 mr-1">
+                                        Sources:
+                                    </span>
+                                    {msg.sources.map((source, sourceIdx) => (
+                                        <div
+                                            key={sourceIdx}
+                                            className="inline-flex items-center gap-1 px-2 py-1 bg-els-secondarybutton text-blue-800 text-xs rounded-full border border-blue-200 hover:bg-els-secondarybuttonhover transition-colors cursor-pointer"
+                                            title={`Source: ${source.filename}\nTags: ${source.tags}`}
+                                        >
+                                            <FontAwesomeIcon icon={faFileText} className="w-3 h-3" />
+                                            <span className="truncate max-w-24">
+                                                {source.filename}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}

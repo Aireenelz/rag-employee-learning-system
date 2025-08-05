@@ -27,7 +27,8 @@ mongodb_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
 chroma_api_key = os.getenv("CHROMA_API_KEY")
 chroma_tenant = os.getenv("CHROMA_TENANT")
 chroma_database = os.getenv("CHROMA_DATABASE")
-chroma_server = os.getenv("CHROMA_SERVER")
+
+MAX_FILE_SIZE = 10 * 1024 * 1024 # 10MB in bytes
 
 # Initialise clients
 openai_client = OpenAI(api_key=openai_api_key)
@@ -81,9 +82,14 @@ class DocumentDelete(BaseModel):
 class ChatRequest(BaseModel):
     message: str
 
+class SourceInfo(BaseModel):
+    document_id: str
+    filename: str
+    tags: str
+
 class ChatResponse(BaseModel):
     response: str
-    sources: List[str] = []
+    sources: List[SourceInfo] = []
 
 # Helper function to format file size
 def format_file_size(size_bytes: int) -> str:
@@ -146,6 +152,17 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
         # Read file content
         file_content = await file.read()
         file_size = len(file_content)
+
+        # Validate file size
+        if file_size > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File too large. Maximum size allowed is {MAX_FILE_SIZE // (1024*1024)}MB."
+            )
+        
+        # Validate file is not empty
+        if file_size == 0:
+            raise HTTPException(status_code=400, detail="File is empty.")
         
         # Store file in GridFS
         # This creates entries in fs.files (one per uploaded file) and fs.chunks (multiple entries per file, depending on its size)
@@ -172,7 +189,13 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
         doc_id = str(result.inserted_id)
         
         # Call function to process and store uploaded document embeddings in Chroma
-        process_and_store_document(file_content, doc_id, file.filename, tags_list, chroma_client)
+        try:
+            process_and_store_document(file_content, doc_id, file.filename, tags_list, chroma_client)
+        except Exception as e:
+            # If embedding fails, clean up Mongodb entries
+            company_documents_collection.delete_one({"_id": result.inserted_id})
+            fs.delete(file_id)
+            raise HTTPException(status_code=500, detail=f"Failed to process document: {str(e)}")
 
         return {
             "message": "Document uploaded successfully",
@@ -217,10 +240,25 @@ async def download_document(document_id: str):
         if not file_data:
             raise HTTPException(status_code=404, detail="File not found")
         
+        # For inline viewing (not download)
+        headers = {
+            "Content-Disposition": f"inline; filename={document['filename']}",
+            "Content-Type": "application/pdf",
+            "Cache-Control": "public, max-age=3600" # cache for 1 hour
+        }
+
+        # Stream the response
+        def generate():
+            while True:
+                chunk = file_data.read(8192) # read in 8KB chunks
+                if not chunk:
+                    break
+                yield chunk
+        
         return StreamingResponse(
-            io.BytesIO(file_data.read()),
+            generate(),
             media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename={document['filename']}"}
+            headers=headers
         )
     except Exception as e:
         print(f"Download error: {str(e)}")
@@ -285,9 +323,28 @@ async def chat(request: ChatRequest):
         # Get response and sources
         result = qa_chain.invoke({"query": request.message})
         response_text = result["result"].strip()
-        sources = [doc.metadata["doc_id"] for doc in result["source_documents"]]
-        
-        return ChatResponse(response=response_text, sources=sources)
+
+        #print(result)
+
+        # Process sources directly from metadata
+        sources_info = []
+        seen_doc_ids = set()
+
+        for doc in result["source_documents"]:
+            doc_id = doc.metadata.get("doc_id")
+            if doc_id and doc_id not in seen_doc_ids:
+                filename = doc.metadata.get("filename", "Unknown Document")
+                tags_str = doc.metadata.get("tags", "")
+                
+                sources_info.append(SourceInfo(
+                    document_id=doc_id,
+                    filename=filename,
+                    tags=tags_str
+                ))
+
+                seen_doc_ids.add(doc_id)
+
+        return ChatResponse(response=response_text, sources=sources_info)
     except Exception as e:
         print(f"Error log: {str(e)}") # log for debugging
         return ChatResponse(response="Error: An issue occured. Please try again later.")
