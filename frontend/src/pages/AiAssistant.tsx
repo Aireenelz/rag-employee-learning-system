@@ -77,6 +77,17 @@ const AiAssistant = () => {
         }
     };
 
+    // Open document in new tab
+    const handleDocumentClick = (documentId: string) => {
+        try {
+            const documentUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
+            window.open(documentUrl, '_blank');
+        } catch (error) {
+            console.error("Error opening document:", error);
+            alert("Error opening document. Please try again later.");
+        }
+    };
+
     // Focus input on component mount and after messages update
     useEffect(() => {
         inputRef.current?.focus();
@@ -151,7 +162,8 @@ const AiAssistant = () => {
                                         <div
                                             key={sourceIdx}
                                             className="inline-flex items-center gap-1 px-2 py-1 bg-els-secondarybutton text-blue-800 text-xs rounded-full border border-blue-200 hover:bg-els-secondarybuttonhover transition-colors cursor-pointer"
-                                            title={`Source: ${source.filename}\nTags: ${source.tags}`}
+                                            title={`Click to open in new tab ↗\nSource: ${source.filename}\nTags: ${source.tags}`}
+                                            onClick={() => handleDocumentClick(source.document_id)}
                                         >
                                             <FontAwesomeIcon icon={faFileText} className="w-3 h-3" />
                                             <span className="truncate max-w-24">

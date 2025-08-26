@@ -230,12 +230,12 @@ async def get_documents():
 @app.get("/api/documents/{document_id}/download")
 async def download_document(document_id: str):
     try:
-        # Find document metadata
+        # Find document metadata in MongoDB
         document = company_documents_collection.find_one({"_id": ObjectId(document_id)})
         if not document:
             raise HTTPException(status_code=404, detail="Document not found")
         
-        # Get file from GridFS
+        # Get the actual binary PDF file from GridFS using file_id
         file_data = fs.get(document["file_id"])
         if not file_data:
             raise HTTPException(status_code=404, detail="File not found")
@@ -247,7 +247,7 @@ async def download_document(document_id: str):
             "Cache-Control": "public, max-age=3600" # cache for 1 hour
         }
 
-        # Stream the response
+        # Stream the binary data to browser
         def generate():
             while True:
                 chunk = file_data.read(8192) # read in 8KB chunks
