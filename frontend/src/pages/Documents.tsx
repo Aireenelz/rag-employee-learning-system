@@ -71,7 +71,7 @@ const Documents: React.FC = () => {
         // Filter by selected tags
         if (selectedTags.length > 0) {
             filtered = filtered.filter(doc =>
-                selectedTags.every(selectedTag =>
+                selectedTags.some(selectedTag =>
                     doc.tags.includes(selectedTag)
                 )
             );
