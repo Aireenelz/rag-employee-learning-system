@@ -77,15 +77,10 @@ const AiAssistant = () => {
         }
     };
 
-    // Open document in new tab
-    const handleDocumentClick = async (documentId: string) => {
-        try {
-            const documentUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
-            window.open(documentUrl, '_blank');
-        } catch (error) {
-            console.error("Error opening document:", error);
-            alert("Error opening document. Please try again later.");
-        }
+    // Open source document in new tab
+    const handleDocumentClick = (documentId: string) => {
+        const documentUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
+        window.open(documentUrl, '_blank');
     };
 
     // Focus input on component mount and after messages update
