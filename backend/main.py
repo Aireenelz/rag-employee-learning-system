@@ -281,7 +281,13 @@ async def delete_documents(request: DocumentDelete):
                 company_documents_collection.delete_one({"_id": ObjectId(doc_id)})
                 
                 # Delete from Chroma Cloud
-                chroma_client.delete(ids=[f"{doc_id}_{i}" for i in range(100)])
+                try:
+                    # Get all chunk IDs for this document
+                    results = chroma_client.get(where={"doc_id": doc_id})
+                    if results and results['ids']:
+                        chroma_client.delete(ids=results['ids'])
+                except Exception as e:
+                    print(f"Error deleting from Chroma: {e}")
 
                 deleted_count += 1
         
