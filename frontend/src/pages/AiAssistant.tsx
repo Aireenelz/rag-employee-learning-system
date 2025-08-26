@@ -78,7 +78,7 @@ const AiAssistant = () => {
     };
 
     // Open document in new tab
-    const handleDocumentClick = (documentId: string) => {
+    const handleDocumentClick = async (documentId: string) => {
         try {
             const documentUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
             window.open(documentUrl, '_blank');
