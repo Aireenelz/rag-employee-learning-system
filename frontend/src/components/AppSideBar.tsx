@@ -7,6 +7,7 @@ import {
     faBookmark,
     faUser,
     faGear,
+    faSignOut,
     faTrophy,
     faBars,
 } from "@fortawesome/free-solid-svg-icons";
@@ -28,14 +29,16 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
 
     if (isOpen) {
         return (
-            <div className="w-64 bg-els-primarybackground text-white flex flex-col h-screen p-5 transition-all duration-300 ease-in-out">
+            <div className="w-64 bg-els-primarybackground text-white flex flex-col h-screen p-4 transition-all duration-300 ease-in-out">
                 {/* Toggle button */}
-                <button 
-                    onClick={onToggle}
-                    className="flex justify-start pb-5 text-white hover:text-gray-200"
-                >
-                    <FontAwesomeIcon icon={faBars} />
-                </button>
+                <div className="h-10 flex items-center justify-start mb-3">
+                    <button 
+                        onClick={onToggle}
+                        className="w-6 h-6 flex items-center justify-center text-white hover:text-gray-200"
+                    >
+                        <FontAwesomeIcon icon={faBars} />
+                    </button>
+                </div>
 
                 {/* Top Section */}
                 <div className="flex items-start justify-between">
@@ -72,7 +75,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                 </div>
 
                 {/* Navigation */}
-                <div className="mt-10">
+                <div className="mt-10 flex-1">
                     <h4 className="text-sm text-white/70 mb-3">Navigation</h4>
                     <nav className="flex flex-col gap-3">
                         {navItems.map((item) => (
@@ -93,19 +96,32 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                         ))}
                     </nav>
                 </div>
+
+                {/* Sign out */}
+                <div className="mt-auto mb-4">
+                    <button
+                        onClick={() => alert("Log out: under construction")}
+                        className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-white w-full hover:bg-white/10"
+                    >
+                        <FontAwesomeIcon icon={faSignOut} className="h-4 w-4"/>
+                        <span>Sign out</span>
+                    </button>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="w-12 bg-els-primarybackground text-white flex flex-col h-screen py-5 transition-all duration-300 ease-in-out">
+        <div className="w-12 bg-els-primarybackground text-white flex flex-col h-screen py-4 transition-all duration-300 ease-in-out">
             {/* Toggle button */}
-            <button
-                onClick={onToggle}
-                className="flex justify-center pb-5 text-white hover:text-gray-200"
-            >
-                <FontAwesomeIcon icon={faBars} />
-            </button>
+            <div className="h-10 flex items-center justify-center mb-3">
+                <button 
+                    onClick={onToggle}
+                    className="w-6 h-6 flex items-center justify-center text-white hover:text-gray-200"
+                >
+                    <FontAwesomeIcon icon={faBars} />
+                </button>
+            </div>
 
             {/* User avatar */}
             <div className="flex justify-center mb-6">

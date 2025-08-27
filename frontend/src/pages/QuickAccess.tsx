@@ -1,7 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBookmark,
-    faClock,
     faList,
     faSearch,
 } from "@fortawesome/free-solid-svg-icons";
