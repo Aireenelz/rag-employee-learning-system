@@ -55,7 +55,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://rag-employee-learning-system.vercel.app"
+        "https://employee-learning-system.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
