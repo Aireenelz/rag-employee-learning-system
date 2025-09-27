@@ -1,7 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBookmark,
-    faClock,
     faList,
     faSearch,
 } from "@fortawesome/free-solid-svg-icons";
@@ -37,32 +36,14 @@ const QuickAccess: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Recent searches */}
-                <div className="mt-8 flex flex-col gap-2">
-                    <h2 className="text-sm font-semibold flex items-center gap-2 px-1">
-                        <FontAwesomeIcon icon={faClock} className="h-4 w-4"/>
-                        Recent Searches
-                    </h2>
-                    <div className="flex flex-wrap gap-2">
-                        {['vacation policy', 'expense report', 'health insurance'].map((term, idx) => (
-                            <span
-                                key={idx}
-                                className="bg-els-secondarybackground text-xs font-semibold px-3 py-1 rounded-lg text-gray-700 border"
-                            >
-                                {term}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-
                 {/* Your Bookmarks | Frequently Asked Questions */}
                 <div className="mt-8 flex flex-col gap-2">
                     {/* Toggle tabs */}
-                    <div className="flex mb-1 w-full py-1 px-1 bg-els-mutedbackground rounded-lg text-sm">
+                    <div className="flex mb-1 w-full py-1 px-1 bg-els-mutedbackground rounded-lg text-sm gap-1">
                         {/* Your Bookmarks */}
                         <button
-                            className={`flex-1 text-center py-1 font-semibold rounded-md hover:bg-els-secondarybuttonhover hover:text-gray-500 ${
-                                activeTab === 'bookmarks' ? 'bg-els-secondarybackground hover:bg-els-secondarybackground hover:text-gray-900' : 'text-gray-400'
+                            className={`flex-1 text-center py-1 font-semibold rounded-md hover:bg-slate-100 hover:text-gray-500 ${
+                                activeTab === 'bookmarks' ? 'bg-els-secondarybackground hover:text-gray-900' : 'text-gray-400'
                             }`}
                             onClick={() => setActiveTab('bookmarks')}
                         >
@@ -72,8 +53,8 @@ const QuickAccess: React.FC = () => {
 
                         {/* Frequently Asked Questions */}
                         <button
-                            className={`flex-1 text-center py-1 font-semibold rounded-md hover:bg-els-secondarybuttonhover hover:text-gray-500 ${
-                                activeTab === 'faq' ? 'bg-els-secondarybackground hover:bg-els-secondarybackground hover:text-gray-900' : 'text-gray-400'
+                            className={`flex-1 text-center py-1 font-semibold rounded-md hover:bg-slate-100 hover:text-gray-500 ${
+                                activeTab === 'faq' ? 'bg-els-secondarybackground hover:text-gray-900' : 'text-gray-400'
                             }`}
                             onClick={() => setActiveTab('faq')}
                         >
