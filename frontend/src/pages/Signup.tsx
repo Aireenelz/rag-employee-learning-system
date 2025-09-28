@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faEnvelope,
@@ -25,17 +25,29 @@ const Signup: React.FC = () => {
         email: "",
         password: "",
         confirmPassword: "",
-        role: "partner"
+        role: "partner" // Default role
     });
 
-    // Function to determine role based on email domain (internal employee or partner)
+    // Function to determine role based on email
     const determineRole = (email: string): string => {
+        const adminEmails = [
+            "aaron.leong@thinkcodex.com",
+            "kerry.wong@thinkcodex.com",
+            "u2100667@siswa.um.edu.my"
+        ];
+        
+        if (adminEmails.includes(email.toLowerCase())) {
+            return "admin";
+        }
+        
         if (email.includes("@thinkcodex.com")) {
             return "internal-employee";
         }
+        
         return "partner";
     };
 
+    // Update role whenever email changes
     useEffect(() => {
         if (formData.email) {
             const newRole = determineRole(formData.email);
@@ -199,4 +211,4 @@ const Signup: React.FC = () => {
     );
 };
 
-export default Signup
+export default Signup;
