@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faComments,
@@ -20,12 +20,19 @@ interface AppSideBarProps {
 }
 
 const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
+    const navigate = useNavigate();
+    
     const navItems = [
         { label: "AI Assistant", icon: faComments, to: "/" },
         { label: "Documents", icon: faFileAlt, to: "/documents" },
         { label: "Quick Access", icon: faBookmark, to: "/quickaccess" },
         { label: "Profile & Achievements", icon: faUser, to: "/profile" },
     ];
+
+    const handleSignOut = () => {
+        console.log("User signed out")
+        navigate("/login");
+    };
 
     if (isOpen) {
         return (
@@ -100,7 +107,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                 {/* Sign out */}
                 <div className="mt-auto mb-4">
                     <button
-                        onClick={() => alert("Log out: under construction")}
+                        onClick={handleSignOut}
                         className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-white w-full hover:bg-white/10"
                     >
                         <FontAwesomeIcon icon={faSignOut} className="h-4 w-4"/>
