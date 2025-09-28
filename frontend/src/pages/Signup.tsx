@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faEnvelope,
@@ -25,8 +25,27 @@ const Signup: React.FC = () => {
         email: "",
         password: "",
         confirmPassword: "",
-        role: "user"
+        role: "partner"
     });
+
+    // Function to determine role based on email domain (internal employee or partner)
+    const determineRole = (email: string): string => {
+        if (email.includes("@thinkcodex.com")) {
+            return "internal-employee";
+        }
+        return "partner";
+    };
+
+    useEffect(() => {
+        if (formData.email) {
+            const newRole = determineRole(formData.email);
+            setFormData(prev => ({
+                ...prev,
+                role: newRole
+            }));
+            console.log("Role: ", newRole);
+        }
+    }, [formData.email]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -71,7 +90,7 @@ const Signup: React.FC = () => {
                     {/* FirstName and LastName */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium test-gray-700 mb-1">First Name</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                             <input
                                 type="text"
                                 name="firstName"
@@ -83,7 +102,7 @@ const Signup: React.FC = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium test-gray-700 mb-1">Last Name</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                             <input
                                 type="text"
                                 name="lastName"
@@ -98,7 +117,7 @@ const Signup: React.FC = () => {
 
                     {/* Email */}
                     <div>
-                        <label className="block text-sm font-medium test-gray-700 mb-1">Email Address</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                         <div className="relative">
                             <FontAwesomeIcon icon={faEnvelope} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                             <input
