@@ -5,7 +5,6 @@ import {
     faEye,
     faEyeSlash,
     faLock,
-    faUser,
 } from "@fortawesome/free-solid-svg-icons";
 
 const Login: React.FC = () => {
@@ -16,8 +15,9 @@ const Login: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        
         console.log("Login attempt: ", {email, password, rememberMe});
-        alert("Login button under construction")
+        alert("Login button 🚧 under construction 🚧")
     };
 
     return (
@@ -25,8 +25,12 @@ const Login: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <div className="w-12 h-12 bg-els-primarybackground rounded-full flex items-center justify-center mx-auto mb-4">
-                        <FontAwesomeIcon icon={faUser} className="text-white text-xl" />
+                    <div className="w-40 mx-auto mb-4 flex items-center justify-center">
+                        <img
+                            src="/logo_questio.png"
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                        />
                     </div>
                     <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome back</h1>
                     <p className="text-gray-600">Log in to your account</p>
