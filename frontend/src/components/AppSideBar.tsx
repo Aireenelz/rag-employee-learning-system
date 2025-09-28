@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,6 +12,7 @@ import {
     faBars,
 } from "@fortawesome/free-solid-svg-icons";
 import UserAvatar from "./UserAvatar";
+import SignOutConfirmationModal from "./SignOutConfirmationModal";
 import { user } from "../data/userData";
 
 interface AppSideBarProps {
@@ -20,8 +21,6 @@ interface AppSideBarProps {
 }
 
 const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
-    const navigate = useNavigate();
-    
     const navItems = [
         { label: "AI Assistant", icon: faComments, to: "/" },
         { label: "Documents", icon: faFileAlt, to: "/documents" },
@@ -29,92 +28,113 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
         { label: "Profile & Achievements", icon: faUser, to: "/profile" },
     ];
 
-    const handleSignOut = () => {
+    const navigate = useNavigate();
+    const [showSignOutConfirmation, setShowSignOutConfirmation] = useState(false);
+
+    const handleSignOutClick = () => {
+        setShowSignOutConfirmation(true);
+    };
+    
+    const handleConfirmSignOut = () => {
         console.log("User signed out")
+        setShowSignOutConfirmation(false);
         navigate("/login");
+    };
+
+    const handleCancelSignOut = () => {
+        setShowSignOutConfirmation(false);
     };
 
     if (isOpen) {
         return (
-            <div className="w-64 bg-els-primarybackground text-white flex flex-col h-screen p-4 transition-all duration-300 ease-in-out">
-                {/* Toggle button */}
-                <div className="h-10 flex items-center justify-start mb-3">
-                    <button 
-                        onClick={onToggle}
-                        className="w-6 h-6 flex items-center justify-center text-white hover:text-gray-200"
-                    >
-                        <FontAwesomeIcon icon={faBars} />
-                    </button>
-                </div>
+            <>
+                <div className="w-64 bg-els-primarybackground text-white flex flex-col h-screen p-4 transition-all duration-300 ease-in-out">
+                    {/* Toggle button */}
+                    <div className="h-10 flex items-center justify-start mb-3">
+                        <button 
+                            onClick={onToggle}
+                            className="w-6 h-6 flex items-center justify-center text-white hover:text-gray-200"
+                        >
+                            <FontAwesomeIcon icon={faBars} />
+                        </button>
+                    </div>
 
-                {/* Top Section */}
-                <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                        <UserAvatar initials={user.initials} />
-                        <div>
-                            <div className="text-sm font-semibold">{user.name}</div>
-                            <div className="text-xs text-white/70">{user.role}</div>
+                    {/* Top Section */}
+                    <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                            <UserAvatar initials={user.initials} />
+                            <div>
+                                <div className="text-sm font-semibold">{user.name}</div>
+                                <div className="text-xs text-white/70">{user.role}</div>
+                            </div>
+                        </div>
+                        <button className="text-white hover:text-gray-200">
+                            <FontAwesomeIcon icon={faGear} />
+                        </button>
+                    </div>
+
+                    {/* User Stats */}
+                    <div className="mt-6">
+                        <div className="flex justify-between text-sm">
+                            <span>Level {user.level}</span>
+                            <span>
+                                {user.xp}/{user.maxXp} XP
+                            </span>
+                        </div>
+                        <div className="w-full h-2 bg-white/30 mt-1 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-white/90"
+                                style={{ width: `${(user.xp / user.maxXp) * 100}%` }}
+                            />
+                        </div>
+                        <div className="mt-2 text-sm text-white/80 flex items-center gap-2">
+                            <FontAwesomeIcon icon={faTrophy} className="h-3 w-3" />
+                            <span>{user.badgeCount} badges earned</span>
                         </div>
                     </div>
-                    <button className="text-white hover:text-gray-200">
-                        <FontAwesomeIcon icon={faGear} />
-                    </button>
+
+                    {/* Navigation */}
+                    <div className="mt-10 flex-1">
+                        <h4 className="text-sm text-white/70 mb-3">Navigation</h4>
+                        <nav className="flex flex-col gap-3">
+                            {navItems.map((item) => (
+                                <NavLink
+                                    to={item.to}
+                                    key={item.label}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm ${
+                                        isActive
+                                            ? "bg-white/20 font-medium"
+                                            : "hover:bg-white/10 text-white/90"
+                                        }`
+                                    }
+                                    >
+                                    <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
+                                    <span>{item.label}</span>
+                                </NavLink>
+                            ))}
+                        </nav>
+                    </div>
+
+                    {/* Sign out */}
+                    <div className="mt-auto mb-4">
+                        <button
+                            onClick={handleSignOutClick}
+                            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-white w-full hover:bg-white/10"
+                        >
+                            <FontAwesomeIcon icon={faSignOut} className="h-4 w-4"/>
+                            <span>Sign out</span>
+                        </button>
+                    </div>
                 </div>
 
-                {/* User Stats */}
-                <div className="mt-6">
-                    <div className="flex justify-between text-sm">
-                        <span>Level {user.level}</span>
-                        <span>
-                            {user.xp}/{user.maxXp} XP
-                        </span>
-                    </div>
-                    <div className="w-full h-2 bg-white/30 mt-1 rounded-full overflow-hidden">
-                        <div
-                            className="h-full bg-white/90"
-                            style={{ width: `${(user.xp / user.maxXp) * 100}%` }}
-                        />
-                    </div>
-                    <div className="mt-2 text-sm text-white/80 flex items-center gap-2">
-                        <FontAwesomeIcon icon={faTrophy} className="h-3 w-3" />
-                        <span>{user.badgeCount} badges earned</span>
-                    </div>
-                </div>
-
-                {/* Navigation */}
-                <div className="mt-10 flex-1">
-                    <h4 className="text-sm text-white/70 mb-3">Navigation</h4>
-                    <nav className="flex flex-col gap-3">
-                        {navItems.map((item) => (
-                            <NavLink
-                                to={item.to}
-                                key={item.label}
-                                className={({ isActive }) =>
-                                    `flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm ${
-                                    isActive
-                                        ? "bg-white/20 font-medium"
-                                        : "hover:bg-white/10 text-white/90"
-                                    }`
-                                }
-                                >
-                                <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
-                                <span>{item.label}</span>
-                            </NavLink>
-                        ))}
-                    </nav>
-                </div>
-
-                {/* Sign out */}
-                <div className="mt-auto mb-4">
-                    <button
-                        onClick={handleSignOut}
-                        className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-white w-full hover:bg-white/10"
-                    >
-                        <FontAwesomeIcon icon={faSignOut} className="h-4 w-4"/>
-                        <span>Sign out</span>
-                    </button>
-                </div>
-            </div>
+                {/* Sign out confirmation modal */}
+                <SignOutConfirmationModal
+                    isOpen={showSignOutConfirmation}
+                    onConfirm={handleConfirmSignOut}
+                    onCancel={handleCancelSignOut}
+                />
+            </>
         );
     }
 
