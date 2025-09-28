@@ -25,7 +25,7 @@ const Signup: React.FC = () => {
         email: "",
         password: "",
         confirmPassword: "",
-        role: ""
+        role: "user"
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -111,23 +111,6 @@ const Signup: React.FC = () => {
                                 required
                             />
                         </div>
-                    </div>
-
-                    {/* Role */}
-                    <div>
-                        <label className="block text-sm font-medium test-gray-700 mb-1">Role</label>
-                        <select
-                            name="role"
-                            value={formData.role}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-els-primarybackground focus:border-transparent outline-none transition-all"
-                            required
-                        >
-                            <option value="">Select your role</option>
-                            <option value="admin">Admin</option>
-                            <option value="internal-employee">Internal Employee</option>
-                            <option value="partner">Partner</option>
-                        </select>
                     </div>
                     
                     {/* Password */}
