@@ -30,16 +30,6 @@ const Signup: React.FC = () => {
 
     // Function to determine role based on email
     const determineRole = (email: string): string => {
-        const adminEmails = [
-            "aaron.leong@thinkcodex.com",
-            "kerry.wong@thinkcodex.com",
-            "u2100667@siswa.um.edu.my"
-        ];
-        
-        if (adminEmails.includes(email.toLowerCase())) {
-            return "admin";
-        }
-        
         if (email.includes("@thinkcodex.com")) {
             return "internal-employee";
         }
