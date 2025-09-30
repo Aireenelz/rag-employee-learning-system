@@ -19,10 +19,12 @@ export default {
           primarybutton: '#3662E3',
           secondarybutton: '#F8FAFC',
           deletebutton: '#FCF1F1',
+          redbutton: '#E53E3E',
           primarybuttonhover: '#5679e5ff',
           primarybuttonhoverdark: '#3351aaff',
           secondarybuttonhover: '#E0E6EA',
-          deletebuttonhover: '#CC0000',
+          deletebuttonhover: '#C52B2B',
+          redbuttonhover: '#C52B2B',
 					teal: '#5CD6C0',
 				}
       }
