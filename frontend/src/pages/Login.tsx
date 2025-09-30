@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faEnvelope,
@@ -105,7 +106,7 @@ const Login: React.FC = () => {
                 {/* Sign up if no account */}
                 <p className="text-center text-gray-600 mt-10">
                     Don't have an account?{' '}
-                    <a href="/signup" className="text-blue-700 hover:underline font-medium">Sign Up</a>
+                    <Link to="/signup" className="text-blue-700 hover:underline font-medium">Sign Up</Link>
                 </p>
             </div>
         </div>
