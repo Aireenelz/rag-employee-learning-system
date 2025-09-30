@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faEnvelope,
@@ -194,7 +195,7 @@ const Signup: React.FC = () => {
                 {/* Login if already have account */}
                 <p className="text-center text-gray-600 mt-10">
                     Already have an account?{' '}
-                    <a href="/login" className="text-blue-700 hover:underline font-medium">Log In</a>
+                    <Link to="/login" className="text-blue-700 hover:underline font-medium">Log In</Link>
                 </p>
             </div>
         </div>
