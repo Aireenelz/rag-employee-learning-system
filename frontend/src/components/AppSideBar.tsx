@@ -13,7 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import UserAvatar from "./UserAvatar";
 import SignOutConfirmationModal from "./SignOutConfirmationModal";
-import { user } from "../data/userData";
+import { useAuth } from "../context/AuthContext";
 
 interface AppSideBarProps {
     isOpen: boolean;
@@ -30,13 +30,36 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
 
     const navigate = useNavigate();
     const [showSignOutConfirmation, setShowSignOutConfirmation] = useState(false);
+    const { signOut, user, profile } = useAuth();
+
+    // Get user initials
+    const getUserInitials = () => {
+        if (profile?.first_name && profile?.last_name) {
+            return (profile.first_name[0] + profile.last_name[0]).toUpperCase();
+        }
+        return "U";
+    };
+
+    // Get user display name
+    const getUserDisplayName = () => {
+        if (profile?.first_name && profile?.last_name) {
+            return `${profile.first_name} ${profile.last_name}`;
+        }
+        return user?.email || "User";
+    };
+
+    // Get user role
+    const getUserRole = () => {
+        if (!profile?.role) return "User";
+        return profile.role === "internal-employee" ? "Internal Employee" : "Partner";
+    };
 
     const handleSignOutClick = () => {
         setShowSignOutConfirmation(true);
     };
     
-    const handleConfirmSignOut = () => {
-        console.log("User signed out")
+    const handleConfirmSignOut = async () => {
+        await signOut();
         setShowSignOutConfirmation(false);
         navigate("/login");
     };
@@ -62,10 +85,10 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                     {/* Top Section */}
                     <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                            <UserAvatar initials={user.initials} />
+                            <UserAvatar initials={getUserInitials()} />
                             <div>
-                                <div className="text-sm font-semibold">{user.name}</div>
-                                <div className="text-xs text-white/70">{user.role}</div>
+                                <div className="text-sm font-semibold">{getUserDisplayName()}</div>
+                                <div className="text-xs text-white/70">{getUserRole()}</div>
                             </div>
                         </div>
                         <button className="text-white hover:text-gray-200">
@@ -76,20 +99,20 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                     {/* User Stats */}
                     <div className="mt-6">
                         <div className="flex justify-between text-sm">
-                            <span>Level {user.level}</span>
+                            <span>Level 1</span>
                             <span>
-                                {user.xp}/{user.maxXp} XP
+                                10/500 XP
                             </span>
                         </div>
                         <div className="w-full h-2 bg-white/30 mt-1 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-white/90"
-                                style={{ width: `${(user.xp / user.maxXp) * 100}%` }}
+                                style={{ width: `${(10 / 500) * 100}%` }}
                             />
                         </div>
                         <div className="mt-2 text-sm text-white/80 flex items-center gap-2">
                             <FontAwesomeIcon icon={faTrophy} className="h-3 w-3" />
-                            <span>{user.badgeCount} badges earned</span>
+                            <span>0 badges earned</span>
                         </div>
                     </div>
 
@@ -108,7 +131,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                                             : "hover:bg-white/10 text-white/90"
                                         }`
                                     }
-                                    >
+                                >
                                     <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
                                     <span>{item.label}</span>
                                 </NavLink>
@@ -152,7 +175,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
 
             {/* User avatar */}
             <div className="flex justify-center mb-6">
-                <UserAvatar initials={user.initials} />
+                <UserAvatar initials={getUserInitials()} />
             </div>
 
             {/* Navigation */}
@@ -170,7 +193,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                         }
                         title={item.label}
                     >
-                            <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
+                        <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
                     </NavLink>
                 ))}
             </nav>
@@ -178,4 +201,4 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
     );
 };
 
-export default AppSideBar
+export default AppSideBar;
