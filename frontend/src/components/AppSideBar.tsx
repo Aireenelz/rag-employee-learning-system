@@ -6,10 +6,10 @@ import {
     faFileAlt,
     faBookmark,
     faUser,
-    faGear,
     faSignOut,
     faTrophy,
     faBars,
+    faChartLine,
 } from "@fortawesome/free-solid-svg-icons";
 import UserAvatar from "./UserAvatar";
 import SignOutConfirmationModal from "./SignOutConfirmationModal";
@@ -26,6 +26,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
         { label: "Documents", icon: faFileAlt, to: "/documents" },
         { label: "Quick Access", icon: faBookmark, to: "/quickaccess" },
         { label: "Profile & Achievements", icon: faUser, to: "/profile" },
+        { label: "Reports", icon: faChartLine, to: "/reports"}
     ];
 
     const navigate = useNavigate();
@@ -91,9 +92,6 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                                 <div className="text-xs text-white/70">{getUserRole()}</div>
                             </div>
                         </div>
-                        <button className="text-white hover:text-gray-200">
-                            <FontAwesomeIcon icon={faGear} />
-                        </button>
                     </div>
 
                     {/* User Stats */}
@@ -119,7 +117,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                     {/* Navigation */}
                     <div className="mt-10 flex-1">
                         <h4 className="text-sm text-white/70 mb-3">Navigation</h4>
-                        <nav className="flex flex-col gap-3">
+                        <nav className="flex flex-col gap-2">
                             {navItems.map((item) => (
                                 <NavLink
                                     to={item.to}
@@ -140,7 +138,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                     </div>
 
                     {/* Sign out */}
-                    <div className="mt-auto mb-4">
+                    <div className="mt-auto mb-2">
                         <button
                             onClick={handleSignOutClick}
                             className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-white w-full hover:bg-white/10"
@@ -179,7 +177,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
             </div>
 
             {/* Navigation */}
-            <nav className="flex flex-col gap-3">
+            <nav className="flex flex-col gap-2">
                 {navItems.map((item) => (
                     <NavLink
                         to={item.to}
