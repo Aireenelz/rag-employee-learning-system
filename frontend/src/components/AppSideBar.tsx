@@ -14,6 +14,7 @@ import {
 import UserAvatar from "./UserAvatar";
 import SignOutConfirmationModal from "./SignOutConfirmationModal";
 import { user } from "../data/userData";
+import { useAuth } from "../context/AuthContext";
 
 interface AppSideBarProps {
     isOpen: boolean;
@@ -30,13 +31,14 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
 
     const navigate = useNavigate();
     const [showSignOutConfirmation, setShowSignOutConfirmation] = useState(false);
+    const { signOut } = useAuth();
 
     const handleSignOutClick = () => {
         setShowSignOutConfirmation(true);
     };
     
-    const handleConfirmSignOut = () => {
-        console.log("User signed out")
+    const handleConfirmSignOut = async () => {
+        await signOut();
         setShowSignOutConfirmation(false);
         navigate("/login");
     };

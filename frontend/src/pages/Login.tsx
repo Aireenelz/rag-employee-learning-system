@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faEnvelope,
@@ -7,18 +7,38 @@ import {
     faEyeSlash,
     faLock,
 } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "../context/AuthContext";
 
 const Login: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [rememberMe, setRememberMe] = useState(false);
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const { signIn } = useAuth();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        console.log("Login attempt: ", {email, password, rememberMe});
-        alert("Login button 🚧 under construction 🚧")
+        setError("");
+
+        console.log("Login attempt: ", {email, password});
+        setLoading(true);
+
+        try {
+            const { error } = await signIn(email, password);
+
+            if (error) {
+                setError(error.message || "Login failed. Incorrect username or password.");
+            } else {
+                navigate("/");
+            }
+        } catch (err: any) {
+            setError(err.message || "An unexpected error occurred");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -37,6 +57,13 @@ const Login: React.FC = () => {
                     <p className="text-gray-600">Log in to your account</p>
                 </div>
 
+                {/* Error message */}
+                {error && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        {error}
+                    </div>
+                )}
+
                 {/* Login form */}
                 <form onSubmit={handleSubmit} className="space-y-4 mb-8">
                     {/* Email */}
@@ -51,6 +78,7 @@ const Login: React.FC = () => {
                                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-els-primarybackground focus:border-transparent outline-none transition-all"
                                 placeholder="Enter your email"
                                 required
+                                disabled={loading}
                             />
                         </div>
                     </div>
@@ -67,29 +95,22 @@ const Login: React.FC = () => {
                                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-els-primarybackground focus:border-transparent outline-none transition-all"
                                 placeholder="Enter your password"
                                 required
+                                disabled={loading}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                disabled={loading}
                             >
                                 <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                             </button>
                         </div>
                     </div>
 
-                    {/* RememberMe and ForgotPassword */}
-                    <div className="flex items-center justify-between pl-1 pb-3">
-                        <label className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={rememberMe}
-                                onChange={(e) => setRememberMe(e.target.checked)}
-                                className="w-4 h-4 text-blue-700 border-gray-300 rounded focus:ring-blue-700"
-                            />
-                            <span className="ml-2 text-sm text-gray-500">Remember me</span>
-                        </label>
-                        <a href="" className="text-sm text-blue-700 hover:underline">
+                    {/* ForgotPassword */}
+                    <div className="flex items-center justify-end pl-1 pb-3">
+                        <a href="/forgotpassword" className="text-sm text-blue-700 hover:underline">
                             Forgot password?
                         </a>
                     </div>
@@ -98,8 +119,9 @@ const Login: React.FC = () => {
                     <button
                         type="submit"
                         className="w-full bg-els-primarybutton text-white py-3 px-4 rounded-lg hover:bg-els-primarybuttonhover transition-colors font-medium"
+                        disabled={loading}
                     >
-                        Log In
+                        {loading ? "Logging in..." : "Log In"}
                     </button>
                 </form>
 
