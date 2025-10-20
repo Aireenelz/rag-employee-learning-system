@@ -46,13 +46,13 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
             return `${profile.first_name} ${profile.last_name}`;
         }
         return user?.email || "User";
-    }
+    };
 
     // Get user role
     const getUserRole = () => {
         if (!profile?.role) return "User";
         return profile.role === "internal-employee" ? "Internal Employee" : "Partner";
-    }
+    };
 
     const handleSignOutClick = () => {
         setShowSignOutConfirmation(true);
@@ -131,7 +131,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                                             : "hover:bg-white/10 text-white/90"
                                         }`
                                     }
-                                    >
+                                >
                                     <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
                                     <span>{item.label}</span>
                                 </NavLink>
@@ -193,7 +193,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                         }
                         title={item.label}
                     >
-                            <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
+                        <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
                     </NavLink>
                 ))}
             </nav>
