@@ -23,7 +23,7 @@ const Login: React.FC = () => {
         e.preventDefault();
         setError("");
 
-        console.log("Login attempt: ", {email, password});
+        console.log("Login attempt: ", {email});
         setLoading(true);
 
         try {

@@ -86,7 +86,7 @@ const Signup: React.FC = () => {
             return;
         }
 
-        console.log("Signup attempt: ", formData);
+        console.log("Signup attempt: ", formData.email, formData.firstName, formData.lastName, formData.role);
         setLoading(true);
 
         try {
