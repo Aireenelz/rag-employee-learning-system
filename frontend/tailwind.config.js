@@ -11,7 +11,7 @@ export default {
 					primarybackground: '#3662E3',
           secondarybackground: '#F8FAFC',
           mainpanelbackground: '#FFFFFF',
-          mutedbackground: '#E5E7EA',
+          mutedbackground: '#F3F4F6',
           cardheaderbackground: '#FBFBFD',
           bookmarkeddocumentbackground: '#EAEFFC',
           chatuser: '#3662E3',
@@ -25,6 +25,7 @@ export default {
           secondarybuttonhover: '#E0E6EA',
           deletebuttonhover: '#C52B2B',
           redbuttonhover: '#C52B2B',
+          selectedtab: '#FFFFFF',
 					teal: '#5CD6C0',
 				}
       }

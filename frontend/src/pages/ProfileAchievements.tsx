@@ -20,8 +20,8 @@ const ProfileAchievements: React.FC = () => {
             <div className="flex mb-4 w-full py-1 px-1 bg-els-mutedbackground rounded-lg text-sm gap-1">
                 {/* Profile */}
                 <button
-                    className={`flex-1 text-center py-1 font-semibold rounded-md hover:bg-slate-100 hover:text-gray-500 ${
-                        activeTab === 'profile' ? 'bg-els-secondarybackground hover:text-gray-900' : 'text-gray-400'
+                    className={`flex-1 text-center py-2 px-4 font-semibold rounded-md hover:bg-slate-100 hover:text-gray-500 ${
+                        activeTab === 'profile' ? 'bg-els-selectedtab hover:text-gray-600 hover:bg-els-selectedtab' : 'text-gray-400'
                     }`}
                     onClick={() => setActiveTab('profile')}
                 >
@@ -31,8 +31,8 @@ const ProfileAchievements: React.FC = () => {
 
                 {/* Badges & Achievements */}
                 <button
-                    className={`flex-1 text-center py-1 font-semibold rounded-md hover:bg-slate-100 hover:text-gray-500 ${
-                        activeTab === 'achievements' ? 'bg-els-secondarybackground hover:text-gray-900' : 'text-gray-400'
+                    className={`flex-1 text-center py-2 px-4 font-semibold rounded-md hover:bg-slate-100 hover:text-gray-500 ${
+                        activeTab === 'achievements' ? 'bg-els-selectedtab hover:text-gray-600 hover:bg-els-selectedtab' : 'text-gray-400'
                     }`}
                     onClick={() => setActiveTab('achievements')}
                 >

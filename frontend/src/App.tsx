@@ -13,7 +13,7 @@ export default function App() {
     <div className="flex h-screen">
       <AppSideBar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
       <div className="flex-1 overflow-y-auto bg-els-secondarybackground">
-        <div className="h-full w-full p-5">
+        <div className="h-full w-full p-7">
           <Outlet />
         </div>
       </div>

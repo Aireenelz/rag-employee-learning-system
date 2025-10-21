@@ -72,7 +72,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
     if (isOpen) {
         return (
             <>
-                <div className="w-64 bg-els-primarybackground text-white flex flex-col h-screen p-4 transition-all duration-300 ease-in-out">
+                <div className="w-64 bg-els-primarybackground text-white flex flex-col h-screen p-4 pt-2 transition-all duration-300 ease-in-out">
                     {/* Toggle button */}
                     <div className="h-10 flex items-center justify-start mb-3">
                         <button 
@@ -160,7 +160,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
     }
 
     return (
-        <div className="w-12 bg-els-primarybackground text-white flex flex-col h-screen py-4 transition-all duration-300 ease-in-out">
+        <div className="w-12 bg-els-primarybackground text-white flex flex-col h-screen py-2 transition-all duration-300 ease-in-out">
             {/* Toggle button */}
             <div className="h-10 flex items-center justify-center mb-3">
                 <button 
