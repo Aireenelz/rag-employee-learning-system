@@ -28,6 +28,10 @@ const Profile: React.FC = () => {
         return "U";
     }
 
+    const getRoleLabel = () => {
+        return profileData.role === "internal-employee" ? "Internal Employee" : "Partner";
+    }
+
     const handleProfileChange = (field: keyof typeof profileData, value: string) => {
         setProfileData(prev => ({
             ...prev,
@@ -81,13 +85,17 @@ const Profile: React.FC = () => {
                 </div>
 
                 {/* Avatar Section */}
-                <div className="flex items-center gap-1 py-2 px-4">
+                <div className="flex items-center gap-3 py-2 px-4">
                     <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-lg font-semibold">
                         {getUserInitials()}
                     </div>
-                    <p className="px-4 py-2 text-sm font-semibold text-gray-700">
-                        {profileData.role}
-                    </p>
+                    <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                        profileData.role === "internal-employee"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-purple-100 text-purple-700"
+                    }`}>
+                        {getRoleLabel()}
+                    </span>
                 </div>
 
                 {/* Form fields */}
