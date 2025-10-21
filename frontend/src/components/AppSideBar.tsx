@@ -105,7 +105,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                         <div className="w-full h-2 bg-white/30 mt-1 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-white/90"
-                                style={{ width: `${(0 / 500) * 100}%` }}
+                                style={{ width: "10%" }}
                             />
                         </div>
                         <div className="mt-2 text-sm text-white/80 flex items-center gap-2">

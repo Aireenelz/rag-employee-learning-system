@@ -26,11 +26,11 @@ const Profile: React.FC = () => {
             return (profile.first_name[0] + profile.last_name[0]).toUpperCase();
         }
         return "U";
-    }
+    };
 
     const getRoleLabel = () => {
         return profileData.role === "internal-employee" ? "Internal Employee" : "Partner";
-    }
+    };
 
     const handleProfileChange = (field: keyof typeof profileData, value: string) => {
         setProfileData(prev => ({
@@ -78,10 +78,10 @@ const Profile: React.FC = () => {
     return (
         <div className="space-y-8">
             {/* Profile Information card */}
-            <div className="space-y-4 bg-white border rounded-lg">
+            <div className="space-y-4 bg-white border rounded-lg pb-4">
                 {/* Card header */}
                 <div className="bg-els-cardheaderbackground rounded-t-lg border-b py-2 px-4">
-                    <h3 className="text-lg font-bold">Profile Information</h3>
+                    <h2 className="text-lg font-bold">Profile Information</h2>
                 </div>
 
                 {/* Avatar Section */}
@@ -160,11 +160,11 @@ const Profile: React.FC = () => {
             <div className="space-y-4 bg-white border rounded-lg pb-4">
                 {/* Card header */}
                 <div className="bg-els-cardheaderbackground rounded-t-lg border-b py-2 px-4">
-                    <h3 className="text-lg font-bold">Account Settings</h3>
+                    <h2 className="text-lg font-bold">Account Settings</h2>
                 </div>
 
                 {/* Email and Change Password button */}
-                <div className="py-2 px-4">
+                <div className="pt-2 px-4 pb-4">
                     <div className="flex gap-8 items-end">
                         <div className="flex-1">
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
