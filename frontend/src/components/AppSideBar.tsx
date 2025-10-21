@@ -99,13 +99,13 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                         <div className="flex justify-between text-sm">
                             <span>Level 1</span>
                             <span>
-                                10/500 XP
+                                0/500 XP
                             </span>
                         </div>
                         <div className="w-full h-2 bg-white/30 mt-1 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-white/90"
-                                style={{ width: `${(10 / 500) * 100}%` }}
+                                style={{ width: `${(0 / 500) * 100}%` }}
                             />
                         </div>
                         <div className="mt-2 text-sm text-white/80 flex items-center gap-2">

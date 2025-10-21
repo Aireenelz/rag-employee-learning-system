@@ -57,7 +57,7 @@ const FAQs: React.FC = () => {
                         className="border rounded-md my-6 pb-3"
                     >
                         {/* Icon and question */}
-                        <div className="bg-els-cardheaderbackground border-b py-2 px-4">
+                        <div className="bg-els-cardheaderbackground rounded-t-md border-b py-2 px-4">
                             <h3 className="flex items-center gap-3 font-semibold text-md">
                                 <FontAwesomeIcon icon={categoryIcons[faq.category]} className="mr-2 h-3 w-3"/>
                                 {faq.question}
