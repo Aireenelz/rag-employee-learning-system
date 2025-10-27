@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../utils/supabaseClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,6 +18,23 @@ const Profile: React.FC = () => {
         department: "",
         position: ""
     });
+    
+    useEffect(() => {
+        if (profile) {
+            setProfileData(prev => ({
+                ...prev,
+                firstName: profile.first_name || "",
+                lastName: profile.last_name || "",
+                role: profile.role || "",
+            }));
+        }
+        if (user?.email) {
+            setProfileData(prev => ({
+                ...prev,
+                email: user.email || "",
+            }));
+        }
+    }, [profile, user]);
 
     const [passwords, setPasswords] = useState({
         currentPassword: "",
