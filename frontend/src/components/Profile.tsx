@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../utils/supabaseClient";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faEye,
+    faEyeSlash
+} from "@fortawesome/free-solid-svg-icons";
 
 const Profile: React.FC = () => {
     const { profile, user } = useAuth();
@@ -21,6 +26,12 @@ const Profile: React.FC = () => {
     });
 
     const [showPasswordForm, setShowPasswordForm] = useState(false);
+
+    const [showPasswords, setShowPasswords] = useState({
+        currentPassword: false,
+        newPassword: false,
+        confirmPassword: false
+    });
 
     const getUserInitials = () => {
         if (profile?.first_name && profile?.last_name) {
@@ -44,6 +55,13 @@ const Profile: React.FC = () => {
         setPasswords(prev => ({
             ...prev,
             [field]: value
+        }));
+    };
+
+    const togglePasswordVisibility = (field: keyof typeof showPasswords) => {
+        setShowPasswords(prev => ({
+            ...prev,
+            [field]: !prev[field]
         }));
     };
 
@@ -86,11 +104,15 @@ const Profile: React.FC = () => {
             }
             alert("Password updated successfully!");
 
-            // Clear the form
             setPasswords({
                 currentPassword: "",
                 newPassword: "",
                 confirmPassword: ""
+            });
+            setShowPasswords({
+                currentPassword: false,
+                newPassword: false,
+                confirmPassword: false
             });
             setShowPasswordForm(false);
         } catch (error) {
@@ -104,6 +126,11 @@ const Profile: React.FC = () => {
             currentPassword: "",
             newPassword: "",
             confirmPassword: ""
+        });
+        setShowPasswords({
+            currentPassword: false,
+            newPassword: false,
+            confirmPassword: false
         });
         setShowPasswordForm(false);
     };
@@ -133,7 +160,7 @@ const Profile: React.FC = () => {
 
                 {/* Form fields */}
                 <div className="px-4 pb-4 space-y-4 ">
-                    {/* First row */}
+                    {/* First Name and Last Name */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
@@ -155,7 +182,7 @@ const Profile: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Second row */}
+                    {/* Department and Position */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Department</label>
@@ -224,35 +251,65 @@ const Profile: React.FC = () => {
                     <>
                         {/* Password inputs */}
                         <div className="p-4 space-y-4">
+                            {/* Current Password */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
-                                <input
-                                    type="password"
-                                    value={passwords.currentPassword}
-                                    onChange={(e) => handlePasswordChange("currentPassword", e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                                    placeholder="Enter current password"
-                                />
+                                <div className="relative">
+                                    <input
+                                        type={showPasswords.currentPassword ? "text" : "password"}
+                                        value={passwords.currentPassword}
+                                        onChange={(e) => handlePasswordChange("currentPassword", e.target.value)}
+                                        className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg"
+                                        placeholder="Enter current password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => togglePasswordVisibility("currentPassword")}
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                        <FontAwesomeIcon icon={showPasswords.currentPassword ? faEyeSlash : faEye} />
+                                    </button>
+                                </div>
                             </div>
+                            {/* New Password */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
-                                <input
-                                    type="password"
-                                    value={passwords.newPassword}
-                                    onChange={(e) => handlePasswordChange("newPassword", e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                                    placeholder="Enter new password"
-                                />
+                                <div className="relative">
+                                    <input
+                                        type={showPasswords.newPassword ? "text" : "password"}
+                                        value={passwords.newPassword}
+                                        onChange={(e) => handlePasswordChange("newPassword", e.target.value)}
+                                        className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg"
+                                        placeholder="Enter new password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => togglePasswordVisibility("newPassword")}
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                        <FontAwesomeIcon icon={showPasswords.newPassword ? faEyeSlash : faEye} />
+                                    </button>
+                                </div>
                             </div>
+                            {/* Confirm Password */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
-                                <input
-                                    type="password"
-                                    value={passwords.confirmPassword}
-                                    onChange={(e) => handlePasswordChange("confirmPassword", e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                                    placeholder="Confirm new password"
-                                />
+                                <div className="relative">
+                                    <input
+                                        type={showPasswords.confirmPassword ? "text" : "password"}
+                                        value={passwords.confirmPassword}
+                                        onChange={(e) => handlePasswordChange("confirmPassword", e.target.value)}
+                                        className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg"
+                                        placeholder="Confirm new password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => togglePasswordVisibility("confirmPassword")}
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                        <FontAwesomeIcon icon={showPasswords.confirmPassword ? faEyeSlash : faEye} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
