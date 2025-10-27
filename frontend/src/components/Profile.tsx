@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../utils/supabaseClient";
 
 const Profile: React.FC = () => {
     const { profile, user } = useAuth();
@@ -51,19 +52,51 @@ const Profile: React.FC = () => {
         // TODO: API UPDATE PROFILE
     };
 
-    const handleSaveChangesPassword = () => {
+    const handleSaveChangesPassword = async () => {
         if (passwords.newPassword !== passwords.confirmPassword) {
             alert("Password do not match!");
             return;
         }
-        console.log("Password changed");
-        // TODO: API CHANGE PASSWORD
-        setPasswords({
-            currentPassword: "",
-            newPassword: "",
-            confirmPassword: ""
-        });
-        setShowPasswordForm(false);
+
+        if (passwords.newPassword.length < 8) {
+            alert("Password must be at least 8 characters long!");
+            return;
+        }
+
+        console.log("Password change request");
+        
+        try {
+            // First, verify the current password by attempting to sign in
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user?.email || "",
+                password: passwords.currentPassword
+            });
+            if (signInError) {
+                alert("Current password is incorrect!");
+                return;
+            }
+
+            // Update password
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: passwords.newPassword
+            });
+            if (updateError) {
+                alert(`Error updating password: ${updateError.message}`);
+                return;
+            }
+            alert("Password updated successfully!");
+
+            // Clear the form
+            setPasswords({
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: ""
+            });
+            setShowPasswordForm(false);
+        } catch (error) {
+            console.error("Error changing password:", error);
+            alert("An error occured while updating your password. Please try again.");
+        }
     };
 
     const handleCancelChangePassword = () => {
