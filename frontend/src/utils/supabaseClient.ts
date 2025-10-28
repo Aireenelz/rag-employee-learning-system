@@ -16,12 +16,8 @@ export interface UserProfile {
     first_name: string;
     last_name: string;
     role: "partner" | "internal-employee";
+    department?: string;
+    position?: string;
     created_at: string;
     updated_at: string;
-}
-
-export interface AuthUser {
-    id: string;
-    email: string;
-    profile: UserProfile | null;
 }

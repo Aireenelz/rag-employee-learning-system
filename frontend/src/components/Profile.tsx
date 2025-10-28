@@ -8,7 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const Profile: React.FC = () => {
-    const { profile, user } = useAuth();
+    const { profile, user, refreshProfile } = useAuth();
     
     const [profileData, setProfileData] = useState({
         firstName: profile ? `${profile.first_name}` : "",
@@ -26,6 +26,8 @@ const Profile: React.FC = () => {
                 firstName: profile.first_name || "",
                 lastName: profile.last_name || "",
                 role: profile.role || "",
+                department: profile.department || "",
+                position: profile.position || "",
             }));
         }
         if (user?.email) {
@@ -82,9 +84,43 @@ const Profile: React.FC = () => {
         }));
     };
 
-    const handleSaveChangesProfile = () => {
+    const handleSaveChangesProfile = async () => {
+        if (!user?.id) {
+            alert("User not found. Please log in again.");
+            return;
+        }
+
+        if (!profileData.firstName.trim() || !profileData.lastName.trim()) {
+            alert("First name and last name are required!");
+            return;
+        }
+
         console.log("Profile changes: ", profileData);
-        // TODO: API UPDATE PROFILE
+        
+        try {
+            const { error } = await supabase
+                .from("profiles")
+                .update({
+                    first_name: profileData.firstName.trim(),
+                    last_name: profileData.lastName.trim(),
+                    department: profileData.department.trim() || null,
+                    position: profileData.position.trim() || null,
+                    updated_at: new Date().toISOString()
+                })
+                .eq("id", user.id);
+            
+                if (error) {
+                    console.error("Error updating profile:", error);
+                    alert(`Error updating profile: ${error.message}`);
+                    return;
+                }
+
+                alert("Profile updated successfully!");
+                await refreshProfile();
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            alert("An error occured while updating your profile. Please try again.");
+        }
     };
 
     const handleSaveChangesPassword = async () => {
