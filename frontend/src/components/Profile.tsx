@@ -18,6 +18,8 @@ const Profile: React.FC = () => {
         department: "",
         position: ""
     });
+
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
     
     useEffect(() => {
         if (profile) {
@@ -117,15 +119,30 @@ const Profile: React.FC = () => {
 
                 alert("Profile updated successfully!");
                 await refreshProfile();
+                setIsEditingProfile(false);
         } catch (error) {
             console.error("Error updating profile:", error);
-            alert("An error occured while updating your profile. Please try again.");
+            alert("An error occurred while updating your profile. Please try again.");
         }
+    };
+
+    const handleCancelProfileEdit = () => {
+        if (profile) {
+            setProfileData({
+                firstName: profile.first_name || "",
+                lastName: profile.last_name || "",
+                email: user?.email || "",
+                role: profile.role || "",
+                department: profile.department || "",
+                position: profile.position || ""
+            });
+        }
+        setIsEditingProfile(false);
     };
 
     const handleSaveChangesPassword = async () => {
         if (passwords.newPassword !== passwords.confirmPassword) {
-            alert("Password do not match!");
+            alert("Passwords do not match!");
             return;
         }
 
@@ -170,7 +187,7 @@ const Profile: React.FC = () => {
             setShowPasswordForm(false);
         } catch (error) {
             console.error("Error changing password:", error);
-            alert("An error occured while updating your password. Please try again.");
+            alert("An error occurred while updating your password. Please try again.");
         }
     };
 
@@ -221,7 +238,10 @@ const Profile: React.FC = () => {
                                 type="text"
                                 value={profileData.firstName}
                                 onChange={(e) => handleProfileChange("firstName", e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                disabled={!isEditingProfile}
+                                className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${
+                                    !isEditingProfile ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""
+                                }`}
                             />
                         </div>
                         <div>
@@ -230,7 +250,10 @@ const Profile: React.FC = () => {
                                 type="text"
                                 value={profileData.lastName}
                                 onChange={(e) => handleProfileChange("lastName", e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                disabled={!isEditingProfile}
+                                className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${
+                                    !isEditingProfile ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""
+                                }`}
                             />
                         </div>
                     </div>
@@ -243,7 +266,10 @@ const Profile: React.FC = () => {
                                 type="text"
                                 value={profileData.department}
                                 onChange={(e) => handleProfileChange("department", e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                disabled={!isEditingProfile}
+                                className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${
+                                    !isEditingProfile ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""
+                                }`}
                             />
                         </div>
                         <div>
@@ -252,20 +278,40 @@ const Profile: React.FC = () => {
                                 type="text"
                                 value={profileData.position}
                                 onChange={(e) => handleProfileChange("position", e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                disabled={!isEditingProfile}
+                                className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${
+                                    !isEditingProfile ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""
+                                }`}
                             />
                         </div>
                     </div>
                 </div>
 
-                {/* Save button */}
-                <div className="flex justify-end px-4 pb-4">
-                    <button
-                        onClick={handleSaveChangesProfile}
-                        className="bg-els-primarybutton text-sm font-semibold py-2 px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
-                    >
-                        Save Profile Changes
-                    </button>
+                {/* Action buttons */}
+                <div className="flex justify-end gap-3 px-4 pb-4">
+                    {!isEditingProfile ? (
+                        <button
+                            onClick={() => setIsEditingProfile(true)}
+                            className="bg-els-primarybutton text-sm font-semibold py-2 px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
+                        >
+                            Edit Profile
+                        </button>
+                    ) : (
+                        <>
+                            <button
+                                onClick={handleCancelProfileEdit}
+                                className="border border-gray-300 text-sm font-semibold py-2 px-5 text-gray-700 rounded-lg hover:bg-gray-50 cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveChangesProfile}
+                                className="bg-els-primarybutton text-sm font-semibold py-2 px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
+                            >
+                                Save Changes
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 
