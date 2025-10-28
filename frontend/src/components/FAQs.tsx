@@ -70,7 +70,7 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
             <div className="px-1">
                 {filteredFaqs.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
-                        <p className="text-sm font-semibold">No bookmarks found</p>
+                        <p className="text-sm font-semibold">No FAQs found</p>
                         <p className="text-xs mt-1">Try adjusting your search query or category filter</p>
                     </div>
                 ) : (
