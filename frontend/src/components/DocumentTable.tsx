@@ -104,6 +104,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
             console.error("Error toggling bookmark:", error);
             alert("Failed to update bookmark. Please try again.");
         } finally {
+            // Remove from loading set
             setBookmarkLoading(prev => {
                 const newSet = new Set(prev);
                 newSet.delete(documentId);

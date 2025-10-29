@@ -101,7 +101,7 @@ class BookmarkResponse(BaseModel):
     created_at: str
 
 class DocumentIdsRequest(BaseModel):
-    documents_ids: List[str]
+    document_ids: List[str]
 
 # Helper function to format file size
 def format_file_size(size_bytes: int) -> str:
@@ -386,11 +386,11 @@ async def get_documents_with_bookmarks(user_id: str):
         raise HTTPException(status_code=500, detail="Failed to fetch documents")
 
 # Endpoint to fetch metadata of multiple specific documents from mongodb, to display a user's bookmarked documents in YourBookmarks page
-@app.post("api/documents/batch", response_model=List[DocumentResponse])
+@app.post("/api/documents/batch", response_model=List[DocumentResponse])
 async def get_documents_batch(request: DocumentIdsRequest):
     try:
         documents = []
-        for doc_id in request.documents_ids:
+        for doc_id in request.document_ids:
             try:
                 doc = company_documents_collection.find_one({"_id": ObjectId(doc_id)})
                 if doc:

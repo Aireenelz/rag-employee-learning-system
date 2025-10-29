@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faExternalLink,
     faFileAlt,
+    faExternalLink,
     faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
@@ -67,12 +67,13 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
                     setBookmarkedDocuments([]);
                 }
             } catch (error) {
-                console.error("Failed to fetch bookmarked documents:", error);
+                console.error("Error loading bookmarked documents:", error);
                 setBookmarkedDocuments([]);
             } finally {
                 setIsLoading(false);
             }
         };
+
         loadBookmarkedDocuments();
     }, [user?.id]);
 
@@ -80,7 +81,7 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
     const handleOpenDocument = (documentId: string) => {
         const downloadUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
         window.open(downloadUrl, '_blank');
-    }
+    };
 
     // Handle removing bookmark
     const handleRemoveBookmark = async (documentId: string) => {
@@ -111,7 +112,7 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
             <div className="text-center py-8 text-gray-500">
                 <p className="text-sm font-semibold">Loading bookmarks...</p>
             </div>
-        )
+        );
     }
 
     return (
@@ -164,14 +165,14 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                                 onClick={() => handleOpenDocument(bookmark.id)}
-                                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                                 title="Open in new tab"
                             >
                                 <FontAwesomeIcon icon={faExternalLink} className="h-4 w-4 text-gray-600" />
                             </button>
                             <button
                                 onClick={() => handleRemoveBookmark(bookmark.id)}
-                                className="p-2 hover:bg-red-200 rounded-lg transition-colors"
+                                className="p-2 hover:bg-red-100 rounded-lg transition-colors"
                                 title="Remove bookmark"
                             >
                                 <FontAwesomeIcon icon={faTrashCan} className="h-4 w-4 text-red-600" />

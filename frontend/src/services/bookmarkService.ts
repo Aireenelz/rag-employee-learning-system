@@ -14,7 +14,7 @@ export const bookmarkService = {
             .from("bookmarks")
             .select("*")
             .eq("user_id", userId)
-            .order("created_at", { ascending: false});
+            .order("created_at", { ascending: false });
         
         if (error) {
             console.error("Error fetching bookmarks:", error);
@@ -45,7 +45,7 @@ export const bookmarkService = {
     async addBookmark(userId: string, documentId: string): Promise<void> {
         const { error } = await supabase
             .from("bookmarks")
-            .insert({ user_id: userId, document_id: documentId});
+            .insert({ user_id: userId, document_id: documentId });
         
         if (error) {
             console.error("Error adding bookmark:", error);
