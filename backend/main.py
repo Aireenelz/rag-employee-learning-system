@@ -91,6 +91,18 @@ class ChatResponse(BaseModel):
     response: str
     sources: List[SourceInfo] = []
 
+class BookmarkCreate(BaseModel):
+    document_id: str
+
+class BookmarkResponse(BaseModel):
+    id: str
+    user_id: str
+    document_id: str
+    created_at: str
+
+class DocumentIdsRequest(BaseModel):
+    documents_ids: List[str]
+
 # Helper function to format file size
 def format_file_size(size_bytes: int) -> str:
     if size_bytes == 0:
@@ -354,6 +366,48 @@ async def chat(request: ChatRequest):
     except Exception as e:
         print(f"Error log: {str(e)}") # log for debugging
         return ChatResponse(response="Error: An issue occured. Please try again later.")
+
+# Endpoint to retrieve all documents from mongodb so that later frontend can cross check if the doc is bookmarked by user in supabase
+@app.get("/api/documents/with-bookmarks/{user_id}", response_model=List[dict])
+async def get_documents_with_bookmarks(user_id: str):
+    try:
+        documents = []
+        for doc in company_documents_collection.find().sort("filename", 1):
+            documents.append({
+                "id": str(doc["_id"]),
+                "filename": doc["filename"],
+                "tags": doc.get("tags", []),
+                "uploadDate": doc["upload_date"].isoformat(),
+                "size": doc["size"]
+            })
+        return documents
+    except Exception as e:
+        print(f"Error fetching documents: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch documents")
+
+# Endpoint to fetch metadata of multiple specific documents from mongodb, to display a user's bookmarked documents in YourBookmarks page
+@app.post("api/documents/batch", response_model=List[DocumentResponse])
+async def get_documents_batch(request: DocumentIdsRequest):
+    try:
+        documents = []
+        for doc_id in request.documents_ids:
+            try:
+                doc = company_documents_collection.find_one({"_id": ObjectId(doc_id)})
+                if doc:
+                    documents.append(DocumentResponse(
+                        id=str(doc["_id"]),
+                        filename=doc["filename"],
+                        tags=doc.get("tags", []),
+                        uploadDate=doc["upload_date"].isoformat(),
+                        size=doc["size"]
+                    ))
+            except Exception as e:
+                print(f"Error fetching document {doc_id}: {str(e)}")
+                continue
+        return documents
+    except Exception as e:
+        print(f"Error in batch fetch: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch documents")
 
 # Health check endpoint
 @app.get("/healthcheck")
