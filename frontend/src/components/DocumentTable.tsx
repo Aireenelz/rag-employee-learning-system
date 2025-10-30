@@ -35,7 +35,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
     const menuRef = useRef<HTMLDivElement>(null);
     const { user } = useAuth();
 
-    // Load bookmarks on mount and when documents change
+    // Load bookmarks on mount
     useEffect(() => {
         const loadBookmarks = async () => {
             if (!user?.id) return;
