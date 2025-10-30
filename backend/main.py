@@ -91,15 +91,6 @@ class ChatResponse(BaseModel):
     response: str
     sources: List[SourceInfo] = []
 
-class BookmarkCreate(BaseModel):
-    document_id: str
-
-class BookmarkResponse(BaseModel):
-    id: str
-    user_id: str
-    document_id: str
-    created_at: str
-
 class DocumentIdsRequest(BaseModel):
     document_ids: List[str]
 
