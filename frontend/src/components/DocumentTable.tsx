@@ -50,7 +50,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
         };
 
         loadBookmarks();
-    }, [user?.id, documents]);
+    }, [user?.id]);
 
     // Selecting all documents
     const handleSelectAll = () => {

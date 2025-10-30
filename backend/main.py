@@ -389,21 +389,31 @@ async def get_documents_with_bookmarks(user_id: str):
 @app.post("/api/documents/batch", response_model=List[DocumentResponse])
 async def get_documents_batch(request: DocumentIdsRequest):
     try:
-        documents = []
+        # Convert string Ids to ObjectIds
+        object_ids = []
         for doc_id in request.document_ids:
             try:
-                doc = company_documents_collection.find_one({"_id": ObjectId(doc_id)})
-                if doc:
-                    documents.append(DocumentResponse(
-                        id=str(doc["_id"]),
-                        filename=doc["filename"],
-                        tags=doc.get("tags", []),
-                        uploadDate=doc["upload_date"].isoformat(),
-                        size=doc["size"]
-                    ))
+                object_ids.append(ObjectId(doc_id))
             except Exception as e:
-                print(f"Error fetching document {doc_id}: {str(e)}")
+                print(f"Invalid document ID {doc_id}: {str(e)}")
                 continue
+        
+        # Fetch all documents in a single database query
+        docs_cursor = company_documents_collection.find({
+            "_id": {"$in": object_ids}
+        })
+
+        # Format the results
+        documents = []
+        for doc in docs_cursor:
+            documents.append(DocumentResponse(
+                id=str(doc["_id"]),
+                filename=doc["filename"],
+                tags=doc.get("tags", []),
+                uploadDate=doc["upload_date"].isoformat(),
+                size=doc["size"]
+            ))
+        
         return documents
     except Exception as e:
         print(f"Error in batch fetch: {str(e)}")
