@@ -63,12 +63,6 @@ app.add_middleware(
 )
 
 # Pydantic models
-class DocumentCreate(BaseModel):
-    filename: str
-    tags: List[str] = []
-    version: str
-    size: str
-
 class DocumentResponse(BaseModel):
     id: str
     filename: str
