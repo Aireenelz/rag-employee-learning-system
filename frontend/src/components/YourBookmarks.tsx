@@ -105,11 +105,15 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
         }
     };
 
-    // Filter bookmarks based on search query
-    const filteredBookmarks = bookmarkedDocuments.filter(bookmark =>
-        bookmark.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bookmark.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    // Filter bookmarks based on search query and sort for display
+    const filteredBookmarks = bookmarkedDocuments
+        .filter(bookmark =>
+            bookmark.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            bookmark.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
+        .sort((a: Document, b: Document) => 
+            a.filename.localeCompare(b.filename)
+        );
 
     // Loading screen
     if (isLoading) {
