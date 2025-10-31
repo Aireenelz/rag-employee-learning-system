@@ -28,7 +28,7 @@ interface DocumentTableProps {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocuments, onSelectionChange, isLoading}) => {
+const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocuments, onSelectionChange, isLoading }) => {
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
     const [bookmarkLoading, setBookmarkLoading] = useState<Set<string>>(new Set());
     const menuRef = useRef<HTMLDivElement>(null);
@@ -60,19 +60,20 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
         setOpenActionMenu(null);
     };
 
-    // Action to bookmark a document
+    // Action to bookmark a document (toggle bookmark)
     const handleBookmark = async (documentId: string) => {
         if (!user?.id) {
             alert("Please sign in to bookmark documents");
             return;
         }
 
+        // Prevent multiple simultaneous requests
         if (bookmarkLoading.has(documentId)) return;
         
         setBookmarkLoading(prev => new Set(prev).add(documentId));
 
         try {
-            await toggleBookmark(documentId)
+            await toggleBookmark(documentId);
         } catch (error) {
             console.error("Error toggling bookmark:", error);
             alert("Failed to update bookmark. Please try again.");
@@ -99,7 +100,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                 setOpenActionMenu(null);
             }
         };
-
+        
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
@@ -114,7 +115,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                     <p className="text-gray-500">Loading documents...</p>
                 </div>
             </div>
-        )
+        );
     }
 
     return (

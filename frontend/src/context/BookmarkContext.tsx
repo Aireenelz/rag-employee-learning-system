@@ -51,12 +51,12 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // Toggle bookmark status
     const toggleBookmark = useCallback(async (documentId: string) => {
         if (!user?.id) {
-            throw new Error("User must be logged in to bookmarks documents");
+            throw new Error("User must be logged in to bookmark documents");
         }
 
         try {
             const isCurrentlyBookmarked = bookmarks.has(documentId);
-
+            
             if (isCurrentlyBookmarked) {
                 await bookmarkService.removeBookmark(user.id, documentId);
                 setBookmarks(prev => {
@@ -70,7 +70,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             }
         } catch (error) {
             console.error("Error toggling bookmark:", error);
-            throw error
+            throw error;
         }
     }, [user?.id, bookmarks]);
 

@@ -39,9 +39,15 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
                 return;
             }
 
+            if (bookmarkIds.size === 0) {
+                setIsLoading(false);
+                setBookmarkedDocuments([]);
+                return;
+            }
+
             try {
                 setIsLoading(true);
-
+                
                 // Convert Set to Array
                 const documentIds = Array.from(bookmarkIds);
 
@@ -85,7 +91,7 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
 
         try {
             await bookmarkService.removeBookmark(user.id, documentId);
-
+            
             // Update local state
             setBookmarkedDocuments(prev => 
                 prev.filter(doc => doc.id !== documentId)
@@ -132,21 +138,21 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
                         className="flex items-center gap-3 border rounded-lg p-3 hover:bg-els-secondarybuttonhover group"
                     >
                         {/* Icon */}
-                        <div className="py-2.5 px-4 rounded-lg bg-els-bookmarkeddocumentbackground text-xl">
+                        <div className="py-2.5 px-4 rounded-lg bg-els-bookmarkeddocumentbackground text-xl flex-shrink-0">
                             <FontAwesomeIcon icon={faFileAlt} className="text-blue-400" />
                         </div>
-
-                        {/* Bookmarked document details */}
-                        <div className="flex flex-col flex-1">
+                        
+                        {/* Document details */}
+                        <div className="flex flex-col flex-1 min-w-0">
                             <span className="font-semibold text-sm">
                                 {bookmark.filename}
                             </span>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
                                 <span className="font-semibold text-xs text-gray-500">
                                     Document • {formatDate(bookmark.uploadDate)}
                                 </span>
                                 {bookmark.tags.length > 0 && (
-                                    <div className="flex gap-1">
+                                    <div className="flex gap-1 flex-wrap">
                                         {bookmark.tags.map((tag, idx) => (
                                             <span
                                                 key={idx}
@@ -161,7 +167,7 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                             <button
                                 onClick={() => handleOpenDocument(bookmark.id)}
                                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
