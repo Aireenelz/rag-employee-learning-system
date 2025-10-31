@@ -6,6 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useBookmarks } from "../context/BookmarkContext";
 import { bookmarkService } from "../services/bookmarkService";
 import { formatDate } from "../utils/dateUtils";
 
@@ -27,28 +28,22 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
     const [bookmarkedDocuments, setBookmarkedDocuments] = useState<Document[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { user } = useAuth();
+    const { bookmarks: bookmarkIds, refreshBookmarks } = useBookmarks();
 
-    // Load bookmarked documents
+    // Load bookmarked documents whenever bookmark IDs change
     useEffect(() => {
         const loadBookmarkedDocuments = async () => {
             if (!user?.id) {
                 setIsLoading(false);
+                setBookmarkedDocuments([]);
                 return;
             }
 
             try {
                 setIsLoading(true);
 
-                // Get user's bookmarks from supabase
-                const bookmarks = await bookmarkService.getUserBookmarks(user.id);
-
-                if (bookmarks.length === 0) {
-                    setBookmarkedDocuments([]);
-                    return;
-                }
-
-                // Get document IDs
-                const documentIds = bookmarks.map(b => b.document_id);
+                // Convert Set to Array
+                const documentIds = Array.from(bookmarkIds);
 
                 // Fetch document details from mongodb
                 const response = await fetch(`${API_BASE_URL}/api/documents/batch`, {
@@ -63,7 +58,8 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
                     const documents = await response.json();
                     setBookmarkedDocuments(documents);
                 } else {
-                    console.error("Failed to fetch bookmarked documents");
+                    const errorText = await response.text();
+                    console.error("Failed to fetch bookmarked documents:", errorText);
                     setBookmarkedDocuments([]);
                 }
             } catch (error) {
@@ -75,7 +71,7 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
         };
 
         loadBookmarkedDocuments();
-    }, [user?.id]);
+    }, [user?.id, bookmarkIds]);
 
     // Handle opening bookmarked document in new tab
     const handleOpenDocument = (documentId: string) => {
@@ -94,6 +90,9 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
             setBookmarkedDocuments(prev => 
                 prev.filter(doc => doc.id !== documentId)
             );
+
+            // Refresh bookmarks in context
+            await refreshBookmarks();
         } catch (error) {
             console.error("Error removing bookmark:", error);
             alert("Failed to remove bookmark. Please try again.");

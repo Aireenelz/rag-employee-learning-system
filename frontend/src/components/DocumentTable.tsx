@@ -8,7 +8,7 @@ import {
     faExternalLink,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../context/AuthContext";
-import { bookmarkService } from "../services/bookmarkService";
+import { useBookmarks } from "../context/BookmarkContext";
 import { formatDate } from "../utils/dateUtils";
 
 interface Document {
@@ -30,27 +30,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocuments, onSelectionChange, isLoading}) => {
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
-    const [bookmarkedDocuments, setBookmarkedDocuments] = useState<Set<string>>(new Set());
     const [bookmarkLoading, setBookmarkLoading] = useState<Set<string>>(new Set());
     const menuRef = useRef<HTMLDivElement>(null);
     const { user } = useAuth();
-
-    // Load bookmarks on mount
-    useEffect(() => {
-        const loadBookmarks = async () => {
-            if (!user?.id) return;
-
-            try {
-                const bookmarks = await bookmarkService.getUserBookmarks(user.id);
-                const bookmarkedIds = new Set(bookmarks.map(b => b.document_id));
-                setBookmarkedDocuments(bookmarkedIds);
-            } catch (error) {
-                console.error("Error loading bookmarks:", error);
-            }
-        };
-
-        loadBookmarks();
-    }, [user?.id]);
+    const { isBookmarked, toggleBookmark } = useBookmarks();
 
     // Selecting all documents
     const handleSelectAll = () => {
@@ -84,22 +67,12 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
             return;
         }
 
-        // Add to loading set
+        if (bookmarkLoading.has(documentId)) return;
+        
         setBookmarkLoading(prev => new Set(prev).add(documentId));
 
         try {
-            const isNowBookmarked = await bookmarkService.toggleBookmark(user.id, documentId);
-
-            // Update local state
-            setBookmarkedDocuments(prev => {
-                const newSet = new Set(prev);
-                if (isNowBookmarked) {
-                    newSet.add(documentId);
-                } else {
-                    newSet.delete(documentId);
-                }
-                return newSet;
-            });
+            await toggleBookmark(documentId)
         } catch (error) {
             console.error("Error toggling bookmark:", error);
             alert("Failed to update bookmark. Please try again.");
@@ -189,7 +162,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                                     <div className="flex items-center gap-2">
                                         <FontAwesomeIcon icon={faFileAlt} className="text-blue-400"/>
                                         {doc.filename}
-                                        {bookmarkedDocuments.has(doc.id) && (
+                                        {isBookmarked(doc.id) && (
                                             <FontAwesomeIcon icon={faBookmark} className="text-yellow-400"/>
                                         )}
                                     </div>
@@ -256,11 +229,11 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                                                     >
                                                         <FontAwesomeIcon
                                                             icon={faBookmark}
-                                                            className={bookmarkedDocuments.has(doc.id) ? "text-yellow-400" : ""}
+                                                            className={isBookmarked(doc.id) ? "text-yellow-400" : ""}
                                                         />
                                                         {bookmarkLoading.has(doc.id)
                                                             ? "Loading..."
-                                                            : bookmarkedDocuments.has(doc.id)
+                                                            : isBookmarked(doc.id)
                                                                 ? "Remove bookmark"
                                                                 : "Bookmark"
                                                         }
