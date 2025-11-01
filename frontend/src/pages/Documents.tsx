@@ -133,57 +133,57 @@ const Documents: React.FC = () => {
     return (
         <div className="pb-5">
             {/* Header */}
-            <h1 className="text-2xl font-bold mb-3">
+            <h1 className="text-xl sm:text-2xl font-bold mb-3">
                 Document Management
             </h1>
 
             {/* Main */}
-            <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground">
+            <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground overflow-hidden">
                 {/* Buttons */}
-                <div className="flex justify-end gap-2 p-3 border-b">
+                <div className="flex flex-col sm:flex-row justify-end gap-2 p-3 border-b">
                     {/* Delete button */}
                     <button
                         onClick={handleDelete}
                         disabled={selectedDocuments.length === 0}
-                        className="flex items-center gap-2 bg-els-secondarybutton text-sm text-red-700 font-semibold py-2 px-5 rounded-lg hover:bg-els-deletebuttonhover hover:text-white disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="flex items-center justify-center gap-2 bg-els-secondarybutton text-sm text-red-700 font-semibold py-2 px-4 sm:px-5 rounded-lg hover:bg-els-deletebuttonhover hover:text-white disabled:text-gray-400 disabled:cursor-not-allowed"
                     >
                         <FontAwesomeIcon icon={faTrashCan} className="h-3 w-3" />
-                        Delete ({selectedDocuments.length})
+                        <span>Delete ({selectedDocuments.length})</span>
                     </button>
 
                     {/* Upload button */}
                     <button
                         onClick={() => setIsUploadModalOpen(true)}
-                        className="flex items-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
+                        className="flex items-center justify-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-4 sm:px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
                     >
                         <FontAwesomeIcon icon={faUpload} className="h-3 w-3" />
-                        Upload
+                        <span>Upload</span>
                     </button>
                 </div>
                 
                 {/* Bar for search and filter */}
-                <div className="flex items-center p-3 gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center p-3 gap-2">
                     {/* Search */}
-                    <div className="flex items-center flex-1 border rounded bg-els-secondarybackground">
-                        <FontAwesomeIcon icon={faSearch} className="h-4 w-4 text-gray-600 ml-3"/>
+                    <div className="flex items-center flex-1 border rounded bg-els-secondarybackground min-w-0">
+                        <FontAwesomeIcon icon={faSearch} className="h-4 w-4 text-gray-600 ml-3 flex-shrink-0"/>
                         <input
                             type="text"
                             placeholder="Search by document name or tags..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-4 py-2 bg-els-secondarybackground text-sm font-semibold focus:outline-none"
+                            className="w-full px-4 py-2 bg-els-secondarybackground text-sm font-semibold focus:outline-none min-w-0"
                         />
                     </div>
 
                     {/* Filter Dropdown */}
-                    <div className="relative">
+                    <div className="relative flex-shrink-0">
                         {/* Filter button */}
                         <button
                             onClick={() => setIsTagFilterOpen(!isTagFilterOpen)}
-                            className="flex items-center gap-2 bg-els-secondarybackground text-sm font-semibold text-gray-500 border px-4 py-2 rounded-lg hover:bg-els-secondarybuttonhover"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-els-secondarybackground text-sm font-semibold text-gray-500 border px-4 py-2 rounded-lg hover:bg-els-secondarybuttonhover"
                         >
                             <FontAwesomeIcon icon={faFilter} className="h-4 w-3" />
-                            Filter
+                            <span>Filter</span>
                             {selectedTags.length > 0 && (
                                 <span className="bg-white text-gray-500 rounded-full px-2 py-0.5 text-xs font-bold">
                                     {selectedTags.length}
@@ -194,7 +194,7 @@ const Documents: React.FC = () => {
 
                         {/* Filter dropdown menu */}
                         {isTagFilterOpen && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-md z-10">
+                            <div className="absolute right-0 mt-2 w-full sm:w-48 bg-white border rounded-lg shadow-md z-10">
                                 <div className="p-3">
                                     <div className="flex items-center justify-between mb-3">
                                         <h3 className="font-semibold text-gray-800">Filter by Tags</h3>
@@ -259,7 +259,7 @@ const Documents: React.FC = () => {
                 )}
 
                 {/* Document table */}
-                <div className="px-3 pb-3">
+                <div className="px-3 pb-3 overflow-x-auto">
                     <DocumentTable
                         documents={filteredDocuments}
                         selectedDocuments={selectedDocuments}

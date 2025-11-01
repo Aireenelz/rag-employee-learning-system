@@ -25,7 +25,7 @@ const Achievements: React.FC = () => {
                 </div>
 
                 {/* User interaction stats */}
-                <div className="pb-2 px-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="pb-2 px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-gray-50 rounded-lg p-4 text-center">
                         <p className="text-2xl font-bold">47</p>
                         <p className="text-sm font-semibold text-gray-500">Questions Asked</p>

@@ -120,6 +120,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
 
     return (
         <div className="border rounded">
+            <div className="overflow-x-auto md:overflow-x-visible">
             <table className="w-full border-collapse">
                 <thead>
                     <tr className="text-left border-b">
@@ -250,6 +251,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                     )}
                 </tbody>
             </table>
+            </div>
         </div>
     );
 };

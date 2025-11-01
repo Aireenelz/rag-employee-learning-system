@@ -181,7 +181,7 @@ const AiAssistant = () => {
 
                         {/* Render the message content */}
                         <div
-                            className={`max-w-md px-4 py-2 rounded-lg text-sm break-words ${
+                            className={`min-w-0 max-w-md px-4 py-2 rounded-lg text-sm break-words ${
                                 msg.role === "user" 
                                 ? "bg-els-chatuser text-white rounded-lg" 
                                 : "bg-els-chatrobot rounded-lg"
@@ -262,10 +262,10 @@ const AiAssistant = () => {
 
             {/* Input field */}
             <div className="p-4 border-t">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                     <input
                         ref={inputRef}
-                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground focus: outline-none"
+                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground focus: outline-none min-w-0"
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -275,7 +275,7 @@ const AiAssistant = () => {
                     />
                     <button
                         onClick={handleSend}
-                        className="bg-els-primarybutton text-white px-4 py-2 rounded-lg hover:bg-els-primarybuttonhover disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-els-primarybutton text-white px-4 py-2 rounded-lg hover:bg-els-primarybuttonhover disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                         disabled={isLoading}
                     >
                         <FontAwesomeIcon icon={faPaperPlane}/>
