@@ -20,6 +20,8 @@ interface AppSideBarProps {
     onToggle: () => void;
 }
 
+const SIDEBAR_BREAKPOINT = 900;
+
 const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
     const navItems = [
         { label: "AI Assistant", icon: faComments, to: "/" },
@@ -69,15 +71,28 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
         setShowSignOutConfirmation(false);
     };
 
+    // Close sidebar on mobile when navigating
+    const handleNavClick = () => {
+        if (window.innerWidth < SIDEBAR_BREAKPOINT) {
+            onToggle();
+        }
+    };
+
+    // Expanded sidebar
     if (isOpen) {
         return (
             <>
-                <div className="w-64 bg-els-primarybackground text-white flex flex-col h-screen p-4 pt-2 transition-all duration-300 ease-in-out">
+                <div className={`
+                    fixed lg:static inset-y-0 left-0 z-50
+                    w-64 bg-els-primarybackground text-white flex flex-col h-screen p-4 pt-2 transition-all duration-300 ease-in-out lg:translate-x-0
+                    ${isOpen ? "translate-x-0" : "-translate-x-full"}
+                `}>
                     {/* Toggle button */}
                     <div className="h-10 flex items-center justify-start mb-3">
                         <button 
                             onClick={onToggle}
-                            className="w-6 h-6 flex items-center justify-center text-white hover:text-gray-200"
+                            className="w-6 h-6 flex items-center justify-center text-white hover:bg-white/10 rounded"
+                            aria-label="Toggle sidebar"
                         >
                             <FontAwesomeIcon icon={faBars} />
                         </button>
@@ -122,6 +137,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                                 <NavLink
                                     to={item.to}
                                     key={item.label}
+                                    onClick={handleNavClick}
                                     className={({ isActive }) =>
                                         `flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm ${
                                         isActive
@@ -159,13 +175,18 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
         );
     }
 
+    // Collapsed sidebar (desktop only)
     return (
-        <div className="w-12 bg-els-primarybackground text-white flex flex-col h-screen py-2 transition-all duration-300 ease-in-out">
+        <div className={`
+            hidden lg:flex
+            w-12 bg-els-primarybackground text-white flex flex-col h-screen py-2 transition-all duration-300 ease-in-out
+        `}>
             {/* Toggle button */}
             <div className="h-10 flex items-center justify-center mb-3">
                 <button 
                     onClick={onToggle}
-                    className="w-6 h-6 flex items-center justify-center text-white hover:text-gray-200"
+                    className="w-6 h-6 flex items-center justify-center text-white hover:bg-white/10 rounded"
+                    aria-label="Expand sidebar"
                 >
                     <FontAwesomeIcon icon={faBars} />
                 </button>
@@ -177,13 +198,13 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
             </div>
 
             {/* Navigation */}
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-2 px-1">
                 {navItems.map((item) => (
                     <NavLink
                         to={item.to}
                         key={item.label}
                         className={({ isActive }) =>
-                            `flex items-center justify-center p-3 rounded-md transition-colors ${
+                            `flex items-center justify-center p-3 rounded-md transition-all duration-200 ${
                                 isActive
                                     ? "bg-white/20 font-medium"
                                     : "hover:bg-white/10"
