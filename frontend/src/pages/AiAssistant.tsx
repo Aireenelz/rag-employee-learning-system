@@ -265,7 +265,7 @@ const AiAssistant = () => {
                 <div className="flex items-center space-x-2">
                     <input
                         ref={inputRef}
-                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground"
+                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground focus: outline-none"
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
