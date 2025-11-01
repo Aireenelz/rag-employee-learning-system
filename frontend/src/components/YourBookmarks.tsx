@@ -1,40 +1,195 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faFileAlt,
+    faExternalLink,
+    faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useBookmarks } from "../context/BookmarkContext";
+import { bookmarkService } from "../services/bookmarkService";
+import { formatDate } from "../utils/dateUtils";
 
-const YourBookmarks: React.FC = () => {
-    const bookmarks = [
-        { title: "Employee Handbook 2023", date: "5/20/2023" },
-        { title: "Health Insurance Benefits Guide", date: "4/12/2023" },
-        { title: "VPN Setup", date: "9/23/2023" },
-        { title: "Intranet Access Guide", date: "3/21/2023" },
-        { title: "Password Reset", date: "9/23/2023" },
-    ];
+interface YourBookmarksProps {
+    searchQuery: string;
+}
+
+interface Document {
+    id: string;
+    filename: string;
+    tags: string[];
+    uploadDate: string;
+    size: string;
+}
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
+    const [bookmarkedDocuments, setBookmarkedDocuments] = useState<Document[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const { user } = useAuth();
+    const { bookmarks: bookmarkIds, refreshBookmarks } = useBookmarks();
+
+    // Load bookmarked documents whenever bookmark IDs change
+    useEffect(() => {
+        const loadBookmarkedDocuments = async () => {
+            if (!user?.id) {
+                setIsLoading(false);
+                setBookmarkedDocuments([]);
+                return;
+            }
+
+            if (bookmarkIds.size === 0) {
+                setIsLoading(false);
+                setBookmarkedDocuments([]);
+                return;
+            }
+
+            try {
+                setIsLoading(true);
+                
+                // Convert Set to Array
+                const documentIds = Array.from(bookmarkIds);
+
+                // Fetch document details from mongodb
+                const response = await fetch(`${API_BASE_URL}/api/documents/batch`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ document_ids: documentIds }),
+                });
+
+                if (response.ok) {
+                    const documents = await response.json();
+                    setBookmarkedDocuments(documents);
+                } else {
+                    const errorText = await response.text();
+                    console.error("Failed to fetch bookmarked documents:", errorText);
+                    setBookmarkedDocuments([]);
+                }
+            } catch (error) {
+                console.error("Error loading bookmarked documents:", error);
+                setBookmarkedDocuments([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadBookmarkedDocuments();
+    }, [user?.id, bookmarkIds]);
+
+    // Handle opening bookmarked document in new tab
+    const handleOpenDocument = (documentId: string) => {
+        const downloadUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
+        window.open(downloadUrl, '_blank');
+    };
+
+    // Handle removing bookmark
+    const handleRemoveBookmark = async (documentId: string) => {
+        if (!user?.id) return;
+
+        try {
+            await bookmarkService.removeBookmark(user.id, documentId);
+            
+            // Update local state
+            setBookmarkedDocuments(prev => 
+                prev.filter(doc => doc.id !== documentId)
+            );
+
+            // Refresh bookmarks in context
+            await refreshBookmarks();
+        } catch (error) {
+            console.error("Error removing bookmark:", error);
+            alert("Failed to remove bookmark. Please try again.");
+        }
+    };
+
+    // Filter bookmarks based on search query and sort for display
+    const filteredBookmarks = bookmarkedDocuments
+        .filter(bookmark =>
+            bookmark.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            bookmark.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
+        .sort((a: Document, b: Document) => 
+            a.filename.localeCompare(b.filename)
+        );
+
+    // Loading screen
+    if (isLoading) {
+        return (
+            <div className="text-center py-8 text-gray-500">
+                <p className="text-sm font-semibold">Loading bookmarks...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-3">
-            {bookmarks.map((bookmark, idx) => (
-                <div
-                    key={idx}
-                    className="flex items-center gap-3 border rounded-lg p-3 hover:bg-els-secondarybuttonhover"
-                >
-                    {/* Icon */}
-                    <div className="py-2.5 px-4 rounded-lg bg-els-bookmarkeddocumentbackground text-xl">
-                        <FontAwesomeIcon icon={faFileAlt} className="text-blue-400" />
-                    </div>
-
-                    {/* Bookmarked document details */}
-                    <div className="flex flex-col">
-                        <span className="font-semibold text-sm">
-                            {bookmark.title}
-                        </span>
-                        <span className="font-semibold text-xs text-gray-500">
-                            Document • {bookmark.date}
-                        </span>
-                    </div>
+            {filteredBookmarks.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                    <p className="text-sm font-semibold">
+                        {searchQuery ? "No bookmarks found" : "No bookmarks yet"}
+                    </p>
+                    <p className="text-xs mt-1">
+                        {searchQuery ? "Try adjusting your search query" : "Bookmark documents from the Documents page to see them here"}
+                    </p>
                 </div>
-            ))}
+            ) : (
+                filteredBookmarks.map((bookmark) => (
+                    <div
+                        key={bookmark.id}
+                        className="flex items-center gap-3 border rounded-lg p-3 hover:bg-els-secondarybuttonhover group"
+                    >
+                        {/* Icon */}
+                        <div className="py-2.5 px-4 rounded-lg bg-els-bookmarkeddocumentbackground text-xl flex-shrink-0">
+                            <FontAwesomeIcon icon={faFileAlt} className="text-blue-400" />
+                        </div>
+                        
+                        {/* Document details */}
+                        <div className="flex flex-col flex-1 min-w-0">
+                            <span className="font-semibold text-sm">
+                                {bookmark.filename}
+                            </span>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <span className="font-semibold text-xs text-gray-500">
+                                    Document • {formatDate(bookmark.uploadDate)}
+                                </span>
+                                {bookmark.tags.length > 0 && (
+                                    <div className="flex gap-1 flex-wrap">
+                                        {bookmark.tags.map((tag, idx) => (
+                                            <span
+                                                key={idx}
+                                                className="bg-gray-100 text-gray-800 text-xs font-semibold px-1.5 py-0.5 rounded-full"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                            <button
+                                onClick={() => handleOpenDocument(bookmark.id)}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Open in new tab"
+                            >
+                                <FontAwesomeIcon icon={faExternalLink} className="h-4 w-4 text-gray-600" />
+                            </button>
+                            <button
+                                onClick={() => handleRemoveBookmark(bookmark.id)}
+                                className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                                title="Remove bookmark"
+                            >
+                                <FontAwesomeIcon icon={faTrashCan} className="h-4 w-4 text-red-600" />
+                            </button>
+                        </div>
+                    </div>
+                ))
+            )}
         </div>
     );
 };

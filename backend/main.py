@@ -63,12 +63,6 @@ app.add_middleware(
 )
 
 # Pydantic models
-class DocumentCreate(BaseModel):
-    filename: str
-    tags: List[str] = []
-    version: str
-    size: str
-
 class DocumentResponse(BaseModel):
     id: str
     filename: str
@@ -90,6 +84,9 @@ class SourceInfo(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     sources: List[SourceInfo] = []
+
+class DocumentIdsRequest(BaseModel):
+    document_ids: List[str]
 
 # Helper function to format file size
 def format_file_size(size_bytes: int) -> str:
@@ -354,6 +351,40 @@ async def chat(request: ChatRequest):
     except Exception as e:
         print(f"Error log: {str(e)}") # log for debugging
         return ChatResponse(response="Error: An issue occured. Please try again later.")
+
+# Endpoint to fetch metadata of multiple specific documents from mongodb, to display a user's bookmarked documents in YourBookmarks page
+@app.post("/api/documents/batch", response_model=List[DocumentResponse])
+async def get_documents_batch(request: DocumentIdsRequest):
+    try:
+        # Convert string Ids to ObjectIds
+        object_ids = []
+        for doc_id in request.document_ids:
+            try:
+                object_ids.append(ObjectId(doc_id))
+            except Exception as e:
+                print(f"Invalid document ID {doc_id}: {str(e)}")
+                continue
+        
+        # Fetch all documents in a single database query
+        docs_cursor = company_documents_collection.find({
+            "_id": {"$in": object_ids}
+        })
+
+        # Format the results
+        documents = []
+        for doc in docs_cursor:
+            documents.append(DocumentResponse(
+                id=str(doc["_id"]),
+                filename=doc["filename"],
+                tags=doc.get("tags", []),
+                uploadDate=doc["upload_date"].isoformat(),
+                size=doc["size"]
+            ))
+        
+        return documents
+    except Exception as e:
+        print(f"Error in batch fetch: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch documents")
 
 # Health check endpoint
 @app.get("/healthcheck")

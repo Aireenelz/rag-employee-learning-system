@@ -7,6 +7,9 @@ import {
     faBookmark,
     faExternalLink,
 } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "../context/AuthContext";
+import { useBookmarks } from "../context/BookmarkContext";
+import { formatDate } from "../utils/dateUtils";
 
 interface Document {
     id: string;
@@ -25,10 +28,12 @@ interface DocumentTableProps {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocuments, onSelectionChange, isLoading}) => {
+const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocuments, onSelectionChange, isLoading }) => {
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
-    const [bookmarkedDocuments, setBookmarkedDocuments] = useState<string[]>([]);
+    const [bookmarkLoading, setBookmarkLoading] = useState<Set<string>>(new Set());
     const menuRef = useRef<HTMLDivElement>(null);
+    const { user } = useAuth();
+    const { isBookmarked, toggleBookmark } = useBookmarks();
 
     // Selecting all documents
     const handleSelectAll = () => {
@@ -55,23 +60,32 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
         setOpenActionMenu(null);
     };
 
-    // Action to bookmark a document
-    const handleBookmark = (documentId: string) => {
-        if (bookmarkedDocuments.includes(documentId)) {
-            setBookmarkedDocuments(prev => prev.filter(id => id !== documentId));
-        } else {
-            setBookmarkedDocuments(prev => [...prev, documentId]);
+    // Action to bookmark a document (toggle bookmark)
+    const handleBookmarkToggle = async (documentId: string) => {
+        if (!user?.id) {
+            alert("Please sign in to bookmark documents");
+            return;
         }
-        setOpenActionMenu(null);
-    };
 
-    // Date formatting
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "numeric",
-            year: "numeric"
-        });
+        // Prevent multiple simultaneous requests
+        if (bookmarkLoading.has(documentId)) return;
+        
+        setBookmarkLoading(prev => new Set(prev).add(documentId));
+
+        try {
+            await toggleBookmark(documentId);
+        } catch (error) {
+            console.error("Error toggling bookmark:", error);
+            alert("Failed to update bookmark. Please try again.");
+        } finally {
+            // Remove from loading set
+            setBookmarkLoading(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(documentId);
+                return newSet;
+            });
+            setOpenActionMenu(null);
+        }
     };
 
     // Open action menu
@@ -86,7 +100,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                 setOpenActionMenu(null);
             }
         };
-
+        
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
@@ -98,10 +112,10 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
         return (
             <div className="border rounded">
                 <div className="flex justify-center items-center py-8">
-                    <div className="text-gray-500">Loading documents...</div>
+                    <p className="text-gray-500">Loading documents...</p>
                 </div>
             </div>
-        )
+        );
     }
 
     return (
@@ -149,7 +163,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
                                     <div className="flex items-center gap-2">
                                         <FontAwesomeIcon icon={faFileAlt} className="text-blue-400"/>
                                         {doc.filename}
-                                        {bookmarkedDocuments.includes(doc.id) && (
+                                        {isBookmarked(doc.id) && (
                                             <FontAwesomeIcon icon={faBookmark} className="text-yellow-400"/>
                                         )}
                                     </div>
@@ -210,11 +224,20 @@ const DocumentTable: React.FC<DocumentTableProps> = ({documents, selectedDocumen
 
                                                     {/* Action button to bookmark */}
                                                     <button
-                                                        onClick={() => handleBookmark(doc.id)}
-                                                        className="w-full text-left px-4 py-2 text-sm font-normal hover:bg-gray-50 flex items-center gap-2"
+                                                        onClick={() => handleBookmarkToggle(doc.id)}
+                                                        disabled={bookmarkLoading.has(doc.id)}
+                                                        className="w-full text-left px-3 py-2 text-sm font-normal hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
-                                                        <FontAwesomeIcon icon={faBookmark} className={`${bookmarkedDocuments.includes(doc.id) ? "text-yellow-400" : ""}`}/>
-                                                        {bookmarkedDocuments.includes(doc.id) ? "Remove bookmark" : "Bookmark"}
+                                                        <FontAwesomeIcon
+                                                            icon={faBookmark}
+                                                            className={isBookmarked(doc.id) ? "text-yellow-400" : ""}
+                                                        />
+                                                        {bookmarkLoading.has(doc.id)
+                                                            ? "Loading..."
+                                                            : isBookmarked(doc.id)
+                                                                ? "Remove bookmark"
+                                                                : "Bookmark"
+                                                        }
                                                     </button>
                                                 </div>
                                             </div>

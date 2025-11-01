@@ -10,6 +10,7 @@ import YourBookmarks from "../components/YourBookmarks";
 
 const QuickAccess: React.FC = () => {
     const [activeTab, setActiveTab] = useState<"bookmarks" | "faq">("bookmarks");
+    const [searchQuery, setSearchQuery] = useState("");
 
     return (
         <div className="pb-5">
@@ -22,10 +23,13 @@ const QuickAccess: React.FC = () => {
             <div className="flex mb-4 w-full py-1 px-1 bg-els-mutedbackground rounded-lg text-sm gap-1">
                 {/* Your Bookmarks */}
                 <button
-                    className={`flex-1 text-center py-2 px-4 font-semibold rounded-md hover:bg-slate-100 hover:text-gray-500 ${
-                        activeTab === 'bookmarks' ? 'bg-els-selectedtab hover:text-gray-600 hover:bg-els-selectedtab' : 'text-gray-400'
+                    className={`flex-1 text-center py-2 px-4 font-semibold rounded-md hover:text-gray-500 ${
+                        activeTab === 'bookmarks' ? 'bg-els-selectedtab hover:text-gray-600' : 'text-gray-400'
                     }`}
-                    onClick={() => setActiveTab('bookmarks')}
+                    onClick={() => {
+                        setActiveTab('bookmarks');
+                        setSearchQuery("");
+                    }}
                 >
                     <FontAwesomeIcon icon={faBookmark} className="mr-2"/>
                     Your Bookmarks
@@ -33,10 +37,13 @@ const QuickAccess: React.FC = () => {
 
                 {/* Frequently Asked Questions */}
                 <button
-                    className={`flex-1 text-center py-2 px-4 font-semibold rounded-md hover:bg-slate-100 hover:text-gray-500 ${
-                        activeTab === 'faq' ? 'bg-els-selectedtab hover:text-gray-600 hover:bg-els-selectedtab' : 'text-gray-400'
+                    className={`flex-1 text-center py-2 px-4 font-semibold rounded-md hover:text-gray-500 ${
+                        activeTab === 'faq' ? 'bg-els-selectedtab hover:text-gray-600' : 'text-gray-400'
                     }`}
-                    onClick={() => setActiveTab('faq')}
+                    onClick={() => {
+                        setActiveTab('faq');
+                        setSearchQuery("");
+                    }}
                 >
                     <FontAwesomeIcon icon={faList} className="mr-2"/>
                     Frequently Asked Questions
@@ -56,6 +63,8 @@ const QuickAccess: React.FC = () => {
                             <input
                                 type="text"
                                 placeholder="Search by document name or tags..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full px-4 py-2 bg-els-secondarybackground text-sm font-semibold focus:outline-none"
                             />
                         </div>
@@ -64,7 +73,11 @@ const QuickAccess: React.FC = () => {
 
                 {/* Tab content */}
                 <div className="mt-8">
-                    {activeTab === 'bookmarks' ? <YourBookmarks/> : <FAQs/>}
+                    {activeTab === 'bookmarks' ? (
+                        <YourBookmarks searchQuery={searchQuery} />
+                    ) : (
+                        <FAQs searchQuery={searchQuery} />
+                    )}
                 </div>
             </div>
         </div>
