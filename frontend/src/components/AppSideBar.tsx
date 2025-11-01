@@ -76,7 +76,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
         if (window.innerWidth < SIDEBAR_BREAKPOINT) {
             onToggle();
         }
-    }
+    };
 
     // Expanded sidebar
     if (isOpen) {
@@ -137,6 +137,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                                 <NavLink
                                     to={item.to}
                                     key={item.label}
+                                    onClick={handleNavClick}
                                     className={({ isActive }) =>
                                         `flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm ${
                                         isActive
@@ -197,13 +198,13 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
             </div>
 
             {/* Navigation */}
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-2 px-1">
                 {navItems.map((item) => (
                     <NavLink
                         to={item.to}
                         key={item.label}
                         className={({ isActive }) =>
-                            `flex items-center justify-center p-3 rounded-md transition-colors ${
+                            `flex items-center justify-center p-3 rounded-md transition-all duration-200 ${
                                 isActive
                                     ? "bg-white/20 font-medium"
                                     : "hover:bg-white/10"

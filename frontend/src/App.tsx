@@ -47,7 +47,7 @@ export default function App() {
       {/* Main panel */}
       <div className="flex-1 flex flex-col overflow-hidden bg-els-secondarybackground w-full">
         {/* Header with hamburger menu for mobile */}
-        <div className="lg:hidden sticky top-0 z-30 bg-els-secondarybackground border-b border-gray-200 px-6 py-0.5">
+        <div className="lg:hidden sticky top-0 z-30 bg-els-secondarybackground border-b border-gray-200 px-3 py-2">
           <button
             onClick={toggleSidebar}
             className="p-2 rounded-md hover:bg-els-secondarybuttonhover transition-colors"
