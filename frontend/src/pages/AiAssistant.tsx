@@ -181,7 +181,7 @@ const AiAssistant = () => {
 
                         {/* Render the message content */}
                         <div
-                            className={`max-w-md px-4 py-2 rounded-lg text-sm ${
+                            className={`max-w-md px-4 py-2 rounded-lg text-sm break-words ${
                                 msg.role === "user" 
                                 ? "bg-els-chatuser text-white rounded-lg" 
                                 : "bg-els-chatrobot rounded-lg"
@@ -199,20 +199,20 @@ const AiAssistant = () => {
                                         {msg.sources.map((source, sourceIdx) => (
                                             <div
                                                 key={sourceIdx}
-                                                className="group flex items-center justify-between gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
+                                                className="group flex items-start justify-between gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
                                             >
                                                 {/* Document info - clickable */}
                                                 <div
-                                                    className="flex items-center gap-2 flex-1 cursor-pointer min-w-0"
+                                                    className="flex items-start gap-2 flex-1 cursor-pointer min-w-0"
                                                     onClick={() => handleDocumentClick(source.document_id)}
                                                 >
-                                                    <FontAwesomeIcon icon={faFileText} className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                                                    <FontAwesomeIcon icon={faFileText} className="w-3 h-3 text-blue-600 flex-shrink-0 mt-1" />
                                                     <div className="flex flex-col min-w-0 flex-1">
-                                                        <span className="text-xs font-semibold text-gray-800 truncate">
+                                                        <span className="text-xs font-semibold text-gray-800">
                                                             {source.filename}
                                                         </span>
                                                         {source.tags && (
-                                                            <span className="text-xs text-gray-500 truncate">
+                                                            <span className="text-xs text-gray-500 break-all">
                                                                 {source.tags}
                                                             </span>
                                                         )}
@@ -223,11 +223,11 @@ const AiAssistant = () => {
                                                 <button
                                                     onClick={(e) => handleBookmarkToggle(e, source.document_id)}
                                                     disabled={bookmarkLoading.has(source.document_id)}
-                                                    className="flex-shrink-0 p-1.5 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="flex-shrink-0 p-1.5 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed self-start"
                                                     title={isBookmarked(source.document_id) ? "Remove bookmark" : "Bookmark this document"}
                                                 >
-                                                    <FontAwesomeIcon 
-                                                        icon={faBookmark} 
+                                                    <FontAwesomeIcon
+                                                        icon={faBookmark}
                                                         className={`w-3 h-3 transition-colors ${
                                                             bookmarkLoading.has(source.document_id)
                                                                 ? "text-gray-400"
@@ -250,7 +250,7 @@ const AiAssistant = () => {
                 {isLoading && (
                     <div className="flex items-center gap-2 py-2 justify-start">
                         <RobotAvatar/>
-                        <div className="max-w-md px-4 py-2 rounded-lg text-sm bg-els-chatrobot rounded-lg">
+                        <div className="w-full sm:max-w-md px-4 py-2 rounded-lg text-sm bg-els-chatrobot rounded-lg">
                             Typing...
                         </div>
                     </div>
@@ -265,7 +265,7 @@ const AiAssistant = () => {
                 <div className="flex items-center space-x-2">
                     <input
                         ref={inputRef}
-                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground focus:outline-none"
+                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground"
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
