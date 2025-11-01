@@ -1,7 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import RobotAvatar from "../components/RobotAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileText, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { 
+    faBookmark,
+    faFileText,
+    faPaperPlane
+} from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "../context/AuthContext";
+import { useBookmarks } from "../context/BookmarkContext";
 
 interface SourceInfo {
     document_id: string;
@@ -26,8 +32,13 @@ const AiAssistant = () => {
     ]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [bookmarkLoading, setBookmarkLoading] = useState<Set<string>>(new Set());
+    
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const { user } = useAuth();
+    const { isBookmarked, toggleBookmark } = useBookmarks();
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
@@ -81,6 +92,36 @@ const AiAssistant = () => {
     const handleDocumentClick = (documentId: string) => {
         const documentUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
         window.open(documentUrl, '_blank');
+    };
+
+    // Bookmark source document (toggle bookmark)
+    const handleBookmarkToggle = async (e: React.MouseEvent, documentId: string) => {
+        // Prevent opening document when clicking bookmark
+        e.stopPropagation()
+
+        if (!user?.id) {
+            alert("Please sign in to bookmark documents");
+            return;
+        }
+
+        // Prevent multiple simultaneous requests
+        if (bookmarkLoading.has(documentId)) return;
+        
+        setBookmarkLoading(prev => new Set(prev).add(documentId));
+
+        try {
+            await toggleBookmark(documentId);
+        } catch (error) {
+            console.error("Error toggling bookmark:", error);
+            alert("Failed to update bookmark. Please try again.");
+        } finally {
+            // Remove from loading set
+            setBookmarkLoading(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(documentId);
+                return newSet;
+            });
+        }
     };
 
     // Focus input on component mount and after messages update
@@ -149,23 +190,55 @@ const AiAssistant = () => {
                         >
                             {msg.content}
                             {msg.role === "assistant" && msg.sources && msg.sources.length > 0 && (
-                                <div className="mt-2 flex flex-wrap gap-1 max-w-md">
-                                    <span className="text-xs text-gray-600 mr-1">
+                                <div className="mt-3 pt-2 border-t border-gray-200 flex flex-col gap-1 max-w-md">
+                                    <span className="text-xs text-gray-600 font-semibold mb-2">
                                         Sources:
                                     </span>
-                                    {msg.sources.map((source, sourceIdx) => (
-                                        <div
-                                            key={sourceIdx}
-                                            className="inline-flex items-center gap-1 px-2 py-1 bg-els-secondarybutton text-blue-800 text-xs rounded-full border border-blue-200 hover:bg-els-secondarybuttonhover transition-colors cursor-pointer"
-                                            title={`Click to open in new tab ↗\nSource: ${source.filename}\nTags: ${source.tags}`}
-                                            onClick={() => handleDocumentClick(source.document_id)}
-                                        >
-                                            <FontAwesomeIcon icon={faFileText} className="w-3 h-3" />
-                                            <span className="truncate max-w-24">
-                                                {source.filename}
-                                            </span>
-                                        </div>
-                                    ))}
+                                    <div className="flex flex-col gap-2">
+                                        {msg.sources.map((source, sourceIdx) => (
+                                            <div
+                                                key={sourceIdx}
+                                                className="group flex items-center justify-between gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
+                                            >
+                                                {/* Document info - clickable */}
+                                                <div
+                                                    className="flex items-center gap-2 flex-1 cursor-pointer"
+                                                    onClick={() => handleDocumentClick(source.document_id)}
+                                                >
+                                                    <FontAwesomeIcon icon={faFileText} className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                                                    <div className="flex flex-col flex-1">
+                                                        <span className="text-xs font-semibold text-gray-800">
+                                                            {source.filename}
+                                                        </span>
+                                                        {source.tags && (
+                                                            <span className="text-xs text-gray-500">
+                                                                {source.tags}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Bookmark button */}
+                                                <button
+                                                    onClick={(e) => handleBookmarkToggle(e, source.document_id)}
+                                                    disabled={bookmarkLoading.has(source.document_id)}
+                                                    className="flex-shrink-0 p-1.5 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    title={isBookmarked(source.document_id) ? "Remove bookmark" : "Bookmark this document"}
+                                                >
+                                                    <FontAwesomeIcon 
+                                                        icon={faBookmark} 
+                                                        className={`w-3 h-3 transition-colors ${
+                                                            bookmarkLoading.has(source.document_id)
+                                                                ? "text-gray-400"
+                                                                : isBookmarked(source.document_id)
+                                                                    ? "text-yellow-400"
+                                                                    : "text-gray-400 hover:text-yellow-400"
+                                                            }`}
+                                                    />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -191,7 +264,7 @@ const AiAssistant = () => {
                 <div className="flex items-center space-x-2">
                     <input
                         ref={inputRef}
-                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground"
+                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground focus:outline-none"
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}

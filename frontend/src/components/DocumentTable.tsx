@@ -61,7 +61,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
     };
 
     // Action to bookmark a document (toggle bookmark)
-    const handleBookmark = async (documentId: string) => {
+    const handleBookmarkToggle = async (documentId: string) => {
         if (!user?.id) {
             alert("Please sign in to bookmark documents");
             return;
@@ -224,7 +224,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
 
                                                     {/* Action button to bookmark */}
                                                     <button
-                                                        onClick={() => handleBookmark(doc.id)}
+                                                        onClick={() => handleBookmarkToggle(doc.id)}
                                                         disabled={bookmarkLoading.has(doc.id)}
                                                         className="w-full text-left px-3 py-2 text-sm font-normal hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
