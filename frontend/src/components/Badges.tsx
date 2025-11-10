@@ -36,7 +36,7 @@ const Badges: React.FC<BadgesProps> = ({ badges }) => {
                             : "bg-gray-50 opacity-75"
                     }`}
                 >
-                    {/* Badge logo and Checkmark if earned */}
+                    {/* Badge icon and Checkmark if earned */}
                     <div className="flex items-start justify-between">
                         <div className={`p-3 rounded-lg text-3xl ${getIconBgColor(badge.requirement_type)}`}>
                             {badge.icon}
@@ -57,7 +57,7 @@ const Badges: React.FC<BadgesProps> = ({ badges }) => {
                     {/* EXP reward if earn the badge */}
                     {badge.exp_reward > 0 && (
                         <div className="inline-block">
-                            <span className="text-xs font semibold px-2 py-1 rounded-full bg-blue-50 text-blue-600">
+                            <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-50 text-blue-600">
                                 +{badge.exp_reward} XP
                             </span>
                         </div>
@@ -72,7 +72,7 @@ const Badges: React.FC<BadgesProps> = ({ badges }) => {
                     ) : (
                         <div className="space-y-1">
                             <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${Math.round(badge.progress)}%`}}></div>
+                                <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${Math.round(badge.progress)}%` }}></div>
                             </div>
                             <div className="flex justify-start text-sm">
                                 <span className="text-gray-600">{Math.round(badge.progress)}% completed</span>

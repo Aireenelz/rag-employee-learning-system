@@ -58,7 +58,7 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         try {
             const response = await fetch(`${API_BASE_URL}/api/gamification/track`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     user_id: user.id,
                     activity_type: activityType,
@@ -119,7 +119,7 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
 export const useGamification = () => {
     const context = useContext(GamificationContext);
-    if (context == undefined) {
+    if (context === undefined) {
         throw new Error("useGamification must be used within a GamificationProvider");
     }
     return context;

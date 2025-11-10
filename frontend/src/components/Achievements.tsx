@@ -36,7 +36,7 @@ const Achievements: React.FC = () => {
                 <div className="pb-2 px-4">
                     <div className="flex justify-between items-center">
                         <span className="text-sm font-semibold">Level {stats.level}</span>
-                        <span className="text-sm font-semibold text-gray-400">{stats.exp_progress}/500 XP</span>
+                        <span className="text-sm font-semibold text-gray-400">{stats.exp_progress}/{500} XP</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-4">
                         <div className="bg-blue-500 h-4 rounded-full" style={{ width: `${expProgress}%` }}></div>
@@ -72,7 +72,7 @@ const Achievements: React.FC = () => {
                 {/* Card header */}
                 <div className="py-2 px-4 flex flex-col">
                     <h2 className="text-lg font-bold">Your Achievements</h2>
-                    <p className="text-sm font-semibold text-gray-400">Badges for your acitivity milestones</p>
+                    <p className="text-sm font-semibold text-gray-400">Badges for your activity milestones</p>
                 </div>
 
                 {/* Badges cards */}
