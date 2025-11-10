@@ -2,8 +2,10 @@ from fastapi import APIRouter, HTTPException, Depends
 from supabase import Client
 from typing import Optional
 import os
+from dotenv import load_dotenv
 from datetime import datetime, timezone
 
+load_dotenv()
 router = APIRouter()
 
 # Supabase client setup
@@ -203,7 +205,7 @@ async def get_user_badges(user_id: str):
         # Get all badges
         badges_result = supabase.table("badges")\
             .select("*")\
-            .order("requirement_value")\
+            .order("created_at")\
             .execute()
         
         all_badges = badges_result.data
