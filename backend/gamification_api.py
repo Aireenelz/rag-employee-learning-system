@@ -34,7 +34,7 @@ async def track_activity(user_id: str, activity_type: str, metadata: Optional[di
         
         if not result.data:
             # Initialise if doesnt exist
-            supabase.table("user_gamification"). insert({
+            supabase.table("user_gamification").insert({
                 "user_id": user_id
             }).execute()
             result = supabase.table("user_gamification")\
@@ -53,11 +53,11 @@ async def track_activity(user_id: str, activity_type: str, metadata: Optional[di
         }
 
         if activity_type == "question_asked":
-            updates["question_asked"] = current_stats["question_asked"] + 1
+            updates["questions_asked"] = current_stats["questions_asked"] + 1
         elif activity_type == "document_viewed":
-            updates["document_viewed"] = current_stats["document_viewed"] + 1
+            updates["documents_viewed"] = current_stats["documents_viewed"] + 1
         elif activity_type == "bookmark_created":
-            updates["bookmark_created"] = current_stats["bookmark_created"] + 1
+            updates["bookmarks_created"] = current_stats["bookmarks_created"] + 1
         
         # Update user stats
         supabase.table("user_gamification")\
@@ -84,7 +84,7 @@ async def track_activity(user_id: str, activity_type: str, metadata: Optional[di
     
     except Exception as e:
         print(f"Error tracking activity: {e}")
-        return {"success": False, "error":str(e)}
+        return {"success": False, "error": str(e)}
 
 async def check_and_award_badges(user_id: str):
     """
@@ -127,11 +127,11 @@ async def check_and_award_badges(user_id: str):
             if req_type == "questions_asked":
                 requirement_met = stats["questions_asked"] >= req_value
             elif req_type == "documents_viewed":
-                requirement_met = stats["documents_viewed"] > req_value
+                requirement_met = stats["documents_viewed"] >= req_value
             elif req_type == "bookmarks_created":
-                requirement_met = stats["bookmarks_created"] > req_value
+                requirement_met = stats["bookmarks_created"] >= req_value
             elif req_type == "level_reached":
-                requirement_met = stats["level"] > req_value
+                requirement_met = stats["level"] >= req_value
             
             if requirement_met:
                 # Award badge
@@ -210,7 +210,7 @@ async def get_user_badges(user_id: str):
 
         # Get user's earned badges
         earned_result = supabase.table("user_badges")\
-            .select("badge_id", "earned_at")\
+            .select("badge_id, earned_at")\
             .eq("user_id", user_id)\
             .execute()
         
