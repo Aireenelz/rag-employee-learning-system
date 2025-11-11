@@ -262,7 +262,7 @@ const AiAssistant = () => {
                 {isLoading && (
                     <div className="flex items-center gap-2 py-2 justify-start">
                         <RobotAvatar/>
-                        <div className="w-full sm:max-w-md px-4 py-2 rounded-lg text-sm bg-els-chatrobot rounded-lg">
+                        <div className="max-w-md px-4 py-2 rounded-lg text-sm bg-els-chatrobot rounded-lg">
                             Typing...
                         </div>
                     </div>

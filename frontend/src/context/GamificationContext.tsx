@@ -9,6 +9,8 @@ interface GamificationContextType {
     badges: Badge[];
     totalEarnedBadges: number;
     loading: boolean;
+    newBadge: Badge | null;
+    clearNewBadge: () => void;
     trackActivity: (activityType: ActivityType, metadata?: Record<string, any>) => Promise<void>;
     refreshStats: () => Promise<void>;
     refreshBadges: () => Promise<void>;
@@ -22,6 +24,8 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const [badges, setBadges] = useState<Badge[]>([]);
     const [totalEarnedBadges, setTotalEarnedBadges] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [newBadge, setNewBadge] = useState<Badge | null>(null);
+    const [previousEarnedCount, setPreviousEarnedCount] = useState(0);
 
     const fetchStats = useCallback(async () => {
         if (!user?.id) return;
@@ -44,13 +48,32 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             const response = await fetch(`${API_BASE_URL}/api/gamification/badges/${user.id}`);
             if (response.ok) {
                 const data: BadgesResponse = await response.json();
+
+                // Check if a new badge is earned
+                if (previousEarnedCount > 0 && data.total_earned > previousEarnedCount) {
+                    // Find the newly earned badge
+                    const earnedBadges = data.badges.filter(b => b.earned);
+
+                    // Sort by earned_at date to get the most recent
+                    earnedBadges.sort((a,b) => {
+                        if (!a.earned_at || !b.earned_at) return 0;
+                        return new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime();
+                    });
+
+                    // Show notification for the most recently earned badge
+                    if (earnedBadges.length > 0) {
+                        setNewBadge(earnedBadges[0]);
+                    }
+                }
+
                 setBadges(data.badges);
                 setTotalEarnedBadges(data.total_earned);
+                setPreviousEarnedCount(data.total_earned);
             }
         } catch (error) {
             console.error("Error fetching badges:", error);
         }
-    }, [user?.id]);
+    }, [user?.id, previousEarnedCount]);
 
     const trackActivity = useCallback(async (activityType: ActivityType, metadata?: Record<string, any>) => {
         if (!user?.id) return;
@@ -75,6 +98,10 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
     }, [user?.id, fetchStats, fetchBadges]);
 
+    const clearNewBadge = useCallback(() => {
+        setNewBadge(null);
+    }, []);
+
     useEffect(() => {
         const loadData = async () => {
             if (user?.id) {
@@ -85,6 +112,7 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 setStats(null);
                 setBadges([]);
                 setTotalEarnedBadges(0);
+                setPreviousEarnedCount(0);
                 setLoading(false);
             }
         };
@@ -105,6 +133,8 @@ export const GamificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         badges,
         totalEarnedBadges,
         loading,
+        newBadge,
+        clearNewBadge,
         trackActivity,
         refreshStats,
         refreshBadges
