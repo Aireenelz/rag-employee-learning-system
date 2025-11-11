@@ -13,11 +13,11 @@ const BadgeNotification: React.FC<BadgeNotificationProps> = ({ badge, onClose })
         // Trigger animation
         setTimeout(() => setIsVisible(true), 10);
 
-        // Auto close after 15 seconds
+        // Auto close after 10 seconds
         const timer = setTimeout(() => {
             setIsVisible(false);
             setTimeout(onClose, 300);
-        }, 150000);
+        }, 10000);
 
         return () => clearTimeout(timer);
     }, [onClose]);
