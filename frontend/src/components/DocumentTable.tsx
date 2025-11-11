@@ -160,7 +160,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                             </td>
                         </tr>
                     ) : (
-                        documents.map((doc) => (
+                        documents.map((doc, index) => (
                             <tr key={doc.id} className="border-b hover:bg-gray-50">
                                 {/* Checkbox */}
                                 <td className="py-2 pl-3">
@@ -224,7 +224,9 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                         {openActionMenu === doc.id && (
                                             <div
                                                 ref={menuRef}
-                                                className="absolute right-0 bottom-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-48"
+                                                className={`absolute right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-48 ${
+                                                    index === 0 ? "top-full" : "bottom-full"
+                                                }`}
                                             >
                                                 <div className="py-1">
                                                     {/* Action button to open file */}
