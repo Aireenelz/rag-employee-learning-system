@@ -10,6 +10,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import { formatDate } from "../utils/dateUtils";
+import { useGamification } from "../context/GamificationContext";
 
 interface Document {
     id: string;
@@ -32,8 +33,10 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
     const [bookmarkLoading, setBookmarkLoading] = useState<Set<string>>(new Set());
     const menuRef = useRef<HTMLDivElement>(null);
+
     const { user } = useAuth();
     const { isBookmarked, toggleBookmark } = useBookmarks();
+    const { trackActivity } = useGamification();
 
     // Selecting all documents
     const handleSelectAll = () => {
@@ -54,10 +57,20 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
     };
 
     // Action to open a document
-    const handleOpenDocument = (documentId: string) => {
+    const handleOpenDocument = async (documentId: string) => {
         const downloadUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
         window.open(downloadUrl, '_blank');
         setOpenActionMenu(null);
+
+        // Track document_viewed activity
+        if (user?.id) {
+            const document = documents.find(doc => doc.id === documentId);
+            await trackActivity("document_viewed", {
+                document_id: documentId,
+                filename: document?.filename,
+                timestamp: new Date().toISOString()
+            });
+        }
     };
 
     // Action to bookmark a document (toggle bookmark)
@@ -147,7 +160,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                             </td>
                         </tr>
                     ) : (
-                        documents.map((doc) => (
+                        documents.map((doc, index) => (
                             <tr key={doc.id} className="border-b hover:bg-gray-50">
                                 {/* Checkbox */}
                                 <td className="py-2 pl-3">
@@ -211,7 +224,9 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                         {openActionMenu === doc.id && (
                                             <div
                                                 ref={menuRef}
-                                                className="absolute right-0 bottom-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-48"
+                                                className={`absolute right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-48 ${
+                                                    index === 0 ? "top-full" : "bottom-full"
+                                                }`}
                                             >
                                                 <div className="py-1">
                                                     {/* Action button to open file */}

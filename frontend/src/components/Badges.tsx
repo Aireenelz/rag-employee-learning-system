@@ -1,43 +1,28 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faAward,
-    faCircleQuestion,
-    faBookmark,
-    faHeartPulse,
-    faArrowTrendUp,
-    faArrowTrendDown,
     faCheck
 } from "@fortawesome/free-solid-svg-icons";
-import { type BadgeType } from "../data/badgeData";
+import type { Badge } from "../utils/gamification";
+import { formatDate } from "../utils/dateUtils";
 
-const Badges: React.FC<{ badges: BadgeType[] }> = ({ badges }) => {
-    const getIcon = (iconName: string) => {
-        switch (iconName) {
-            case "faAward":
-                return faAward;
-            case "faCircleQuestion":
-                return faCircleQuestion;
-            case "faBookmark":
-                return faBookmark;
-            case "faHeartPulse":
-                return faHeartPulse;
-            case "faArrowTrendUp":
-                return faArrowTrendUp;
-            case "faArrowTrendDown":
-                return faArrowTrendDown;
+interface BadgesProps {
+    badges: Badge[];
+}
+
+const Badges: React.FC<BadgesProps> = ({ badges }) => {
+    const getIconBgColor = (requirementType: string) => {
+        switch (requirementType) {
+            case "questions_asked":
+                return "bg-red-100 text-red-600";
+            case "documents_viewed":
+                return "bg-orange-100 text-orange-600";
+            case "bookmarks_created":
+                return "bg-yellow-100 text-yellow-600";
+            case "level_reached":
+                return "bg-blue-100 text-blue-600";
             default:
-                return faAward;
+                return "bg-gray-100 text-gray-600";
         }
-    };
-
-    const getIconBgColor = (iconName: string) => {
-        if (iconName.includes("Award")) return "bg-pink-100 text-pink-600";
-        if (iconName.includes("Question")) return "bg-blue-100 text-blue-600";
-        if (iconName.includes("Bookmark")) return "bg-purple-100 text-purple-600";
-        if (iconName.includes("Pulse")) return "bg-green-100 text-green-600";
-        if (iconName.includes("TrendUp")) return "bg-orange-100 text-orange-600";
-        if (iconName.includes("TrendDown")) return "bg-red-100 text-red-600";
-        return "bg-gray-100 text-gray-600";
     };
     
     return (
@@ -45,12 +30,16 @@ const Badges: React.FC<{ badges: BadgeType[] }> = ({ badges }) => {
             {badges.map((badge) => (
                 <div
                     key={badge.id}
-                    className="border rounded-lg p-6 space-y-3 hover:shadow-md transition-shadow"
+                    className={`border rounded-lg p-6 space-y-3 hover:shadow-md transition-shadow ${
+                        badge.earned
+                            ? "bg-white"
+                            : "bg-gray-50 opacity-75"
+                    }`}
                 >
-                    {/* Badge logo and Checkmark if earned */}
+                    {/* Badge icon and Checkmark if earned */}
                     <div className="flex items-start justify-between">
-                        <div className={`p-3 rounded-lg ${getIconBgColor(badge.icon)}`}>
-                            <FontAwesomeIcon icon={getIcon(badge.icon)} className="text-xl"></FontAwesomeIcon>
+                        <div className={`p-3 rounded-lg text-3xl ${getIconBgColor(badge.requirement_type)}`}>
+                            {badge.icon}
                         </div>
                         {badge.earned && (
                             <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
@@ -61,23 +50,32 @@ const Badges: React.FC<{ badges: BadgeType[] }> = ({ badges }) => {
 
                     {/* Badge title and description */}
                     <div>
-                        <h3 className="font-semibold text-gray-900">{badge.title}</h3>
+                        <h3 className="font-semibold text-gray-900">{badge.name}</h3>
                         <p className="text-sm text-gray-500 mt-1">{badge.description}</p>
                     </div>
 
+                    {/* EXP reward if earn the badge */}
+                    {badge.exp_reward > 0 && (
+                        <div className="inline-block">
+                            <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-50 text-blue-600">
+                                +{badge.exp_reward} XP
+                            </span>
+                        </div>
+                    )}
+
                     {/* Earned date or progress bar */}
                     {badge.earned ? (
-                        <div className="flex items-center text-sm text-green-600">
-                            <FontAwesomeIcon icon={getIcon(badge.icon)} className="w-4 h-4 mr-2"></FontAwesomeIcon>
-                            Earned on {badge.earnedDate}
+                        <div className="flex items-center text-sm text-green-600 font-medium">
+                            <span className="mr-2">✅</span>
+                            Earned on {badge.earned_at ? formatDate(badge.earned_at) : ""}
                         </div>
                     ) : (
                         <div className="space-y-1">
                             <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${badge.progress}%`}}></div>
+                                <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${Math.round(badge.progress)}%` }}></div>
                             </div>
                             <div className="flex justify-start text-sm">
-                                <span>{badge.progress}% completed</span>
+                                <span className="text-gray-600">{Math.round(badge.progress)}% completed</span>
                             </div>
                         </div>
                     )}

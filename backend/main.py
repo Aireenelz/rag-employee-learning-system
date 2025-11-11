@@ -9,6 +9,7 @@ import json
 import io
 from datetime import datetime
 from bson import ObjectId
+from gamification_api import router as gamification_router
 
 from openai import OpenAI
 from pymongo import MongoClient
@@ -61,6 +62,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+# Gamification routes
+app.include_router(gamification_router)
 
 # Pydantic models
 class DocumentResponse(BaseModel):

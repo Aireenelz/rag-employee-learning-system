@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars
 } from "@fortawesome/free-solid-svg-icons";
+import BadgeNotificationContainer from "./components/BadgeNotificationContainer";
 
 const SIDEBAR_BREAKPOINT = 900;
 
@@ -63,6 +64,9 @@ export default function App() {
           <Outlet />
         </div>
       </div>
+
+      {/* Badge notification when user each a new badge */}
+      <BadgeNotificationContainer />
     </div>
   );
 }
