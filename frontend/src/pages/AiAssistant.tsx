@@ -8,6 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
+import { useGamification } from "../context/GamificationContext";
 
 interface SourceInfo {
     document_id: string;
@@ -39,6 +40,7 @@ const AiAssistant = () => {
         
     const { user } = useAuth();
     const { isBookmarked, toggleBookmark } = useBookmarks();
+    const { trackActivity } = useGamification();
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
@@ -48,6 +50,7 @@ const AiAssistant = () => {
             role: "user",
             content: input
         }
+        const questionText = input; // For tracking question_asked
         setMessages([...messages, userMessage]);
         setInput("");
         setIsLoading(true);
@@ -63,6 +66,14 @@ const AiAssistant = () => {
             // Parse API response as JSON
             const data = await response.json();
 
+            // Track question_asked activity
+            if (user?.id) {
+                await trackActivity("question_asked", {
+                    question: questionText,
+                    timestamp: new Date().toISOString()
+                });
+            }
+
             // Update messages array by adding the AI's response
             setMessages((prev) => [
                 ...prev,
@@ -72,6 +83,7 @@ const AiAssistant = () => {
                     sources: data.sources || []
                 }
             ]);
+
         } catch (error) {
             setMessages((prev) => [
                 ...prev,

@@ -9,11 +9,11 @@ import { GamificationProvider } from "./context/GamificationContext";
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AuthProvider>
-      <BookmarkProvider>
-        <GamificationProvider>
+      <GamificationProvider>
+        <BookmarkProvider>
           <AppRouter />
-        </GamificationProvider>
-      </BookmarkProvider>
+        </BookmarkProvider>
+      </GamificationProvider>
     </AuthProvider>
   </React.StrictMode>
 )

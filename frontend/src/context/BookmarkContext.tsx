@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useAuth } from "./AuthContext";
 import { bookmarkService } from "../services/bookmarkService";
+import { useGamification } from "./GamificationContext";
 
 interface BookmarkContextType {
     bookmarks: Set<string>;
@@ -16,6 +17,7 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useAuth();
+    const { trackActivity } = useGamification();
 
     // Load bookmarks when user changes
     const loadBookmarks = useCallback(async () => {
@@ -67,6 +69,14 @@ export const BookmarkProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             } else {
                 await bookmarkService.addBookmark(user.id, documentId);
                 setBookmarks(prev => new Set(prev).add(documentId));
+
+                // Track bookmark_created activity
+                if (user?.id) {
+                    await trackActivity("bookmark_created", {
+                        bookmarked_document_id: documentId,
+                        timestamp: new Date().toISOString()
+                    });
+                }
             }
         } catch (error) {
             console.error("Error toggling bookmark:", error);

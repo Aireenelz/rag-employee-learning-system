@@ -19,8 +19,6 @@ const Achievements: React.FC = () => {
             </div>
         );
     }
-
-    const expProgress = stats.exp_progress_percentage;
     
     return (
         <div className="space-y-8">
@@ -39,7 +37,7 @@ const Achievements: React.FC = () => {
                         <span className="text-sm font-semibold text-gray-400">{stats.exp_progress}/{500} XP</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-4">
-                        <div className="bg-blue-500 h-4 rounded-full" style={{ width: `${expProgress}%` }}></div>
+                        <div className="bg-blue-500 h-4 rounded-full" style={{ width: `${stats.exp_progress_percentage}%` }}></div>
                     </div>
                     <span className="text-sm font-semibold text-gray-400">
                         {stats.exp_for_next_level} XP to reach level {stats.level + 1}

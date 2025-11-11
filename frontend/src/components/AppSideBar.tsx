@@ -14,6 +14,7 @@ import {
 import UserAvatar from "./UserAvatar";
 import SignOutConfirmationModal from "./SignOutConfirmationModal";
 import { useAuth } from "../context/AuthContext";
+import { useGamification } from "../context/GamificationContext";
 
 interface AppSideBarProps {
     isOpen: boolean;
@@ -34,6 +35,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
     const navigate = useNavigate();
     const [showSignOutConfirmation, setShowSignOutConfirmation] = useState(false);
     const { signOut, user, profile } = useAuth();
+    const { stats, totalEarnedBadges } = useGamification();
 
     // Get user initials
     const getUserInitials = () => {
@@ -109,23 +111,23 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                         </div>
                     </div>
 
-                    {/* User Stats */}
+                    {/* Gamification Stats */}
                     <div className="mt-6">
                         <div className="flex justify-between text-sm">
-                            <span>Level 1</span>
+                            <span>Level {stats?.level}</span>
                             <span>
-                                0/500 XP
+                                {stats?.exp_progress}/{500} XP
                             </span>
                         </div>
                         <div className="w-full h-2 bg-white/30 mt-1 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-white/90"
-                                style={{ width: "10%" }}
+                                style={{ width: `${stats?.exp_progress_percentage}%` }}
                             />
                         </div>
                         <div className="mt-2 text-sm text-white/80 flex items-center gap-2">
                             <FontAwesomeIcon icon={faTrophy} className="h-3 w-3" />
-                            <span>0 badges earned</span>
+                            <span>{totalEarnedBadges} badges earned</span>
                         </div>
                     </div>
 

@@ -10,6 +10,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import { formatDate } from "../utils/dateUtils";
+import { useGamification } from "../context/GamificationContext";
 
 interface Document {
     id: string;
@@ -32,8 +33,10 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
     const [bookmarkLoading, setBookmarkLoading] = useState<Set<string>>(new Set());
     const menuRef = useRef<HTMLDivElement>(null);
+
     const { user } = useAuth();
     const { isBookmarked, toggleBookmark } = useBookmarks();
+    const { trackActivity } = useGamification();
 
     // Selecting all documents
     const handleSelectAll = () => {
@@ -54,10 +57,20 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
     };
 
     // Action to open a document
-    const handleOpenDocument = (documentId: string) => {
+    const handleOpenDocument = async (documentId: string) => {
         const downloadUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
         window.open(downloadUrl, '_blank');
         setOpenActionMenu(null);
+
+        // Track document_viewed activity
+        if (user?.id) {
+            const document = documents.find(doc => doc.id === documentId);
+            await trackActivity("document_viewed", {
+                document_id: documentId,
+                filename: document?.filename,
+                timestamp: new Date().toISOString()
+            });
+        }
     };
 
     // Action to bookmark a document (toggle bookmark)
