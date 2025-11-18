@@ -357,9 +357,9 @@ async def download_document(document_id: str, current_user: UserContext = Depend
 @app.delete("/api/documents")
 async def delete_documents(request: DocumentDelete, current_user: UserContext = Depends(get_current_user)):
     try:
-        # Only admins can delete documents
-        if current_user.role != "admin":
-            raise HTTPException(status_code=403, detail="Only administrators can delete documents")
+        # Only admins and internal employees can delete documents
+        if current_user.role not in ["admin", "internal-employee"]:
+            raise HTTPException(status_code=403, detail="Only administrators or internal employees can delete documents")
         
         deleted_count = 0
         

@@ -41,7 +41,7 @@ const Documents: React.FC = () => {
     const canUpload = profile?.role === "admin" || profile?.role === "internal-employee";
 
     // Check if user can delete documents
-    const canDelete = profile?.role === "admin";
+    const canDelete = profile?.role === "admin" || profile?.role === "internal-employee";;
 
     // Fetch documents from  API
     const fetchDocuments = async () => {
