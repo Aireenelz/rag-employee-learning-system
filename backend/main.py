@@ -1,8 +1,8 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import os
 from dotenv import load_dotenv
 import json
@@ -20,6 +20,7 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_chroma import Chroma
+import jwt
 
 # Load environment variables
 load_dotenv()
@@ -28,8 +29,24 @@ mongodb_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
 chroma_api_key = os.getenv("CHROMA_API_KEY")
 chroma_tenant = os.getenv("CHROMA_TENANT")
 chroma_database = os.getenv("CHROMA_DATABASE")
+supabase_jwt_secret = os.getenv("SUPABASE_JWT_SECRET")
 
 MAX_FILE_SIZE = 10 * 1024 * 1024 # 10MB in bytes
+
+# Access level hierarchy
+ACCESS_HIERARCHY = {
+    "public": 0,
+    "partner": 1,
+    "internal": 2,
+    "admin": 3
+}
+
+# Mapping the role to minimum access level. Can access its level and below
+ROLE_MIN_ACCESS = {
+    "partner": 1,
+    "internal-employee": 2,
+    "admin": 3
+}
 
 # Initialise clients
 openai_client = OpenAI(api_key=openai_api_key)
@@ -37,6 +54,9 @@ mongodb_client = MongoClient(mongodb_uri, tls=True, tlsAllowInvalidCertificates=
 db = mongodb_client["els_db"]
 fs = GridFS(db)
 company_documents_collection = db["company_documents"]
+
+# Create index for faster query
+company_documents_collection.create_index([("access_level", 1)])
 
 # Initialise Chroma Cloud client
 embeddings = OpenAIEmbeddings(api_key=openai_api_key)
@@ -67,12 +87,19 @@ app.add_middleware(
 app.include_router(gamification_router)
 
 # Pydantic models
+class UserContext(BaseModel):
+    user_id: str
+    email: str
+    role: str
+    min_access_level: int
+
 class DocumentResponse(BaseModel):
     id: str
     filename: str
     tags: List[str]
     uploadDate: str
     size: str
+    access_level: str
 
 class DocumentDelete(BaseModel):
     document_ids: List[str]
@@ -92,6 +119,43 @@ class ChatResponse(BaseModel):
 class DocumentIdsRequest(BaseModel):
     document_ids: List[str]
 
+# Authentication dependency
+async def get_current_user(authorization: Optional[str] = Header(None)) -> UserContext:
+    """ Extract and verify JWT token from Authorization header"""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+    
+    try:
+        # Extract token from "Bearer <token>"
+        token = authorization.split(" ")[1] if " " in authorization else authorization
+
+        # Decode JWT token
+        payload = jwt.decode(token, supabase_jwt_secret, algorithms=["HS256"], audience="authenticated")
+
+        user_id = payload.get("sub")
+        email = payload.get("email")
+        role = payload.get("user_metadata", {}).get("role", "partner")
+
+        if not user_id or not email:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+        
+        # Get minimum access level for this role
+        min_access_level = ROLE_MIN_ACCESS.get(role, 1)
+
+        return UserContext(
+            user_id=user_id,
+            email=email,
+            role=role,
+            min_access_level=min_access_level
+        )
+    
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
+
 # Helper function to format file size
 def format_file_size(size_bytes: int) -> str:
     if size_bytes == 0:
@@ -104,14 +168,11 @@ def format_file_size(size_bytes: int) -> str:
     return f"{size_bytes:.1f} {size_names[i]}"
 
 # Function to process and store uploaded document embeddings in Chroma
-def process_and_store_document(file_content: bytes, doc_id: str, filename: str, tags_list: List[str], chroma_client: Chroma):
+def process_and_store_document(file_content: bytes, doc_id: str, filename: str, tags_list: List[str], access_level: str, chroma_client: Chroma):
     try:
         # Extract text from PDF
         with pdfplumber.open(io.BytesIO(file_content)) as pdf:
-            text = ""
-            for page in pdf.pages:
-                page_text = page.extract_text() or ""
-                text += page_text
+            text = "".join(page.extract_text() or "" for page in pdf.pages)
         
         # Split text into chunks
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
@@ -120,9 +181,18 @@ def process_and_store_document(file_content: bytes, doc_id: str, filename: str, 
         # Convert tags_list to a string for Chroma compatibility
         tags_str = ",".join(tags_list) if tags_list else ""
 
+        # Store numeric access level
+        access_level_num = ACCESS_HIERARCHY.get(access_level, 0)
+
         # Generate metadata for each chunk
         metadatas = [
-            {"doc_id": doc_id, "filename": filename, "tags": tags_str}
+            {
+                "doc_id": doc_id,
+                "filename": filename,
+                "tags": tags_str,
+                "access_level": access_level,
+                "access_level_num": access_level_num
+            }
             for _ in range(len(chunks))
         ]
 
@@ -138,8 +208,16 @@ def process_and_store_document(file_content: bytes, doc_id: str, filename: str, 
 
 # Upload endpoint
 @app.post("/api/upload")
-async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
+async def upload_document(file: UploadFile = File(...), tags: str = Form(...), access_level: str = Form(...), current_user: UserContext = Depends(get_current_user)):
     try:
+        # Only admins and internal employees can upload documents
+        if current_user.role not in ["admin", "internal-employee"]:
+            raise HTTPException(status_code=403, detail="Insufficient permissions to upload documents")
+        
+        # Validate access level
+        if access_level not in ACCESS_HIERARCHY:
+            raise HTTPException(status_code=400, detail="Invalid access level")
+
         # Validate file type
         if not file.filename.endswith('.pdf'):
             raise HTTPException(status_code=400, detail="Only PDF files are allowed")
@@ -156,10 +234,7 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
 
         # Validate file size
         if file_size > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=413,
-                detail=f"File too large. Maximum size allowed is {MAX_FILE_SIZE // (1024*1024)}MB."
-            )
+            raise HTTPException(status_code=413, detail=f"File too large. Maximum size allowed is {MAX_FILE_SIZE // (1024*1024)}MB.")
         
         # Validate file is not empty
         if file_size == 0:
@@ -180,6 +255,9 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
             "file_id": file_id,
             "filename": file.filename,
             "tags": tags_list,
+            "access_level": access_level,
+            "access_level_num": ACCESS_HIERARCHY[access_level],
+            "uploaded_by": current_user.email,
             "upload_date": datetime.now(),
             "size": format_file_size(file_size),
             "size_bytes": file_size
@@ -189,9 +267,9 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
         result = company_documents_collection.insert_one(document_data)
         doc_id = str(result.inserted_id)
         
-        # Call function to process and store uploaded document embeddings in Chroma
+        # Process and store uploaded document embeddings in Chroma
         try:
-            process_and_store_document(file_content, doc_id, file.filename, tags_list, chroma_client)
+            process_and_store_document(file_content, doc_id, file.filename, tags_list, access_level, chroma_client)
         except Exception as e:
             # If embedding fails, clean up Mongodb entries
             company_documents_collection.delete_one({"_id": result.inserted_id})
@@ -202,7 +280,8 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
             "message": "Document uploaded successfully",
             "document_id": str(result.inserted_id),
             "filename": file.filename,
-            "size": format_file_size(file_size)
+            "size": format_file_size(file_size),
+            "access_level": access_level
         }
     
     except Exception as e:
@@ -211,17 +290,22 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...)):
 
 # Retrieve documents endpoint
 @app.get("/api/documents", response_model=List[DocumentResponse])
-async def get_documents():
+async def get_documents(current_user: UserContext = Depends(get_current_user)):
     try:
-        documents = []
-        for doc in company_documents_collection.find().sort("filename", 1):
-            documents.append(DocumentResponse(
+        query = {"access_level_num": {"$lte": current_user.min_access_level}}
+
+        documents = [
+            DocumentResponse(
                 id=str(doc["_id"]),
                 filename=doc["filename"],
                 tags=doc.get("tags", []),
                 uploadDate=doc["upload_date"].isoformat(),
-                size=doc["size"]
-            ))
+                size=doc["size"],
+                access_level=doc["access_level"]
+            )
+            for doc in company_documents_collection.find(query).sort("filename", 1)
+        ]
+
         return documents
     except Exception as e:
         print(f"Error fetching documents: {str(e)}")
@@ -229,12 +313,16 @@ async def get_documents():
 
 # Download document endpoint
 @app.get("/api/documents/{document_id}/download")
-async def download_document(document_id: str):
+async def download_document(document_id: str, current_user: UserContext = Depends(get_current_user)):
     try:
         # Find document metadata in MongoDB
-        document = company_documents_collection.find_one({"_id": ObjectId(document_id)})
+        document = company_documents_collection.find_one({
+            "_id": ObjectId(document_id),
+            "access_level_num": {"$lte": current_user.min_access_level}
+        })
+
         if not document:
-            raise HTTPException(status_code=404, detail="Document not found")
+            raise HTTPException(status_code=404, detail="Document not found or access denied")
         
         # Get the actual binary PDF file from GridFS using file_id
         file_data = fs.get(document["file_id"])
@@ -267,8 +355,12 @@ async def download_document(document_id: str):
 
 # Delete documents endpoint
 @app.delete("/api/documents")
-async def delete_documents(request: DocumentDelete):
+async def delete_documents(request: DocumentDelete, current_user: UserContext = Depends(get_current_user)):
     try:
+        # Only admins can delete documents
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Only administrators can delete documents")
+        
         deleted_count = 0
         
         for doc_id in request.document_ids:
@@ -302,11 +394,18 @@ async def delete_documents(request: DocumentDelete):
 
 # Chat endpoint with naive RAG
 @app.post("/api/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+async def chat(request: ChatRequest, current_user: UserContext = Depends(get_current_user)):
     try:
-        # Initialise llm and retriever
+        # Initialise llm
         llm = ChatOpenAI(api_key=openai_api_key, model="gpt-3.5-turbo", temperature=0.2)
-        retriever = chroma_client.as_retriever(search_kwargs={"k":3})
+        
+        # Initialise retriever with filter based on user access level
+        retriever = chroma_client.as_retriever(
+            search_kwargs={
+                "k":3,
+                "filter": {"access_level_num": {"$lte": current_user.min_access_level}}
+            }
+        )
 
         # Prompt template
         prompt_template = """
@@ -353,8 +452,8 @@ async def chat(request: ChatRequest):
 
         return ChatResponse(response=response_text, sources=sources_info)
     except Exception as e:
-        print(f"Error log: {str(e)}") # log for debugging
-        return ChatResponse(response="Error: An issue occured. Please try again later.")
+        print(f"Chat error: {str(e)}")
+        return ChatResponse(response="Error: An issue occured. Please try again.")
 
 # Endpoint to fetch metadata of multiple specific documents from mongodb, to display a user's bookmarked documents in YourBookmarks page
 @app.post("/api/documents/batch", response_model=List[DocumentResponse])
@@ -382,7 +481,8 @@ async def get_documents_batch(request: DocumentIdsRequest):
                 filename=doc["filename"],
                 tags=doc.get("tags", []),
                 uploadDate=doc["upload_date"].isoformat(),
-                size=doc["size"]
+                size=doc["size"],
+                access_level=doc["access_level"]
             ))
         
         return documents

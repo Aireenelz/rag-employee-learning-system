@@ -15,7 +15,7 @@ export interface UserProfile {
     id: string;
     first_name: string;
     last_name: string;
-    role: "partner" | "internal-employee";
+    role: "partner" | "internal-employee" | "admin";
     department?: string;
     position?: string;
     created_at: string;

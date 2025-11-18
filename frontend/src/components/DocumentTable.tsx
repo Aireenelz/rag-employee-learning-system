@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import { formatDate } from "../utils/dateUtils";
 import { useGamification } from "../context/GamificationContext";
+import { useAuthFetch } from "../utils/useAuthFetch";
 
 interface Document {
     id: string;
@@ -18,6 +19,7 @@ interface Document {
     tags: string[];
     uploadDate: string;
     size: string;
+    access_level: string;
 }
 
 interface DocumentTableProps {
@@ -29,14 +31,36 @@ interface DocumentTableProps {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const ACCESS_LEVEL_CONFIG = {
+    public: {
+        label: "Public",
+        color: "bg-green-100 text-green-800"
+    },
+    partner: {
+        label: "Partner",
+        color: "bg-blue-100 text-blue-800"
+    },
+    internal: {
+        label: "Internal",
+        color: "bg-yellow-100 text-yellow-800"
+    },
+    admin: {
+        label: "Admin",
+        color: "bg-red-100 text-red-800"
+    }
+};
+
 const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocuments, onSelectionChange, isLoading }) => {
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
     const [bookmarkLoading, setBookmarkLoading] = useState<Set<string>>(new Set());
     const menuRef = useRef<HTMLDivElement>(null);
 
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
     const { isBookmarked, toggleBookmark } = useBookmarks();
     const { trackActivity } = useGamification();
+    const { authFetch } = useAuthFetch();
+
+    const isAdmin = profile?.role === "admin";
 
     // Selecting all documents
     const handleSelectAll = () => {
@@ -58,18 +82,37 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
 
     // Action to open a document
     const handleOpenDocument = async (documentId: string) => {
-        const downloadUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
-        window.open(downloadUrl, '_blank');
-        setOpenActionMenu(null);
+        try {
+            const response = await authFetch(`${API_BASE_URL}/api/documents/${documentId}/download`);
 
-        // Track document_viewed activity
-        if (user?.id) {
-            const document = documents.find(doc => doc.id === documentId);
-            await trackActivity("document_viewed", {
-                document_id: documentId,
-                filename: document?.filename,
-                timestamp: new Date().toISOString()
-            });
+            if (response.ok) {
+                // Create blob and open in new tab
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                window.open(url, "_blank");
+
+                // Cleanup blob url after a delay
+                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+
+                setOpenActionMenu(null);
+
+                // Track document_viewed activity
+                if (user?.id) {
+                    const document = documents.find(doc => doc.id === documentId);
+                    await trackActivity("document_viewed", {
+                        document_id: documentId,
+                        filename: document?.filename,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            } else {
+                const error = await response.json();
+                console.error("Failed to open document:", error);
+                alert("Failed to open document");
+            }
+        } catch (error) {
+            console.error("Error opening document:", error);
+            alert("Failed to open document. Please try again.");
         }
     };
 
@@ -175,10 +218,19 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                 {/* Document name */}
                                 <td className="py-4 px-2 text-sm font-semibold">
                                     <div className="flex items-center gap-2">
-                                        <FontAwesomeIcon icon={faFileAlt} className="text-blue-400"/>
+                                        <FontAwesomeIcon icon={faFileAlt} className="text-blue-400 flex-shrink-0"/>
                                         {doc.filename}
+                                        {isAdmin && (() => {
+                                            const accessConfig = ACCESS_LEVEL_CONFIG[doc.access_level as keyof typeof ACCESS_LEVEL_CONFIG] || ACCESS_LEVEL_CONFIG.public;
+
+                                            return (
+                                                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-semibold flex-shrink-0 ${accessConfig.color}`} title={`Access Level: ${accessConfig.label}`}>
+                                                    <span>{accessConfig.label}</span>
+                                                </span>
+                                            );
+                                        })()}
                                         {isBookmarked(doc.id) && (
-                                            <FontAwesomeIcon icon={faBookmark} className="text-yellow-400"/>
+                                            <FontAwesomeIcon icon={faBookmark} className="text-yellow-400 flex-shrink-0" title="Bookmarked"/>
                                         )}
                                     </div>
                                 </td>
