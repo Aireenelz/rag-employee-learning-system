@@ -10,7 +10,7 @@ export const useAuthFetch = () => {
         try {
             // Get the current session
             const { data: { session } } = await supabase.auth.getSession();
-console.log(session)
+
             if (!session) {
                 throw new Error("No active sesssion. Please log in.");
             }
