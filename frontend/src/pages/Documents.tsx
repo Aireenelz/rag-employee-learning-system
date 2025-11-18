@@ -62,7 +62,7 @@ const Documents: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     // Load documents on component mount
     useEffect(() => {
