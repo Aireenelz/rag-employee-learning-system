@@ -53,6 +53,7 @@ const ACCESS_LEVEL_CONFIG = {
 const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocuments, onSelectionChange, isLoading }) => {
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
     const [bookmarkLoading, setBookmarkLoading] = useState<Set<string>>(new Set());
+    const [isOpeningDocument, setIsOpeningDocument] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const { user, profile } = useAuth();
@@ -82,6 +83,8 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
 
     // Action to open a document
     const handleOpenDocument = async (documentId: string) => {
+        setIsOpeningDocument(true);
+        
         try {
             const response = await authFetch(`${API_BASE_URL}/api/documents/${documentId}/download`);
 
@@ -94,6 +97,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                 // Cleanup blob url after a delay
                 setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 
+                setIsOpeningDocument(false);
                 setOpenActionMenu(null);
 
                 // Track document_viewed activity
@@ -113,6 +117,8 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
         } catch (error) {
             console.error("Error opening document:", error);
             alert("Failed to open document. Please try again.");
+        } finally {
+            setIsOpeningDocument(false);
         }
     };
 
@@ -284,10 +290,11 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                                     {/* Action button to open file */}
                                                     <button
                                                         onClick={() => handleOpenDocument(doc.id)}
-                                                        className="w-full text-left px-4 py-2 text-sm font-normal hover:bg-gray-50 flex items-center gap-2"
+                                                        disabled={isOpeningDocument}
+                                                        className="w-full text-left px-4 py-2 text-sm font-normal hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         <FontAwesomeIcon icon={faExternalLink} className="h-3 w-3"/>
-                                                        Open in new tab
+                                                        {isOpeningDocument ? "Opening..." : "Open in new tab"}
                                                     </button>
 
                                                     {/* Action button to bookmark */}

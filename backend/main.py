@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 from pydantic import BaseModel
 from typing import List, Optional
 import os
@@ -56,7 +56,7 @@ fs = GridFS(db)
 company_documents_collection = db["company_documents"]
 
 # Create index for faster query
-company_documents_collection.create_index([("access_level", 1)])
+company_documents_collection.create_index([("access_level_num", 1)])
 
 # Initialise Chroma Cloud client
 embeddings = OpenAIEmbeddings(api_key=openai_api_key)
@@ -336,16 +336,10 @@ async def download_document(document_id: str, current_user: UserContext = Depend
             "Cache-Control": "public, max-age=3600" # cache for 1 hour
         }
 
-        # Stream the binary data to browser
-        def generate():
-            while True:
-                chunk = file_data.read(8192) # read in 8KB chunks
-                if not chunk:
-                    break
-                yield chunk
+        pdf_bytes = file_data.read()
         
-        return StreamingResponse(
-            generate(),
+        return Response(
+            content=pdf_bytes,
             media_type="application/pdf",
             headers=headers
         )
