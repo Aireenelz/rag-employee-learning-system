@@ -62,7 +62,26 @@ const Profile: React.FC = () => {
     };
 
     const getRoleLabel = () => {
-        return profileData.role === "internal-employee" ? "Internal Employee" : "Partner";
+        const role = profile?.role;
+
+        if (!role) return "User";
+        
+        switch (role) {
+            case "admin":
+                return "Admin";
+            case "internal-employee":
+                return "Internal Employee";
+            case "partner":
+                return "Partner";
+            default:
+                return "User";
+        }
+    };
+
+    const roleColors: Record<string, string> = {
+        admin: "bg-red-100 text-red-800",
+        "internal-employee": "bg-yellow-100 text-yellow-800",
+        partner: "bg-blue-100 text-blue-800"
     };
 
     const handleProfileChange = (field: keyof typeof profileData, value: string) => {
@@ -219,11 +238,7 @@ const Profile: React.FC = () => {
                     <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-lg font-semibold">
                         {getUserInitials()}
                     </div>
-                    <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                        profileData.role === "internal-employee"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-purple-100 text-purple-700"
-                    }`}>
+                    <span className={`text-sm font-semibold px-3 py-1 rounded-full ${roleColors[profileData.role] || "bg-gray-100 text-gray-800"}`}>
                         {getRoleLabel()}
                     </span>
                 </div>

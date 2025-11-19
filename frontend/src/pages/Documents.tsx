@@ -10,6 +10,8 @@ import {
     faChevronDown
 } from "@fortawesome/free-solid-svg-icons";
 import UploadModal from "../components/UploadModal";
+import { useAuth } from "../context/AuthContext";
+import { useAuthFetch } from "../utils/useAuthFetch";
 
 interface Document {
     id: string;
@@ -17,12 +19,15 @@ interface Document {
     tags: string[];
     uploadDate: string;
     size: string;
+    access_level: string;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const AVAILABLE_TAGS = ["HR", "IT", "Policies", "Operations", "Products", "Services"];
 
 const Documents: React.FC = () => {
+    const { profile } = useAuth();
+    const { authFetch } = useAuthFetch();
     const [documents, setDocuments] = useState<Document[]>([]);
     const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -32,24 +37,32 @@ const Documents: React.FC = () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isTagFilterOpen, setIsTagFilterOpen] = useState(false);
 
+    // Check if user can upload documents
+    const canUpload = profile?.role === "admin" || profile?.role === "internal-employee";
+
+    // Check if user can delete documents
+    const canDelete = profile?.role === "admin" || profile?.role === "internal-employee";;
+
     // Fetch documents from  API
     const fetchDocuments = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(`${API_BASE_URL}/api/documents`);
+            const response = await authFetch(`${API_BASE_URL}/api/documents`);
+            
             if (response.ok) {
                 const data = await response.json();
                 setDocuments(data);
                 setFilteredDocuments(data);
             } else {
-                console.error("Failed to fetch documents");
+                const error = await response.json();
+                console.error("Failed to fetch documents:", error);
             }
         } catch (error) {
-            console.error("Error fetching documents.", error);
+            console.error("Error fetching documents:", error);
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     // Load documents on component mount
     useEffect(() => {
@@ -101,14 +114,19 @@ const Documents: React.FC = () => {
 
     // Handle delete operation
     const handleDelete = async () => {
+        if (!canDelete) {
+            alert("You don't have permission to delete documents.");
+            return;
+        }
+
         if (selectedDocuments.length === 0) {
             alert("Please select documents to delete.");
             return;
         }
 
-        if (confirm(`Are you sure you want to delete ${selectedDocuments.length} documents(s)?`)) {
+        if (confirm(`Are you sure you want to delete ${selectedDocuments.length} document(s)?`)) {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/documents`, {
+                const response = await authFetch(`${API_BASE_URL}/api/documents`, {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
@@ -141,24 +159,28 @@ const Documents: React.FC = () => {
             <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground overflow-hidden">
                 {/* Buttons */}
                 <div className="flex flex-col sm:flex-row justify-end gap-2 p-3 border-b">
-                    {/* Delete button */}
-                    <button
-                        onClick={handleDelete}
-                        disabled={selectedDocuments.length === 0}
-                        className="flex items-center justify-center gap-2 bg-els-secondarybutton text-sm text-red-700 font-semibold py-2 px-4 sm:px-5 rounded-lg hover:bg-els-deletebuttonhover hover:text-white disabled:text-gray-400 disabled:cursor-not-allowed"
-                    >
-                        <FontAwesomeIcon icon={faTrashCan} className="h-3 w-3" />
-                        <span>Delete ({selectedDocuments.length})</span>
-                    </button>
+                    {/* Delete button (admin only) */}
+                    {canDelete && (
+                        <button
+                            onClick={handleDelete}
+                            disabled={selectedDocuments.length === 0}
+                            className="flex items-center justify-center gap-2 bg-els-secondarybutton text-sm text-red-700 font-semibold py-2 px-4 sm:px-5 rounded-lg hover:bg-els-deletebuttonhover hover:text-white disabled:text-gray-400 disabled:cursor-not-allowed"
+                        >
+                            <FontAwesomeIcon icon={faTrashCan} className="h-3 w-3" />
+                            <span>Delete ({selectedDocuments.length})</span>
+                        </button>
+                    )}
 
-                    {/* Upload button */}
-                    <button
-                        onClick={() => setIsUploadModalOpen(true)}
-                        className="flex items-center justify-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-4 sm:px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
-                    >
-                        <FontAwesomeIcon icon={faUpload} className="h-3 w-3" />
-                        <span>Upload</span>
-                    </button>
+                    {/* Upload button (admin and internal employee only)*/}
+                    {canUpload && (
+                        <button
+                            onClick={() => setIsUploadModalOpen(true)}
+                            className="flex items-center justify-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-4 sm:px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
+                        >
+                            <FontAwesomeIcon icon={faUpload} className="h-3 w-3" />
+                            <span>Upload</span>
+                        </button>
+                    )}
                 </div>
                 
                 {/* Bar for search and filter */}
@@ -270,11 +292,13 @@ const Documents: React.FC = () => {
             </div>
 
             {/* Upload Modal */}
-            <UploadModal
-                isOpen={isUploadModalOpen}
-                onClose={() => setIsUploadModalOpen(false)}
-                onUploadSuccess={handleUploadSuccess}
-            />
+            {canUpload && (
+                <UploadModal
+                    isOpen={isUploadModalOpen}
+                    onClose={() => setIsUploadModalOpen(false)}
+                    onUploadSuccess={handleUploadSuccess}
+                />
+            )}
 
             {/* Click outside to close filter dropdown */}
             {isTagFilterOpen && (

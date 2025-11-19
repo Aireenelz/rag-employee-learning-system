@@ -55,8 +55,20 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
 
     // Get user role
     const getUserRole = () => {
-        if (!profile?.role) return "User";
-        return profile.role === "internal-employee" ? "Internal Employee" : "Partner";
+        const role = profile?.role;
+
+        if (!role) return "User";
+        
+        switch (role) {
+            case "admin":
+                return "Admin";
+            case "internal-employee":
+                return "Internal Employee";
+            case "partner":
+                return "Partner";
+            default:
+                return "User";
+        }
     };
 
     const handleSignOutClick = () => {

@@ -9,6 +9,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import { useGamification } from "../context/GamificationContext";
+import { useAuthFetch } from "../utils/useAuthFetch";
 
 interface SourceInfo {
     document_id: string;
@@ -24,7 +25,7 @@ interface Message {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const AiAssistant = () => {
+const AiAssistant: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
         {
             role: "assistant",
@@ -41,6 +42,7 @@ const AiAssistant = () => {
     const { user } = useAuth();
     const { isBookmarked, toggleBookmark } = useBookmarks();
     const { trackActivity } = useGamification();
+    const { authFetch } = useAuthFetch();
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
@@ -57,32 +59,40 @@ const AiAssistant = () => {
 
         try {
             // Send POST request to backend API to get AI response
-            const response = await fetch(`${API_BASE_URL}/api/chat`, {
+            const response = await authFetch(`${API_BASE_URL}/api/chat`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
                 body: JSON.stringify({ message: input}),
             });
 
-            // Parse API response as JSON
-            const data = await response.json();
+            if (response.ok) {
+                const data = await response.json();
 
-            // Track question_asked activity
-            if (user?.id) {
-                await trackActivity("question_asked", {
-                    question: questionText,
-                    timestamp: new Date().toISOString()
-                });
-            }
+                // Track question_asked activity
+                if (user?.id) {
+                    await trackActivity("question_asked", {
+                        question: questionText,
+                        timestamp: new Date().toISOString()
+                    });
+                }
 
-            // Update messages array by adding the AI's response
-            setMessages((prev) => [
-                ...prev,
-                {
+                // Update messages array by adding the AI's response
+                const assistantMessage: Message = {
                     role: "assistant",
                     content: data.response,
                     sources: data.sources || []
                 }
-            ]);
+                setMessages((prev) => [...prev, assistantMessage]);
+                
+            } else {
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        role: "assistant",
+                        content: "Sorry, I encountered an error. Please try again."
+                    }
+                ]);
+            }
 
         } catch (error) {
             setMessages((prev) => [
@@ -101,9 +111,27 @@ const AiAssistant = () => {
     };
 
     // Open source document in new tab
-    const handleDocumentClick = (documentId: string) => {
-        const documentUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
-        window.open(documentUrl, '_blank');
+    const handleDocumentClick = async (documentId: string) => {
+        try {
+            const response = await authFetch(`${API_BASE_URL}/api/documents/${documentId}/download`);
+
+            if (response.ok) {
+                // Create blob and open in new tab
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                window.open(url, "_blank");
+
+                // Cleanup blob url after a delay
+                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+            } else {
+                const error = await response.json();
+                console.error("Failed to open document:", error);
+                alert("Failed to open document");
+            }
+        } catch (error) {
+            console.error("Error opening document:", error);
+            alert("Failed to open document. Please try again.");
+        }
     };
 
     // Bookmark source document (toggle bookmark)
@@ -164,8 +192,8 @@ const AiAssistant = () => {
             }
         };
 
-        document.addEventListener('keydown', handleGlobalKeyDown);
-        return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+        document.addEventListener("keydown", handleGlobalKeyDown);
+        return () => document.removeEventListener("keydown", handleGlobalKeyDown);
 
     }, [isLoading]);
 

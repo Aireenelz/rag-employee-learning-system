@@ -5,6 +5,7 @@ import {
     faTimes,
     faUpload,
 } from "@fortawesome/free-solid-svg-icons";
+import { supabase } from "../utils/supabaseClient";
 
 interface UploadModalProps {
     isOpen: boolean;
@@ -14,18 +15,24 @@ interface UploadModalProps {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+const AVAILABLE_TAGS = ["HR", "IT", "Policies", "Operations", "Products", "Services"];
+const ACCESS_LEVELS = [
+    { value: "public", label: "Public", description: "Accessible to everyone" },
+    { value: "partner", label: "Partner", description: "Partners and internal employees" },
+    { value: "internal", label: "Internal", description: "Internal employees only" },
+    { value: "admin", label: "Admin", description: "Administrators only" }
+]
 
 const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSuccess }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [accessLevel, setAccessLevel] = useState<string>("internal");
     const [isUploading, setIsUploading] = useState(false);
-    const [fileError, setFileError] = useState<string>("");
-
-    const availableTags = ["HR", "IT", "Policies", "Operations", "Products", "Services", ];
+    const [uploadError, setUploadError] = useState<string>("");
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        setFileError("");
+        setUploadError("");
 
         if (!file) {
             setSelectedFile(null);
@@ -34,7 +41,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
 
         // Validate file type
         if (file.type !== "application/pdf") {
-            setFileError("Please select a PDF file.");
+            setUploadError("Please select a PDF file.");
             setSelectedFile(null);
             event.target.value = "";
             return;
@@ -42,13 +49,14 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
 
         // Validate file size
         if (file.size > MAX_FILE_SIZE) {
-            setFileError("File size must be less that 10MB.");
+            setUploadError("File size must be less that 10MB.");
             setSelectedFile(null);
             event.target.value = "";
             return;
         }
 
         setSelectedFile(file);
+        setUploadError("");
     };
 
     const handleTagToggle = (tag: string) => {
@@ -61,29 +69,41 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
 
     const handleUpload = async () => {
         if (!selectedFile) {
-            alert("Please select a file.");
+            setUploadError("Please select a file to upload");
             return;
         }
         
         if (selectedTags.length === 0) {
-            alert("Please select at least one tag.");
+            setUploadError("Please select at least one tag");
             return;
         }
 
         if (selectedFile.size > MAX_FILE_SIZE) {
-            alert("File size must be less than 10MB.")
+            setUploadError("File size must be less than 10MB")
             return;
         }
 
         setIsUploading(true);
+        setUploadError("");
 
         const formData = new FormData();
         formData.append("file", selectedFile);
         formData.append("tags", JSON.stringify(selectedTags));
+        formData.append("access_level", accessLevel);
 
         try {
+            // Get the current session token
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                throw new Error("You must be logged in to upload documents");
+            }
+
             const response = await fetch(`${API_BASE_URL}/api/upload`, {
                 method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${session.access_token}`
+                },
                 body: formData,
             });
 
@@ -92,118 +112,169 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                 console.log("Upload successful: ", data);
                 alert("Document uploaded successfully.");
 
-                // Reset form
-                setSelectedFile(null);
-                setSelectedTags([]);
-                setFileError("");
                 onUploadSuccess();
+                resetForm();
                 onClose();
             } else {
                 const errorData = await response.json();
+                setUploadError("Upload failed. Please try again")
                 throw new Error(errorData.detail || "Upload failed.");
             }
         } catch (error) {
             console.error("Upload error: ", error);
-            alert("Upload failed. Please try again.");
+            setUploadError("An error occured during upload.")
         } finally {
             setIsUploading(false);
         }
     };
 
-    const handleClose = () => {
+    const resetForm = () => {
         setSelectedFile(null);
         setSelectedTags([]);
-        setFileError("");
-        onClose();
+        setAccessLevel("internal");
+        setUploadError("");
+    };
+
+    const handleClose = () => {
+        if (!isUploading) {
+            resetForm();
+            onClose();
+        }
     };
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+            <div className="bg-white rounded-lg w-96 max-w-md max-h-[90vh] overflow-y-auto">
                 {/* Header */}
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white">
                     <h2 className="text-xl font-bold">Upload Document</h2>
                     <button
                         onClick={handleClose}
-                        className="text-gray-500 hover:text-gray-700"
+                        disabled={isUploading}
+                        className="text-gray-500 hover:text-gray-700 disabled:opacity-50"
                     >
                         <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
                     </button>
                 </div>
 
-                {/* File upload */}
-                <div className="mb-6">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Select PDF File (Max 10MB)
-                    </label>
-                    <div className={`border-2 border-dashed rounded-lg p-4 text-center 
-                        ${fileError 
-                        ? 'border-red-300 bg-red-50' 
-                        : selectedFile
-                        ? 'border-blue-300 bg-blue-50'
-                        : 'border-gray-300'
-                        }
-                    `}>
-                        <input
-                            type="file"
-                            accept=".pdf"
-                            onChange={handleFileChange}
-                            className="hidden"
-                            id="file-upload"
-                        />
-                        <label
-                            htmlFor="file-upload"
-                            className="cursor-pointer flex flex-col items-center"
-                        >
-                            <FontAwesomeIcon 
-                                icon={fileError ? faUpload : selectedFile ? faFileAlt : faUpload} 
-                                className={`h-8 w-8 mb-2
-                                    ${fileError
-                                        ? "text-gray-400"
-                                        : selectedFile
-                                        ? "text-blue-400"
-                                        : "text-gray-400"
-                                    }    
-                                `} 
-                            />
-                            <span className="text-sm text-gray-600">
-                                {selectedFile ? `${selectedFile.name}` : "Click to select PDF file"}
-                            </span>
+                {/* Body */}
+                <div className="p-4 space-y-4">
+                    {/* File upload */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Select PDF File (Max 10MB)
                         </label>
-                    </div>
-                    {fileError && (
-                        <p className="mt-2 text-sm text-red-600">{fileError}</p>
-                    )}
-                </div>
-
-                {/* Tags selection */}
-                <div className="mb-6">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Select Tags
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                        {availableTags.map(tag => (
-                            <label key={tag} className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedTags.includes(tag)}
-                                    onChange={() => handleTagToggle(tag)}
-                                    className="form-checkbox h-4 w-4 text-blue-600"
+                        <div className={`border-2 border-dashed rounded-lg p-4 text-center 
+                            ${uploadError 
+                            ? 'border-red-300 bg-red-50' 
+                            : selectedFile
+                            ? 'border-blue-300 bg-blue-50'
+                            : 'border-gray-300'
+                            }
+                        `}>
+                            <input
+                                type="file"
+                                accept=".pdf"
+                                onChange={handleFileChange}
+                                disabled={isUploading}
+                                className="hidden"
+                                id="file-upload"
+                            />
+                            <label
+                                htmlFor="file-upload"
+                                className="cursor-pointer flex flex-col items-center"
+                            >
+                                <FontAwesomeIcon 
+                                    icon={uploadError ? faUpload : selectedFile ? faFileAlt : faUpload} 
+                                    className={`h-8 w-8 mb-2
+                                        ${uploadError
+                                            ? "text-gray-400"
+                                            : selectedFile
+                                            ? "text-blue-400"
+                                            : "text-gray-400"
+                                        }    
+                                    `} 
                                 />
-                                <span className="text-sm">{tag}</span>
+                                <span className="text-sm text-gray-600">
+                                    {selectedFile ? `${selectedFile.name}` : "Click to select PDF file"}
+                                </span>
                             </label>
-                        ))}
+                        </div>
+                        {uploadError && (
+                            <p className="mt-2 text-sm text-red-600">{uploadError}</p>
+                        )}
+                    </div>
+
+                    {/* Access level selection */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Access Level
+                        </label>
+                        <div className="space-y-2">
+                            {ACCESS_LEVELS.map((level) => (
+                                <label
+                                    key={level.value}
+                                    className="flex items-start p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                                >
+                                    <input
+                                        type="radio"
+                                        name="access_level"
+                                        value={level.value}
+                                        checked={accessLevel === level.value}
+                                        onChange={(e) => setAccessLevel(e.target.value)}
+                                        disabled={isUploading}
+                                        className="mt-1 h-4 w-4 text-els-primarybutton focus:ring-els-primarybutton"
+                                    />
+                                    <div className="ml-3">
+                                        <div className="text-sm font-semibold text-gray-800">
+                                            {level.label}
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            {level.description}
+                                        </div>
+                                    </div>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Tags selection */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Tags
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                            {AVAILABLE_TAGS.map(tag => (
+                                <button
+                                    key={tag}
+                                    onClick={() => handleTagToggle(tag)}
+                                    disabled={isUploading}
+                                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                                        selectedTags.includes(tag)
+                                            ? "bg-els-primarybutton text-white"
+                                            : "bg-els-secondarybackground text-gray-600 hover:bg-gray-300"
+                                    } disabled:opacity-50`}
+                                >
+                                    {tag}
+                                </button>
+                            ))}
+                        </div>
+                        {selectedTags.length > 0 && (
+                            <p className="text-xs text-gray-500 mt-2">
+                                Selected: {selectedTags.join(", ")}
+                            </p>
+                        )}
                     </div>
                 </div>
 
                 {/* Action buttons */}
-                <div className="flex justify-end gap-3">
+                <div className="flex justify-end gap-2 p-4 border-t sticky bottom-0 bg-white">
                     {/* Cancel button */}
                     <button
                         onClick={handleClose}
-                        className="px-4 py-2 text-gray-600 border-gray-300 rounded-lg hover:bg-els-secondarybuttonhover"
+                        className="px-4 py-2 text-gray-700 border-gray-300 bg-els-secondarybutton rounded-lg hover:bg-els-secondarybuttonhover disabled:opacity-50"
                         disabled={isUploading}
                     >
                         Cancel
@@ -212,8 +283,8 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                     {/* Upload button */}
                     <button
                         onClick={handleUpload}
-                        disabled={isUploading || !selectedFile || !!fileError}
-                        className="px-4 py-2 bg-els-primarybutton text-white rounded-lg hover:bg-els-primarybuttonhover disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        disabled={isUploading || !selectedFile || selectedTags.length === 0 || !!uploadError}
+                        className="px-4 py-2 bg-els-primarybutton text-white rounded-lg hover:bg-els-primarybuttonhover disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isUploading ? "Uploading..." : "Upload"}
                     </button>
