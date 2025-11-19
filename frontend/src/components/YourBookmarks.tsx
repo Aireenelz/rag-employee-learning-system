@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import { bookmarkService } from "../services/bookmarkService";
 import { formatDate } from "../utils/dateUtils";
+import { useAuthFetch } from "../utils/useAuthFetch";
 
 interface YourBookmarksProps {
     searchQuery: string;
@@ -27,8 +28,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
     const [bookmarkedDocuments, setBookmarkedDocuments] = useState<Document[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isOpeningDocument, setIsOpeningDocument] = useState(false);
     const { user } = useAuth();
     const { bookmarks: bookmarkIds, refreshBookmarks } = useBookmarks();
+    const { authFetch } = useAuthFetch();
 
     // Load bookmarked documents whenever bookmark IDs change
     useEffect(() => {
@@ -80,9 +83,33 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
     }, [user?.id, bookmarkIds]);
 
     // Handle opening bookmarked document in new tab
-    const handleOpenDocument = (documentId: string) => {
-        const downloadUrl = `${API_BASE_URL}/api/documents/${documentId}/download`;
-        window.open(downloadUrl, '_blank');
+    const handleOpenDocument = async (documentId: string) => {
+        setIsOpeningDocument(true);
+
+        try {
+            const response = await authFetch(`${API_BASE_URL}/api/documents/${documentId}/download`);
+
+            if (response.ok) {
+                // Create blob and open in new tab
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                window.open(url, "_blank");
+
+                // Cleanup blob url after a delay
+                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+
+                setIsOpeningDocument(false);
+            } else {
+                const error = await response.json();
+                console.error("Failed to open document:", error);
+                alert("Failed to open document");
+            }
+        } catch (error) {
+            console.error("Error opening document:", error);
+            alert("Failed to open document. Please try again.");
+        } finally {
+            setIsOpeningDocument(false);
+        }
     };
 
     // Handle removing bookmark
@@ -174,8 +201,9 @@ const YourBookmarks: React.FC<YourBookmarksProps> = ({ searchQuery }) => {
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                             <button
                                 onClick={() => handleOpenDocument(bookmark.id)}
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                                title="Open in new tab"
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title={isOpeningDocument ? "Opening..." : "Open in new tab"}
+                                disabled={isOpeningDocument}
                             >
                                 <FontAwesomeIcon icon={faExternalLink} className="h-4 w-4 text-gray-600" />
                             </button>
