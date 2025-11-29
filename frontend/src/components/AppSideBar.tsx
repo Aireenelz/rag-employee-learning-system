@@ -125,6 +125,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                         {/* User profile */}
                         <Link 
                             to="/profile"
+                            onClick={handleNavClick}
                             className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer border border-gray-200"
                         >
                             <UserAvatar initials={getUserInitials()} />
