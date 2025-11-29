@@ -18,7 +18,7 @@ const SignOutConfirmationModal: React.FC<SignOutConfirmationModalProps> = ({ isO
             <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">Confirm Sign Out</h3>
+                    <h3 className="text-lg font-semibold">Sign Out</h3>
                     <button
                         onClick={onCancel}
                         className="text-gray-400 hover:text-gray-600"
