@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faComments,
@@ -9,7 +9,8 @@ import {
     faSignOut,
     faTrophy,
     faBars,
-    faChartLine,
+    faCrown,
+    faChartSimple,
 } from "@fortawesome/free-solid-svg-icons";
 import UserAvatar from "./UserAvatar";
 import SignOutConfirmationModal from "./SignOutConfirmationModal";
@@ -29,7 +30,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
         { label: "Documents", icon: faFileAlt, to: "/documents" },
         { label: "Quick Access", icon: faBookmark, to: "/quickaccess" },
         { label: "Profile & Achievements", icon: faUser, to: "/profile" },
-        { label: "Reports", icon: faChartLine, to: "/reports"}
+        { label: "Reports", icon: faChartSimple, to: "/reports"}
     ];
 
     const navigate = useNavigate();
@@ -98,82 +99,113 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
             <>
                 <div className={`
                     fixed lg:static inset-y-0 left-0 z-50
-                    w-64 bg-els-primarybackground text-white flex flex-col h-screen p-4 pt-2 transition-all duration-300 ease-in-out lg:translate-x-0
+                    w-64 bg-white flex flex-col h-screen shadow-xl border-r border-gray-200 transition-all duration-300 ease-in-out lg:translate-x-0
                     ${isOpen ? "translate-x-0" : "-translate-x-full"}
                 `}>
-                    {/* Toggle button */}
-                    <div className="h-10 flex items-center justify-start mb-3">
-                        <button 
-                            onClick={onToggle}
-                            className="w-6 h-6 flex items-center justify-center text-white hover:bg-white/10 rounded"
-                            aria-label="Toggle sidebar"
+                    {/* Header with toggle button */}
+                    <div className="px-4 pt-4 pb-3 border-b border-gray-200">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <img
+                                    src="/logo_questio_shape.png"
+                                    alt="QuestIO Logo"
+                                    className="w-6 h-6 object-contain"
+                                />
+                                <span className="text-sm font-semibold tracking-wide text-gray-800">QuestIO</span>
+                            </div>
+                            <button 
+                                onClick={onToggle}
+                                className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+                                aria-label="Collapse sidebar"
+                            >
+                                <FontAwesomeIcon icon={faBars} />
+                            </button>
+                        </div>
+
+                        {/* User profile */}
+                        <Link 
+                            to="/profile"
+                            className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer border border-gray-200"
                         >
-                            <FontAwesomeIcon icon={faBars} />
-                        </button>
+                            <UserAvatar initials={getUserInitials()} />
+                            <div className="flex-1 min-w-0">
+                                <div className="text-sm font-semibold text-gray-900 truncate">{getUserDisplayName()}</div>
+                                <div className="text-xs text-gray-500">{getUserRole()}</div>
+                            </div>
+                        </Link>
                     </div>
 
-                    {/* Top Section */}
-                    <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                            <UserAvatar initials={getUserInitials()} />
-                            <div>
-                                <div className="text-sm font-semibold">{getUserDisplayName()}</div>
-                                <div className="text-xs text-white/70">{getUserRole()}</div>
+                    {/* Gamification Stats */}
+                    <div className="px-4 py-4 border-b border-gray-200">
+                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 border border-blue-100">
+                            {/* Crown, level, and XP */}
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-md">
+                                        <FontAwesomeIcon icon={faCrown} className="text-white text-xs" />
+                                    </div>
+                                    <span className="text-sm font-semibold text-gray-800">Level {stats?.level}</span>
+                                </div>
+                                <span className="text-xs text-gray-600 font-medium">
+                                    {stats?.exp_progress}/{500} XP
+                                </span>
+                            </div>
+
+                            {/* Progress bar */}
+                            <div className="w-full h-2 bg-blue-100 rounded-full overflow-hidden shadow-inner">
+                                <div
+                                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-500 shadow-sm"
+                                    style={{ width: `${stats?.exp_progress_percentage}%` }}
+                                />
+                            </div>
+
+                            {/* Badges number */}
+                            <div className="mt-3 flex items-center justify-center gap-2 text-xs text-gray-600">
+                                <FontAwesomeIcon icon={faTrophy} className="h-3 w-3 text-yellow-500" />
+                                <span className="font-medium">{totalEarnedBadges} badges earned</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Gamification Stats */}
-                    <div className="mt-6">
-                        <div className="flex justify-between text-sm">
-                            <span>Level {stats?.level}</span>
-                            <span>
-                                {stats?.exp_progress}/{500} XP
-                            </span>
-                        </div>
-                        <div className="w-full h-2 bg-white/30 mt-1 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-white/90"
-                                style={{ width: `${stats?.exp_progress_percentage}%` }}
-                            />
-                        </div>
-                        <div className="mt-2 text-sm text-white/80 flex items-center gap-2">
-                            <FontAwesomeIcon icon={faTrophy} className="h-3 w-3" />
-                            <span>{totalEarnedBadges} badges earned</span>
-                        </div>
-                    </div>
-
                     {/* Navigation */}
-                    <div className="mt-10 flex-1">
-                        <h4 className="text-sm text-white/70 mb-3">Navigation</h4>
-                        <nav className="flex flex-col gap-2">
+                    <div className="flex-1 px-3 py-4 overflow-y-auto">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-3">Navigation</h4>
+                        <nav className="flex flex-col gap-1">
                             {navItems.map((item) => (
                                 <NavLink
                                     to={item.to}
                                     key={item.label}
                                     onClick={handleNavClick}
                                     className={({ isActive }) =>
-                                        `flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm ${
+                                        `flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-sm relative group ${
                                         isActive
-                                            ? "bg-white/20 font-medium"
-                                            : "hover:bg-white/10 text-white/90"
+                                            ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 font-medium shadow-sm border border-blue-200"
+                                            : "hover:bg-gray-100 text-gray-700 hover:text-gray-900 border border-transparent"
                                         }`
                                     }
                                 >
-                                    <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
-                                    <span>{item.label}</span>
+                                    {({ isActive }) => (
+                                        <>
+                                            {isActive && (
+                                                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-r-full" />
+                                            )}
+                                            
+                                            <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
+                                            <span>{item.label}</span>
+                                        </>
+                                    )}
                                 </NavLink>
                             ))}
                         </nav>
                     </div>
 
-                    {/* Sign out */}
-                    <div className="mt-auto mb-2">
+                    {/* Footer - Sign out */}
+                    <div className="px-4 py-4 border-t border-gray-200">
                         <button
                             onClick={handleSignOutClick}
-                            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-white w-full hover:bg-white/10"
+                            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-red-600 w-full hover:bg-red-50 border border-transparent hover:border-red-200 transition-all"
                         >
-                            <FontAwesomeIcon icon={faSignOut} className="h-4 w-4"/>
+                            <FontAwesomeIcon icon={faSignOut} className="h-4 w-4 text-red-500"/>
                             <span>Sign out</span>
                         </button>
                     </div>
@@ -193,13 +225,13 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
     return (
         <div className={`
             hidden lg:flex
-            w-12 bg-els-primarybackground text-white flex flex-col h-screen py-2 transition-all duration-300 ease-in-out
+            w-16 bg-white flex flex-col h-screen shadow-xl border-r border-gray-200 transition-all duration-300 ease-in-out
         `}>
             {/* Toggle button */}
-            <div className="h-10 flex items-center justify-center mb-3">
+            <div className="h-16 flex items-center justify-center border-b border-gray-200">
                 <button 
                     onClick={onToggle}
-                    className="w-6 h-6 flex items-center justify-center text-white hover:bg-white/10 rounded"
+                    className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
                     aria-label="Expand sidebar"
                 >
                     <FontAwesomeIcon icon={faBars} />
@@ -207,21 +239,21 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
             </div>
 
             {/* User avatar */}
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center py-4 border-b border-gray-200">
                 <UserAvatar initials={getUserInitials()} />
             </div>
 
             {/* Navigation */}
-            <nav className="flex flex-col gap-2 px-1">
+            <nav className="flex-1 flex flex-col gap-1 px-2 py-4">
                 {navItems.map((item) => (
                     <NavLink
                         to={item.to}
                         key={item.label}
                         className={({ isActive }) =>
-                            `flex items-center justify-center p-3 rounded-md transition-all duration-200 ${
+                            `flex items-center justify-center p-3 rounded-lg transition-all duration-200 relative group ${
                                 isActive
-                                    ? "bg-white/20 font-medium"
-                                    : "hover:bg-white/10"
+                                    ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 shadow-sm"
+                                    : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                             }`
                         }
                         title={item.label}
