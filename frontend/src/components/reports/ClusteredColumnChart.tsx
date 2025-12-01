@@ -66,7 +66,7 @@ const ClusteredColumnChart: React.FC<ClusteredColumnChartProps> = ({ title, desc
 
                 {/* Chart columns */}
                 <div
-                    className="flex items-end justify-between gap-1 px-4 pt-4 ml-16"
+                    className="flex items-end justify-between gap-1 px-4 pt-4 ml-8 mr-5"
                     style={{ height: `${chartHeight + 60}px` }}
                 >
                     {data.map((item, groupIndex) => (
