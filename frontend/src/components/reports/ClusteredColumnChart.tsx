@@ -12,18 +12,18 @@ interface MetricConfig {
     hoverColor: string;
 }
 
-interface ClusteredColumnChartProps  {
+interface ClusteredColumnChartProps {
     title: string;
     description: string;
     data: DataPoint[];
     metrics: MetricConfig[];
 }
 
-const ClusteredColumnChart: React.FC<ClusteredColumnChartProps > = ({ title, description, data, metrics }) => {
+const ClusteredColumnChart: React.FC<ClusteredColumnChartProps> = ({ title, description, data, metrics }) => {
     const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
     const [hoveredMetric, setHoveredMetric] = useState<string | null>(null);
     
-    // Calculate max value across all metris
+    // Calculate max value across all metrics
     const maxValue = Math.max(
         ...data.flatMap(d =>
             metrics.map(m => Number(d[m.key]) || 0)
@@ -44,7 +44,7 @@ const ClusteredColumnChart: React.FC<ClusteredColumnChartProps > = ({ title, des
             <div className="flex justify-end flex-wrap gap-4 mb-6">
                 {metrics.map((metric) => (
                     <div key={metric.key} className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded ${metric.color}`}/>
+                        <div className={`w-3 h-3 rounded ${metric.color}`} />
                         <span className="text-sm text-gray-600">{metric.label}</span>
                     </div>
                 ))}
@@ -59,7 +59,7 @@ const ClusteredColumnChart: React.FC<ClusteredColumnChartProps > = ({ title, des
                             <span className="text-xs text-gray-400">
                                 {Math.round((maxValue * (4 - i)) / 4).toLocaleString()}
                             </span>
-                            <div className="flex-1 border-t border-gray-100"/>
+                            <div className="flex-1 border-t border-gray-100" />
                         </div>
                     ))}
                 </div>
