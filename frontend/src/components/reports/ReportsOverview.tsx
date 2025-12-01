@@ -29,7 +29,7 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
         {
             title: "Active Users",
             value: 156,
-            change: "+15%",
+            change: "-15%",
             icon: faUsers
         }
     ];
