@@ -1,3 +1,4 @@
+import React from "react";
 import {
     faSearch,
     faFileText,
@@ -9,11 +10,6 @@ import ClusteredColumnChart from "./ClusteredColumnChart";
 interface ReportsOverviewProps {
     userRole: string;
     timeRange: string;
-}
-
-interface ChartDataPoint {
-    day: string;
-    value: number;
 }
 
 const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange }) => {
@@ -38,14 +34,20 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
         }
     ];
 
-    const chartData: ChartDataPoint[] = [
-        { day: 'Mon', value: 180 },
-        { day: 'Tue', value: 210 },
-        { day: 'Wed', value: 150 },
-        { day: 'Thu', value: 200 },
-        { day: 'Fri', value: 165 },
-        { day: 'Sat', value: 230 },
-        { day: 'Sun', value: 245 }
+    const dailyMetrics = [
+        { key: 'searches', label: 'Searches', color: 'bg-blue-500', hoverColor: 'bg-blue-600' },
+        { key: 'documentViews', label: 'Document Views', color: 'bg-purple-500', hoverColor: 'bg-purple-600' },
+        { key: 'activeUsers', label: 'Active Users', color: 'bg-green-500', hoverColor: 'bg-green-600' }
+    ];
+
+    const dailyData = [
+        { label: 'Mon', searches: 180, documentViews: 120, activeUsers: 45 },
+        { label: 'Tue', searches: 220, documentViews: 150, activeUsers: 52 },
+        { label: 'Wed', searches: 195, documentViews: 135, activeUsers: 48 },
+        { label: 'Thu', searches: 230, documentViews: 130, activeUsers: 58 },
+        { label: 'Fri', searches: 245, documentViews: 135, activeUsers: 62 },
+        { label: 'Sat', searches: 130, documentViews: 85, activeUsers: 28 },
+        { label: 'Sun', searches: 95, documentViews: 68, activeUsers: 22 }
     ];
 
     return (
@@ -68,7 +70,8 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
                 <ClusteredColumnChart 
                     title="Daily Usage Trends"
                     description="System usage across the week"
-                    data={chartData}
+                    data={dailyData}
+                    metrics={dailyMetrics}
                 />
             </div>
         </div>
