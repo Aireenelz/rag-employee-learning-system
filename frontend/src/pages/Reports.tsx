@@ -1,9 +1,3 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faBookmark,
-    faList,
-    faSearch,
-} from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import ReportsOverview from "../components/reports/ReportsOverview";
 import SearchAnalytics from "../components/reports/SearchAnalytics";
@@ -78,7 +72,7 @@ const Reports:React.FC = () => {
                 {/* Overview */}
                 <button
                     className={`flex-1 text-center py-2 px-1 font-semibold rounded-md hover:text-gray-500 ${
-                        activeTab === 'overview' ? 'bg-els-selectedtab hover:text-gray-600' : 'text-gray-400'
+                        activeTab === 'overview' ? 'bg-els-selectedtab hover:text-gray-600 shadow-sm' : 'text-gray-400'
                     }`}
                     onClick={() => {
                         setActiveTab('overview');
@@ -90,7 +84,7 @@ const Reports:React.FC = () => {
                 {/* Search analytics */}
                 <button
                     className={`flex-1 text-center py-2 px-1 font-semibold rounded-md hover:text-gray-500 ${
-                        activeTab === 'search-analytics' ? 'bg-els-selectedtab hover:text-gray-600' : 'text-gray-400'
+                        activeTab === 'search-analytics' ? 'bg-els-selectedtab hover:text-gray-600 shadow-sm' : 'text-gray-400'
                     }`}
                     onClick={() => {
                         setActiveTab('search-analytics');
@@ -102,7 +96,7 @@ const Reports:React.FC = () => {
                 {/* Document analytics */}
                 <button
                     className={`flex-1 text-center py-2 px-1 font-semibold rounded-md hover:text-gray-500 ${
-                        activeTab === 'document-analytics' ? 'bg-els-selectedtab hover:text-gray-600' : 'text-gray-400'
+                        activeTab === 'document-analytics' ? 'bg-els-selectedtab hover:text-gray-600 shadow-sm' : 'text-gray-400'
                     }`}
                     onClick={() => {
                         setActiveTab('document-analytics');
@@ -114,7 +108,7 @@ const Reports:React.FC = () => {
                 {/* User activity */}
                 <button
                     className={`flex-1 text-center py-2 px-1 font-semibold rounded-md hover:text-gray-500 ${
-                        activeTab === 'user-activity' ? 'bg-els-selectedtab hover:text-gray-600' : 'text-gray-400'
+                        activeTab === 'user-activity' ? 'bg-els-selectedtab hover:text-gray-600 shadow-sm' : 'text-gray-400'
                     }`}
                     onClick={() => {
                         setActiveTab('user-activity');
@@ -125,7 +119,7 @@ const Reports:React.FC = () => {
             </div>
 
             {/* Main panel */}
-            <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground p-3">
+            <div>
                 {/* Tab content */}
                 {renderTabContent()}
             </div>
