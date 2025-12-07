@@ -31,7 +31,7 @@ const PieChart: React.FC<PieChartProps> = ({ title, description, data }) => {
 
         // Convert angles to radians
         const startRad = (startAngle - 90) * (Math.PI / 180);
-        const endRad = (endAngle - 90) * (Math.PI / 100);
+        const endRad = (endAngle - 90) * (Math.PI / 180);
 
         // Calculate coordinates
         const centerX = 250;
@@ -55,7 +55,7 @@ const PieChart: React.FC<PieChartProps> = ({ title, description, data }) => {
         // Calculate label position (outside the slice)
         const labelAngle = (startAngle + endAngle) / 2;
         const labelRad = (labelAngle - 90) * (Math.PI / 180);
-        const labelDistance = radius + 60;
+        const labelDistance = radius + 20;
         const labelX = centerX + labelDistance * Math.cos(labelRad);
         const labelY = centerY + labelDistance * Math.sin(labelRad);
 
