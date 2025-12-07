@@ -33,7 +33,7 @@ const ClusteredColumnChart: React.FC<ClusteredColumnChartProps> = ({ title, desc
     const chartHeight = 240;
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+        <div className="h-full bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
             {/* Header */}
             <div className="mb-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-1">{title}</h3>

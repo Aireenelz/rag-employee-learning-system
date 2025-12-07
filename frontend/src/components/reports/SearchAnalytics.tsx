@@ -1,11 +1,7 @@
 import React from "react";
-import {
-    faSearch,
-    faFileText,
-    faUsers,
-} from "@fortawesome/free-solid-svg-icons";
 import KPICard from "./KPICard";
 import ClusteredColumnChart from "./ClusteredColumnChart";
+import DataTable from "./DataTable";
 
 interface SearchAnalyticsProps {
     userRole: string;
@@ -34,6 +30,20 @@ const SearchAnalytics:React.FC<SearchAnalyticsProps> = ({ userRole, timeRange })
         }
     ];
 
+    const searchTermsColumns = [
+        { key: "term", label: "Search Term", align: "left" as const, width:"col-span-6 "},
+        { key: "count", label: "Count", align: "right" as const, width:"col-span-3 "},
+        { key: "trend", label: "Trend", align: "right" as const, width:"col-span-3 "},
+    ];
+
+    const searchTermsData = [
+        { term: "project management", count: 245, trend: "+15%" },
+        { term: "employee handbook", count: 189, trend: "+8%" },
+        { term: "budget report", count: 156, trend: "+22%" },
+        { term: "meeting notes", count: 34, trend: "+5%" },
+        { term: "training materials", count: 98, trend: "+18%" }
+    ];
+
     const monthlySearchMetrics = [
         { key: 'totalSearches', label: 'Total Searches', color: 'bg-gray-800', hoverColor: 'bg-gray-900' },
         { key: 'successfulSearches', label: 'Successful Searches', color: 'bg-gray-500', hoverColor: 'bg-gray-600' }
@@ -53,11 +63,11 @@ const SearchAnalytics:React.FC<SearchAnalyticsProps> = ({ userRole, timeRange })
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Most Frequently Searched Terms */}
                 <div className="mb-4">
-                    <ClusteredColumnChart 
-                        title="Search Trends"
-                        description="Monthly search volume and success rates"
-                        data={monthlySearchData}
-                        metrics={monthlySearchMetrics}
+                    <DataTable 
+                        title="Most Frequenly Searched Terms"
+                        description="Popular search queries"
+                        columns={searchTermsColumns}
+                        data={searchTermsData}
                     />
                 </div>
 
