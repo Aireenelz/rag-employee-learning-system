@@ -50,7 +50,7 @@ const ClusteredColumnChart: React.FC<ClusteredColumnChartProps> = ({ title, desc
                 ))}
             </div>
 
-            {/* Chart container */}
+            {/* Column chart container */}
             <div className="relative">
                 {/* Y-axis grid lines */}
                 <div className="absolute inset-0 flex flex-col justify-between pointer-events-none px-1">
