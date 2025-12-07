@@ -69,7 +69,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
                 <div className="mb-4">
                     <PieChart 
                         title="User Types"
-                        description="Distribution of user"
+                        description="Distribution of users"
                         data={userData}
                     />
                 </div>

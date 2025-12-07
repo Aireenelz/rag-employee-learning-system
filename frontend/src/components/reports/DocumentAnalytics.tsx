@@ -55,21 +55,6 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
         { label: 'Marketing', value: 289, color: '#EF4444' }
     ];
 
-    const monthlyDocumentMetrics = [
-        { key: 'uploads', label: 'Uploads', color: 'bg-gray-800', hoverColor: 'bg-gray-900' },
-        { key: 'views', label: 'Views', color: 'bg-gray-500', hoverColor: 'bg-gray-600' },
-        { key: 'downloads', label: 'Downloads', color: 'bg-gray-500', hoverColor: 'bg-gray-600' }
-    ];
-
-    const monthlyDocumentData = [
-        { label: 'Jan', uploads: 1420, views: 1280, downloads: 1280 },
-        { label: 'Feb', uploads: 1580, views: 1422, downloads: 1280 },
-        { label: 'Mar', uploads: 1720, views: 1520, downloads: 1280 },
-        { label: 'Apr', uploads: 1780, views: 1590, downloads: 1280 },
-        { label: 'May', uploads: 1850, views: 1650, downloads: 1280 },
-        { label: 'Jun', uploads: 1950, views: 1720, downloads: 1280 }
-    ];
-
     return (
         <div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -89,18 +74,6 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
                         title="Documents by Category"
                         description="Distribution of document types"
                         data={categoryData}
-                    />
-                </div>
-            </div>
-
-            {/* Document Activity Trends */}
-            <div>
-                <div className="mb-4">
-                    <ClusteredColumnChart 
-                        title="Document Activity Trends"
-                        description="Monthly document uploads, views, and downloads"
-                        data={monthlyDocumentData}
-                        metrics={monthlyDocumentMetrics}
                     />
                 </div>
             </div>

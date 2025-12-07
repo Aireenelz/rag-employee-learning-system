@@ -65,7 +65,7 @@ const SearchAnalytics:React.FC<SearchAnalyticsProps> = ({ userRole, timeRange })
                 <div className="mb-4">
                     <DataTable 
                         title="Most Frequently Searched Terms"
-                        description="Popular search queries"
+                        description="Popular chatbot queries"
                         columns={searchTermsColumns}
                         data={searchTermsData}
                     />
