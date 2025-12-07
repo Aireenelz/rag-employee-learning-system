@@ -1,6 +1,5 @@
 import React from "react";
 import KPICard from "./KPICard";
-import ClusteredColumnChart from "./ClusteredColumnChart";
 import DataTable from "./DataTable";
 import PieChart from "./PieChart";
 
@@ -59,8 +58,8 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
                 {/* Most Active Users */}
                 <div className="mb-4">
                     <DataTable 
-                        title="Most Viewed Documents"
-                        description="Popular documents"
+                        title="Most Active Users"
+                        description="Users with highest XP"
                         columns={usersColumns}
                         data={usersData}
                     />
