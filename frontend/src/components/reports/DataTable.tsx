@@ -54,7 +54,7 @@ const DataTable: React.FC<DataTableProps> = ({ title, description, columns, data
             {/* Table container */}
             <div>
                 {/* Table header */}
-                <div className="grid grid-cols-12 gap-4 pb-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+                <div className="grid grid-cols-12 gap-4 pb-4 border-b border-gray-200 bg-white">
                     {columns.map((column, index) => (
                         <div
                             key={index}

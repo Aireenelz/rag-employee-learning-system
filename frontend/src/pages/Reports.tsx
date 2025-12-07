@@ -3,6 +3,7 @@ import ReportsOverview from "../components/reports/ReportsOverview";
 import SearchAnalytics from "../components/reports/SearchAnalytics";
 import DocumentAnalytics from "../components/reports/DocumentAnalytics";
 import UserActivity from "../components/reports/UserActivity";
+import StyledSelect from "../components/StyledSelect";
 
 const Reports:React.FC = () => {
     const [userRole, setUserRole] = useState("all");
@@ -38,31 +39,32 @@ const Reports:React.FC = () => {
                 <p className="text-sm text-gray-500 mb-3">Filter reports by user role and time range</p>
 
                 <div className="flex space-x-4">
+                    {/* Filter user role */}
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">User Role</label>
-                        <select
+                        <StyledSelect
                             value={userRole}
                             onChange={(e) => setUserRole(e.target.value)}
-                            className="max-w-md px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                             <option value="all">All Roles</option>
                             <option value="admin">Admin</option>
                             <option value="internal-employee">Internal Employee</option>
                             <option value="partner">Partner</option>
-                        </select>
+                        </StyledSelect>
                     </div>
+
+                    {/* Filter time range */}
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">Time Range</label>
-                        <select
+                        <StyledSelect
                             value={timeRange}
                             onChange={(e) => setTimeRange(e.target.value)}
-                            className="max-w-md px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                             <option value="7">Last 7 days</option>
                             <option value="30">Last 30 days</option>
                             <option value="90">Last 90 days</option>
                             <option value="365">Last year</option>
-                        </select>
+                        </StyledSelect>
                     </div>
                 </div>
             </div>
