@@ -13,19 +13,19 @@ const SearchAnalytics:React.FC<SearchAnalyticsProps> = ({ userRole, timeRange })
         {
             title: "Average Response Time",
             value: "1.2s",
-            change: "-0.3s",
+            change: "-0.3s from last period",
             positiveIsBad: true,
         },
         {
             title: "Search Success Rate",
             value: "89.7%",
-            change: "+2.1%",
+            change: "+2.1% from last period",
             positiveIsBad: false,
         },
         {
             title: "Zero Results Rate",
             value: "5.8%",
-            change: "+0.5%",
+            change: "+0.5% from last period",
             positiveIsBad: true,
         }
     ];

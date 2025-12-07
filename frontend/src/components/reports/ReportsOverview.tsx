@@ -17,19 +17,19 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
         {
             title: "Total Questions",
             value: 1247,
-            change: "+12%",
+            change: "+12% from last period",
             icon: faSearch
         },
         {
             title: "Documents Viewed",
             value: 892,
-            change: "+8%",
+            change: "+8% from last period",
             icon: faFileText
         },
         {
             title: "Active Users",
             value: 156,
-            change: "-15%",
+            change: "-15% from last period",
             icon: faUsers
         }
     ];

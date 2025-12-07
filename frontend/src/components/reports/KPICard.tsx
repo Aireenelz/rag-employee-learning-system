@@ -11,10 +11,14 @@ interface KPICardProps {
 
 const KPICard: React.FC<KPICardProps> = ({ title, value, change, icon, positiveIsBad }) => {
     const isPositive = change.startsWith("+");
+    const isNegative = change.startsWith("-");
 
-    const color = positiveIsBad
-        ? (isPositive ? "text-red-600" : "text-green-600")
-        : (isPositive ? "text-green-600" : "text-red-600")
+    const color = 
+        isPositive || isNegative
+            ? positiveIsBad
+                ? (isPositive ? "text-red-600" : "text-green-600")
+                : (isPositive ? "text-green-600" : "text-red-600")
+            : "text-gray-400";
 
     return (
         <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
@@ -31,7 +35,7 @@ const KPICard: React.FC<KPICardProps> = ({ title, value, change, icon, positiveI
             {/* Value and change */}
             <div>
                 <p className="text-3xl font-bold text-gray-900">{value.toLocaleString()}</p>
-                <p className={`text-sm ${color}`}>{change} from last period</p>
+                <p className={`text-sm ${color}`}>{change}</p>
             </div>
         </div>
     );

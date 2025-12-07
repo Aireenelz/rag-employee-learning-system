@@ -14,12 +14,12 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
         {
             title: "Total Documents",
             value: "2847",
-            change: "+43"
+            change: "+43 from last period"
         },
         {
             title: "Average Views per Doc",
             value: "67",
-            change: "+12"
+            change: "+12 from last period"
         },
         {
             title: "Storage Used",
@@ -29,18 +29,18 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
         {
             title: "Download Rate",
             value: "14.2%",
-            change: "+1.3%"
+            change: "+1.3% from last period"
         }
     ];
 
     const documentsColumns = [
-        { key: 'document', label: 'Document', align: 'left' as const, width: 'col-span-5' },
-        { key: 'category', label: 'Category', align: 'left' as const, width: 'col-span-4' },
+        { key: 'document', label: 'Document', align: 'left' as const, width: 'col-span-6' },
+        { key: 'category', label: 'Category', align: 'left' as const, width: 'col-span-3' },
         { key: 'views', label: 'Views', align: 'right' as const, width: 'col-span-3' }
     ];
 
     const documentsData = [
-        { document: 'Employee Handbook 2024', category: 'HR', views: 542 },
+        { document: 'Employee Handbook 2024 Longer Name', category: 'HR', views: 542 },
         { document: 'Q4 Budget Report', category: 'Finance', views: 387 },
         { document: 'Project Guidelines', category: 'Operations', views: 298 },
         { document: 'Safety Protocols', category: 'Compliance', views: 256 },
@@ -48,11 +48,11 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
     ];
 
     const categoryData = [
-        { label: 'HR', value: 687, color: '#3B82F6' },           // Blue
-        { label: 'Finance', value: 512, color: '#8B5CF6' },      // Purple
-        { label: 'Operations', value: 465, color: '#10B981' },   // Green
-        { label: 'Compliance', value: 356, color: '#F59E0B' },   // Orange
-        { label: 'Marketing', value: 289, color: '#EF4444' }     // Red
+        { label: 'HR', value: 687, color: '#3B82F6' },
+        { label: 'Finance', value: 512, color: '#8B5CF6' },
+        { label: 'Operations', value: 465, color: '#10B981' },
+        { label: 'Compliance', value: 356, color: '#F59E0B' },
+        { label: 'Marketing', value: 289, color: '#EF4444' }
     ];
 
     const monthlyDocumentMetrics = [
