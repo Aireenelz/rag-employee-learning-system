@@ -2,13 +2,15 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Header, Depe
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 import os
 from dotenv import load_dotenv
 import json
 import io
 from datetime import datetime
 from bson import ObjectId
+
+from auth import UserContext, get_current_user
 from gamification_api import router as gamification_router
 
 from openai import OpenAI
@@ -20,7 +22,6 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_chroma import Chroma
-import jwt
 
 # Load environment variables
 load_dotenv()
@@ -87,12 +88,6 @@ app.add_middleware(
 app.include_router(gamification_router)
 
 # Pydantic models
-class UserContext(BaseModel):
-    user_id: str
-    email: str
-    role: str
-    min_access_level: int
-
 class DocumentResponse(BaseModel):
     id: str
     filename: str
@@ -118,43 +113,6 @@ class ChatResponse(BaseModel):
 
 class DocumentIdsRequest(BaseModel):
     document_ids: List[str]
-
-# Authentication dependency
-async def get_current_user(authorization: Optional[str] = Header(None)) -> UserContext:
-    """ Extract and verify JWT token from Authorization header"""
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Missing authorization header")
-    
-    try:
-        # Extract token from "Bearer <token>"
-        token = authorization.split(" ")[1] if " " in authorization else authorization
-
-        # Decode JWT token
-        payload = jwt.decode(token, supabase_jwt_secret, algorithms=["HS256"], audience="authenticated")
-
-        user_id = payload.get("sub")
-        email = payload.get("email")
-        role = payload.get("user_metadata", {}).get("role", "partner")
-
-        if not user_id or not email:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
-        
-        # Get minimum access level for this role
-        min_access_level = ROLE_MIN_ACCESS.get(role, 1)
-
-        return UserContext(
-            user_id=user_id,
-            email=email,
-            role=role,
-            min_access_level=min_access_level
-        )
-    
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
 
 # Helper function to format file size
 def format_file_size(size_bytes: int) -> str:
