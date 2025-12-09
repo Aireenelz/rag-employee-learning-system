@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     faSearch,
     faFileText,
@@ -6,30 +6,130 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import KPICard from "./KPICard";
 import ClusteredColumnChart from "./ClusteredColumnChart";
+import { useAuthFetch } from "../../utils/useAuthFetch";
 
 interface ReportsOverviewProps {
     userRole: string;
     timeRange: string;
 }
 
+interface KPIData {
+    total_questions: number;
+    documents_viewed: number;
+    total_users: number;
+    previous_total_questions: number;
+    previous_documents_viewed: number;
+    previous_total_users: number;
+}
+
+interface AnalyticsResponse {
+    kpis: KPIData;
+    // daily_trends: List[OverviewDailyTrendData]
+}
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange }) => {
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [analyticsData, setAnalyticsData] = useState<AnalyticsResponse | null>(null);
+
+    const { authFetch } = useAuthFetch();
+
+    const fetchAnalytics = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await authFetch(`${API_BASE_URL}/api/analytics/overview?user_role=${userRole}&time_range=${timeRange}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json"}
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || "Failed to fetch analytics");
+            }
+            
+            const data: AnalyticsResponse = await response.json();
+            setAnalyticsData(data);
+            console.log(data)
+        } catch (error) {
+            console.error("Error fetch analytics:", error);
+            setError("An error occured occured");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchAnalytics();
+    }, [userRole,timeRange]);
+
+    const calculateChange = (current: number, previous: number): string => {
+        if (previous === 0) {
+            if (current > 0) return "+100% from last period";
+            if (current < 0) return "-100% from last period";
+            return "0% from last period";
+        }
+
+        const percentChange = ((current - previous) / previous) * 100;
+
+        let sign = "";
+        if (percentChange > 0) sign = "+";
+        else if (percentChange < 0) sign = "-";
+
+        return `${sign}${Math.abs(percentChange).toFixed(1)}% from last period`;
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-gray-500">Loading analytics...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center h-64">
+                <div className="text-red-500 mb-2">Error loading analytics</div>
+                <div className="text-sm text-gray-500">{error}</div>
+                <button
+                    onClick={fetchAnalytics}
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
+    if (!analyticsData) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-gray-500">No data available</div>
+            </div>
+        );
+    }
+    
     const kpiData = [
         {
             title: "Total Questions",
-            value: 1247,
-            change: "+12% from last period",
+            value: analyticsData.kpis.total_questions,
+            change: calculateChange(analyticsData.kpis.total_questions, analyticsData.kpis.previous_total_questions),
             icon: faSearch
         },
         {
             title: "Documents Viewed",
-            value: 892,
-            change: "+8% from last period",
+            value: analyticsData.kpis.documents_viewed,
+            change: calculateChange(analyticsData.kpis.documents_viewed, analyticsData.kpis.previous_documents_viewed),
             icon: faFileText
         },
         {
-            title: "Active Users",
-            value: 156,
-            change: "-15% from last period",
+            title: "Users Created",
+            value: analyticsData.kpis.total_users,
+            change: calculateChange(analyticsData.kpis.total_users, analyticsData.kpis.previous_total_users),
             icon: faUsers
         }
     ];

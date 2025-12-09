@@ -12,6 +12,7 @@ from bson import ObjectId
 
 from auth import UserContext, get_current_user
 from gamification_api import router as gamification_router
+from analytics_api import router as analytics_router
 
 from openai import OpenAI
 from pymongo import MongoClient
@@ -86,6 +87,9 @@ app.add_middleware(
 
 # Gamification routes
 app.include_router(gamification_router)
+
+# Analytics routes
+app.include_router(analytics_router)
 
 # Pydantic models
 class DocumentResponse(BaseModel):
