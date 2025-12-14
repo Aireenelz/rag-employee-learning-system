@@ -1,6 +1,5 @@
 import React from "react";
 import KPICard from "./KPICard";
-import ClusteredColumnChart from "./ClusteredColumnChart";
 import DataTable from "./DataTable";
 import PieChart from "./PieChart";
 
@@ -10,6 +9,7 @@ interface DocumentAnalyticsProps {
 }
 
 const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRange }) => {
+    console.log("DocumentAnalytics\nuserRole:", userRole, "timeRange:", timeRange)
     const kpiData = [
         {
             title: "Total Documents",

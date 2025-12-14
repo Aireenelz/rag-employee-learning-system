@@ -32,7 +32,7 @@ class OverviewDailyTrendData(BaseModel):
 
 class OverviewResponse(BaseModel):
     kpis: OverviewKPIResponse
-    # daily_trends: List[OverviewDailyTrendData]
+    daily_trends: List[OverviewDailyTrendData]
 
 # Helper function to get date range
 def get_date_range(days: int):
@@ -102,8 +102,45 @@ async def get_overview_analytics(user_role: str = "all", time_range: int = 30, c
         )
 
         # Build daily usage trends
+        last_7_days_start = end_date - timedelta(days=7)
 
-        return OverviewResponse(kpis=kpis)
+        daily_trends_query = supabase.table("daily_analytics").select("*").gte("date", last_7_days_start.isoformat()).lte("date", end_date.isoformat())
+
+        if role_filter:
+            daily_trends_query = daily_trends_query.eq("user_role", role_filter)
+        
+        last_7_days_data = daily_trends_query.execute()
+
+        # Aggregate by date
+        daily_aggregates = {}
+        for row in last_7_days_data.data:
+            date = row["date"]
+            if date not in daily_aggregates:
+                daily_aggregates[date] = {
+                    "searches": 0,
+                    "documentViews": 0,
+                    "activeUsers": 0
+                }
+            daily_aggregates[date]["searches"] += row["total_questions"]
+            daily_aggregates[date]["documentViews"] += row["total_documents_viewed"]
+            daily_aggregates[date]["activeUsers"] += row["active_users"]
+        
+        # Build daily usage trends with day labels
+        daily_trends = []
+        day_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        for i in range(7):
+            current_day = last_7_days_start + timedelta(days=i)
+            date_str = current_day.isoformat()
+            day_of_week = current_day.weekday()
+
+            daily_trends.append(OverviewDailyTrendData(
+                label=day_labels[day_of_week],
+                searches=daily_aggregates.get(date_str, {}).get("searches", 0),
+                documentViews=daily_aggregates.get(date_str, {}).get("documentViews", 0),
+                activeUsers=daily_aggregates.get(date_str, {}).get("activeUsers", 0)
+            ))
+
+        return OverviewResponse(kpis=kpis, daily_trends=daily_trends)
     except HTTPException:
         raise
     except Exception as e:

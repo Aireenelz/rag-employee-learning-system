@@ -9,6 +9,7 @@ interface UserActivityProps {
 }
 
 const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
+    console.log("UserActivity\nuserRole:", userRole, "timeRange:", timeRange)
     const kpiData = [
         {
             title: "Daily Active Users",

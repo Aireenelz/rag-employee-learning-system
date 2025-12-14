@@ -22,9 +22,17 @@ interface KPIData {
     previous_total_users: number;
 }
 
+interface DailyUsageTrend {
+    label: string;
+    searches: number;
+    documentViews: number;
+    activeUsers: number;
+    [key: string]: string | number;
+}
+
 interface AnalyticsResponse {
     kpis: KPIData;
-    // daily_trends: List[OverviewDailyTrendData]
+    daily_trends: DailyUsageTrend[];
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -140,16 +148,6 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
         { key: 'activeUsers', label: 'Active Users', color: 'bg-green-500', hoverColor: 'bg-green-600' }
     ];
 
-    const dailyData = [
-        { label: 'Mon', searches: 180, documentViews: 120, activeUsers: 45 },
-        { label: 'Tue', searches: 220, documentViews: 150, activeUsers: 52 },
-        { label: 'Wed', searches: 195, documentViews: 135, activeUsers: 48 },
-        { label: 'Thu', searches: 230, documentViews: 130, activeUsers: 58 },
-        { label: 'Fri', searches: 245, documentViews: 135, activeUsers: 62 },
-        { label: 'Sat', searches: 130, documentViews: 85, activeUsers: 28 },
-        { label: 'Sun', searches: 95, documentViews: 68, activeUsers: 22 }
-    ];
-
     return (
         <div>
             {/* KPI cards */}
@@ -170,7 +168,7 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
                 <ClusteredColumnChart 
                     title="Daily Usage Trends"
                     description="System usage across the week"
-                    data={dailyData}
+                    data={analyticsData.daily_trends}
                     metrics={dailyMetrics}
                 />
             </div>

@@ -9,6 +9,7 @@ interface SearchAnalyticsProps {
 }
 
 const SearchAnalytics:React.FC<SearchAnalyticsProps> = ({ userRole, timeRange }) => {
+    console.log("SearchAnalytics\nuserRole:", userRole, "timeRange:", timeRange)
     const kpiData = [
         {
             title: "Average Response Time",
