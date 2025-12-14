@@ -25,18 +25,26 @@ interface AppSideBarProps {
 const SIDEBAR_BREAKPOINT = 900;
 
 const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
-    const navItems = [
-        { label: "AI Assistant", icon: faComments, to: "/" },
-        { label: "Documents", icon: faFileAlt, to: "/documents" },
-        { label: "Quick Access", icon: faBookmark, to: "/quickaccess" },
-        { label: "Profile & Achievements", icon: faUser, to: "/profile" },
-        { label: "Reports", icon: faChartSimple, to: "/reports"}
-    ];
-
     const navigate = useNavigate();
     const [showSignOutConfirmation, setShowSignOutConfirmation] = useState(false);
     const { signOut, user, profile } = useAuth();
     const { stats, totalEarnedBadges } = useGamification();
+
+    const baseNavItems = [
+        { label: "AI Assistant", icon: faComments, to: "/" },
+        { label: "Documents", icon: faFileAlt, to: "/documents" },
+        { label: "Quick Access", icon: faBookmark, to: "/quickaccess" },
+        { label: "Profile & Achievements", icon: faUser, to: "/profile" }
+    ];
+
+    const adminNavItems = [
+        { label: "Reports", icon: faChartSimple, to: "/reports" }
+    ];
+
+    // Combine nav items based on user role
+    const navItems = profile?.role === "admin"
+        ? [...baseNavItems, ...adminNavItems]
+        : baseNavItems;
 
     // Get user initials
     const getUserInitials = () => {
@@ -125,6 +133,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
                         {/* User profile */}
                         <Link 
                             to="/profile"
+                            onClick={handleNavClick}
                             className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer border border-gray-200"
                         >
                             <UserAvatar initials={getUserInitials()} />

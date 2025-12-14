@@ -6,8 +6,9 @@ import QuickAccess from "../pages/QuickAccess";
 import ProfileAchievements from "../pages/ProfileAchievements";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
-import ProtectedRoute from "../components/ProtectedRoute";
+import ProtectedRoute from "./ProtectedRoute";
 import Reports from "../pages/Reports";
+import AdminRoute from "./AdminRoute";
 
 const router = createBrowserRouter([
     { path: "/login", element: <Login /> },
@@ -24,7 +25,14 @@ const router = createBrowserRouter([
             { path: "/documents", element: <Documents /> },
             { path: "/quickaccess", element: <QuickAccess /> },
             { path: "/profile", element: <ProfileAchievements /> },
-            { path: "/reports", element: <Reports /> },
+            {
+                path: "/reports", 
+                element: (
+                    <AdminRoute>
+                        <Reports />
+                    </AdminRoute>
+                )
+            },
         ]
     }
 ]);
