@@ -186,14 +186,16 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
             <table className="w-full border-collapse">
                 <thead>
                     <tr className="text-left border-b">
-                        <th className="py-2 pl-3">
-                            <input
-                                type="checkbox"
-                                checked={documents.length > 0 && selectedDocuments.length === documents.length}
-                                onChange={handleSelectAll}
-                                className="form-checkbox h-4 w-4 text-blue-600"
-                            />
-                        </th>
+                        {profile?.role !== "partner" && (
+                            <th className="py-2 pl-3">
+                                <input
+                                    type="checkbox"
+                                    checked={documents.length > 0 && selectedDocuments.length === documents.length}
+                                    onChange={handleSelectAll}
+                                    className="form-checkbox h-4 w-4 text-blue-600"
+                                />
+                            </th>
+                        )}
                         <th className="p-2 text-sm font-semibold text-gray-400">Document</th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Tags</th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Upload Date</th>
@@ -212,14 +214,16 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                         documents.map((doc, index) => (
                             <tr key={doc.id} className="border-b hover:bg-gray-50">
                                 {/* Checkbox */}
-                                <td className="py-2 pl-3">
-                                    <input 
-                                        type="checkbox"
-                                        checked={selectedDocuments.includes(doc.id)}
-                                        onChange={() => handleSelectDocument(doc.id)}
-                                        className="form-checkbox h-4 w-4 text-blue-600"
-                                    />
-                                </td>
+                                {profile?.role !== "partner" && (
+                                    <td className="py-2 pl-3">
+                                        <input 
+                                            type="checkbox"
+                                            checked={selectedDocuments.includes(doc.id)}
+                                            onChange={() => handleSelectDocument(doc.id)}
+                                            className="form-checkbox h-4 w-4 text-blue-600"
+                                        />
+                                    </td>
+                                )}
                                 
                                 {/* Document name */}
                                 <td className="py-4 px-2 text-sm font-semibold">
