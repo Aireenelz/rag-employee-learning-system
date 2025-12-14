@@ -38,10 +38,10 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
     ];
 
     const adminNavItems = [
-        { label: "Reports", icon: faChartSimple, to: "/reports"}
+        { label: "Reports", icon: faChartSimple, to: "/reports" }
     ];
 
-    // Cobmine nav items based on user role
+    // Combine nav items based on user role
     const navItems = profile?.role === "admin"
         ? [...baseNavItems, ...adminNavItems]
         : baseNavItems;
