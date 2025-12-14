@@ -37,7 +37,7 @@ class OverviewResponse(BaseModel):
 # Helper function to get date range
 def get_date_range(days: int):
     end_date = datetime.utcnow().date() + timedelta(days=1)
-    start_date = end_date - timedelta(days=days)
+    start_date = end_date - timedelta(days=days + 1)
     return start_date, end_date
 
 def get_role_filter(user_role: str):
@@ -55,6 +55,8 @@ async def get_overview_analytics(user_role: str = "all", time_range: int = 30, c
         
         start_date, end_date = get_date_range(time_range)
         role_filter = get_role_filter(user_role)
+
+        print(f"Fetching analytics from {start_date} to {end_date} for role: {user_role}")
 
         # Build query for current period
         query = supabase.table("daily_analytics").select("*").gte("date", start_date.isoformat()).lte("date", end_date.isoformat())
@@ -102,42 +104,31 @@ async def get_overview_analytics(user_role: str = "all", time_range: int = 30, c
         )
 
         # Build daily usage trends
-        last_7_days_start = end_date - timedelta(days=7)
+        # Initialise counters for each day of week (0=Monday, 6=Sunday)
+        day_of_week_aggregates = {
+            i: {"searches": 0, "documentViews": 0, "activeUsers": 0}
+            for i in range(7)
+        }
 
-        daily_trends_query = supabase.table("daily_analytics").select("*").gte("date", last_7_days_start.isoformat()).lte("date", end_date.isoformat())
+        # Aggregate all data from chosen timeRange, by day of week
+        for row in current_data.data:
+            date_obj = datetime.fromisoformat(row["date"]).date()
+            day_of_week = date_obj.weekday()
 
-        if role_filter:
-            daily_trends_query = daily_trends_query.eq("user_role", role_filter)
+            day_of_week_aggregates[day_of_week]["searches"] += row["total_questions"]
+            day_of_week_aggregates[day_of_week]["documentViews"] += row["total_documents_viewed"]
+            day_of_week_aggregates[day_of_week]["activeUsers"] += row["active_users"]
         
-        last_7_days_data = daily_trends_query.execute()
-
-        # Aggregate by date
-        daily_aggregates = {}
-        for row in last_7_days_data.data:
-            date = row["date"]
-            if date not in daily_aggregates:
-                daily_aggregates[date] = {
-                    "searches": 0,
-                    "documentViews": 0,
-                    "activeUsers": 0
-                }
-            daily_aggregates[date]["searches"] += row["total_questions"]
-            daily_aggregates[date]["documentViews"] += row["total_documents_viewed"]
-            daily_aggregates[date]["activeUsers"] += row["active_users"]
-        
-        # Build daily usage trends with day labels
+        # Build daily usage trends response
         daily_trends = []
         day_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-        for i in range(7):
-            current_day = last_7_days_start + timedelta(days=i)
-            date_str = current_day.isoformat()
-            day_of_week = current_day.weekday()
-
+        
+        for day_index, label in enumerate(day_labels):
             daily_trends.append(OverviewDailyTrendData(
-                label=day_labels[day_of_week],
-                searches=daily_aggregates.get(date_str, {}).get("searches", 0),
-                documentViews=daily_aggregates.get(date_str, {}).get("documentViews", 0),
-                activeUsers=daily_aggregates.get(date_str, {}).get("activeUsers", 0)
+                label=label,
+                searches=day_of_week_aggregates[day_index]["searches"],
+                documentViews=day_of_week_aggregates[day_index]["documentViews"],
+                activeUsers=day_of_week_aggregates[day_index]["activeUsers"]
             ))
 
         return OverviewResponse(kpis=kpis, daily_trends=daily_trends)
