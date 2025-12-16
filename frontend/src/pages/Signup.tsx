@@ -82,7 +82,7 @@ const Signup: React.FC = () => {
         }
 
         if (formData.password.length < 8) {
-            setError("Password but be at least 8 characteres long");
+            setError("Password must be at least 8 characters long");
             return;
         }
 
