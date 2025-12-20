@@ -34,6 +34,28 @@ class OverviewResponse(BaseModel):
     kpis: OverviewKPIResponse
     daily_trends: List[OverviewDailyTrendData]
 
+class UserActivityKPIResponse(BaseModel):
+    daily_active_users: float
+    average_badges_per_user: int
+    user_retention_rate: float
+    previous_daily_active_users: float
+    previous_user_retention_rate: float
+
+class UserActivityMostActiveUser(BaseModel):
+    user_id: str
+    name: str
+    role: str
+    total_exp: int
+
+class UserActivityRoleDistribution(BaseModel):
+    role: str
+    count: int
+
+class UserActivityResponse(BaseModel):
+    kpis: UserActivityKPIResponse
+    most_active_users: List[UserActivityMostActiveUser]
+    role_distribution: List[UserActivityRoleDistribution]
+
 # Helper function to get date range
 def get_date_range(days: int):
     end_date = datetime.utcnow().date() + timedelta(days=1)
@@ -137,3 +159,116 @@ async def get_overview_analytics(user_role: str = "all", time_range: int = 30, c
     except Exception as e:
         print(f"Analytics error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch analytics data")
+
+# Endpoint to get user activity data
+@router.get("/api/analytics/user-activity", response_model=UserActivityResponse)
+async def get_user_activity_analytics(user_role: str = "all", time_range: int = 30, current_user: UserContext = Depends(get_current_user)):
+    try:
+        # Only admin can view analytics
+        if current_user.role not in ["admin"]:
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+        
+        start_date, end_date = get_date_range(time_range)
+        role_filter = get_role_filter(user_role)
+
+        print(f"Fetching user activity analytics from {start_date} to {end_date} for role: {user_role}")
+
+        # KPI 1: DAILY ACTIVE USERS ==========================================================================================
+        # Current period
+        dau_query = supabase.table("daily_analytics").select("active_users, date").gte("date", start_date.isoformat()).lte("date", end_date.isoformat())
+        if role_filter:
+            dau_query = dau_query.eq("user_role", role_filter)
+        dau_data = dau_query.execute()
+
+        if dau_data.data:
+            total_active = sum(row["active_users"] for row in dau_data.data)
+            num_days = len(set(row["date"] for row in dau_data.data))
+            daily_active_users = round(total_active / num_days, 2) if num_days > 0 else 0
+        else:
+            daily_active_users = 0
+
+        # Previous period
+        prev_start_date = start_date - timedelta(days=time_range)
+        prev_end_date = start_date - timedelta(days=1)
+
+        prev_dau_query = supabase.table("daily_analytics").select("active_users, date").gte("date", prev_start_date.isoformat()).lte("date", prev_end_date.isoformat())
+        if role_filter:
+            prev_dau_query = prev_dau_query.eq("user_role", role_filter)
+        previous_dau_data = prev_dau_query.execute()
+
+        if previous_dau_data.data:
+            prev_total_active = sum(row["active_users"] for row in previous_dau_data.data)
+            prev_num_days = len(set(row["date"] for row in previous_dau_data.data))
+            previous_daily_active_users = round(prev_total_active / prev_num_days, 2) if prev_num_days > 0 else 0
+        else:
+            previous_daily_active_users = 0
+        
+        # KPI 2: AVERAGE BADGES PER USER ==========================================================================================
+        users_query = supabase.table("user_activity_summary").select("*")
+        if role_filter:
+            users_query = users_query.eq("user_role", role_filter)
+        users_data = users_query.execute()
+
+        users = users_data.data or []
+        total_users_count = len(users)
+
+        if total_users_count > 0:
+            total_badges = sum(user.get("badges_earned", 0) for user in users)
+            average_badges_per_user = round(total_badges / total_users_count)
+        else:
+            average_badges_per_user = 0
+        
+        # KPI 3: USER RETENTION RATE ==========================================================================================
+        
+        # Build KPI response
+        kpis = UserActivityKPIResponse(
+            daily_active_users=daily_active_users,
+            average_badges_per_user=average_badges_per_user,
+            user_retention_rate=100.0,
+            previous_daily_active_users=previous_daily_active_users,
+            previous_user_retention_rate=100.0
+        )
+        
+        # MOST ACTIVE USERS ==========================================================================================
+        most_active_users = [
+            UserActivityMostActiveUser(
+                user_id=user["user_id"],
+                name=f"{user.get('first_name', '')} {user.get('last_name', '')}".strip() or "Unknown User",
+                role=user.get("role", "Unknown"),
+                total_exp=user.get("total_exp", 0)
+            )
+            for user in sorted(
+                users,
+                key=lambda u: u.get("total_exp", 0),
+                reverse=True
+            )[:5]
+        ]
+
+        # ROLE DISTRIBUTION ==========================================================================================
+        if role_filter:
+            role_distribution = [
+                UserActivityRoleDistribution(
+                    role=role_filter,
+                    count=total_users_count
+                )
+            ]
+        else:
+            role_counts = {}
+            for user in users:
+                role = user.get("role", "Unknown")
+                role_counts[role] = role_counts.get(role, 0) + 1
+            
+            role_distribution = [
+                UserActivityRoleDistribution(
+                    role=role,
+                    count=count
+                )
+                for role, count in role_counts.items()
+            ]
+
+        return UserActivityResponse(kpis=kpis, most_active_users=most_active_users, role_distribution=role_distribution)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"User activity analytics error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch user activity analytics data")

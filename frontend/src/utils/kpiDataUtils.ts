@@ -3,7 +3,7 @@ export const calculateChange = (current: number, previous: number): string => {
 
     if (diff > 0) return `${diff} from last period`;
     if (diff < 0) return `${diff} from last period`;
-    return "+0 from last period";
+    return "0 from last period";
 };
 
 export const calculateChangePercentage = (current: number, previous: number): string => {
