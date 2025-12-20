@@ -80,6 +80,7 @@ async def get_overview_analytics(user_role: str = "all", time_range: int = 30, c
 
         print(f"Fetching analytics from {start_date} to {end_date} for role: {user_role}")
 
+        # KPIS ==========================================================================================
         # Build query for current period
         query = supabase.table("daily_analytics").select("*").gte("date", start_date.isoformat()).lte("date", end_date.isoformat())
         if role_filter:
@@ -125,7 +126,7 @@ async def get_overview_analytics(user_role: str = "all", time_range: int = 30, c
             previous_total_users=previous_total_users
         )
 
-        # Build daily usage trends
+        # DAILY USAGE TRENDS ==========================================================================================
         # Initialise counters for each day of week (0=Monday, 6=Sunday)
         day_of_week_aggregates = {
             i: {"searches": 0, "documentViews": 0, "activeUsers": 0}
@@ -219,14 +220,43 @@ async def get_user_activity_analytics(user_role: str = "all", time_range: int = 
             average_badges_per_user = 0
         
         # KPI 3: USER RETENTION RATE ==========================================================================================
+        # Current period
+        retention_result = supabase.rpc(
+            "calculate_user_retention",
+            {
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "user_role": role_filter
+            }
+        ).execute()
+
+        if retention_result.data and len(retention_result.data) > 0:
+            user_retention_rate = float(retention_result.data[0]["retention_rate"] or 0)
+        else:
+            user_retention_rate = 0.0
+        
+        # Previous period
+        prev_retention_result = supabase.rpc(
+            "calculate_user_retention",
+            {
+                "start_date": prev_start_date.isoformat(),
+                "end_date": prev_end_date.isoformat(),
+                "user_role": role_filter
+            }
+        ).execute()
+
+        if prev_retention_result.data and len(prev_retention_result.data) > 0:
+            previous_user_retention_rate = float(prev_retention_result.data[0]["retention_rate"] or 0)
+        else:
+            previous_user_retention_rate = 0.0
         
         # Build KPI response
         kpis = UserActivityKPIResponse(
             daily_active_users=daily_active_users,
             average_badges_per_user=average_badges_per_user,
-            user_retention_rate=100.0,
+            user_retention_rate=user_retention_rate,
             previous_daily_active_users=previous_daily_active_users,
-            previous_user_retention_rate=100.0
+            previous_user_retention_rate=previous_user_retention_rate
         )
         
         # MOST ACTIVE USERS ==========================================================================================

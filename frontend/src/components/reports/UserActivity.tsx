@@ -135,7 +135,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
         },
         {
             title: "User Retention",
-            value: analyticsData.kpis.user_retention_rate,
+            value: analyticsData.kpis.user_retention_rate + "%",
             change: calculateChangePercentage(
                 analyticsData.kpis.user_retention_rate,
                 analyticsData.kpis.previous_user_retention_rate
@@ -156,7 +156,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
     }));
 
     const pieChartColors = {
-        admin: "#f66a3bff",
+        admin: "#f6573bff",
         "internal-employee": "#f6e75cff",
         partner: "#3B82F6"
     };

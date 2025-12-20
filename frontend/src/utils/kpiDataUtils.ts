@@ -1,8 +1,8 @@
 export const calculateChange = (current: number, previous: number): string => {
     const diff = current - previous;
 
-    if (diff > 0) return `${diff} from last period`;
-    if (diff < 0) return `${diff} from last period`;
+    if (diff > 0) return `${diff.toFixed(2)} from last period`;
+    if (diff < 0) return `${diff.toFixed(2)} from last period`;
     return "0 from last period";
 };
 
