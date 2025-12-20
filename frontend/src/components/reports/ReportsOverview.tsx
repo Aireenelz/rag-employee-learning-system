@@ -76,18 +76,15 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
 
     const calculateChange = (current: number, previous: number): string => {
         if (previous === 0) {
-            if (current > 0) return "+100% from last period";
-            if (current < 0) return "-100% from last period";
-            return "0% from last period";
+            if (current === 0) return "0% from last period";
+            return `+ ${current * 100}% from last period`;
         }
 
         const percentChange = ((current - previous) / previous) * 100;
+        const rounded = Math.round(Math.abs(percentChange))
+        const sign = percentChange > 0 ? "+" : percentChange < 0 ? "-" : "";
 
-        let sign = "";
-        if (percentChange > 0) sign = "+";
-        else if (percentChange < 0) sign = "-";
-
-        return `${sign}${Math.abs(percentChange).toFixed(1)}% from last period`;
+        return `${sign} ${rounded}% from last period`;
     };
 
     if (loading) {

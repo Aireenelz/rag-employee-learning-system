@@ -38,7 +38,7 @@ const Reports:React.FC = () => {
                 <h2 className="text-xl font-semibold text-gray-900">Report Filters</h2>
                 <p className="text-sm text-gray-500 mb-3">Filter reports by user role and time range</p>
 
-                <div className="flex space-x-4">
+                <div className="flex flex-col sm:flex-row justify-start gap-4">
                     {/* Filter user role */}
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">User Role</label>
