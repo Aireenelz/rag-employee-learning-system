@@ -17,19 +17,14 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
             change: "+43 from last period"
         },
         {
-            title: "Average Views per Doc",
-            value: "67",
-            change: "+12 from last period"
+            title: "% Documents Accessed",
+            value: "67%",
+            change: "+12% from last period"
         },
         {
             title: "Storage Used",
             value: "24.7 GB",
             change: "of 100 GB limit"
-        },
-        {
-            title: "Download Rate",
-            value: "14.2%",
-            change: "+1.3% from last period"
         }
     ];
 
@@ -79,7 +74,7 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
             </div>
 
             {/* KPI cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4 mb-4">
                 {kpiData.map((kpi, index) => (
                     <KPICard 
                         key={index}

@@ -121,17 +121,17 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
     
     const kpiData = [
         {
+            title: "Average Badges Per User",
+            value: analyticsData.kpis.average_badges_per_user,
+            change: "out of 15 badges"
+        },
+        {
             title: "Average Daily Active Users",
             value: analyticsData.kpis.daily_active_users,
             change: calculateChange(
                 analyticsData.kpis.daily_active_users,
                 analyticsData.kpis.previous_daily_active_users
             )
-        },
-        {
-            title: "Average Badges Per User",
-            value: analyticsData.kpis.average_badges_per_user,
-            change: "out of 15 badges"
         },
         {
             title: "User Retention",
