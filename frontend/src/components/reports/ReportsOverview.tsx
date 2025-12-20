@@ -7,6 +7,7 @@ import {
 import KPICard from "./KPICard";
 import ClusteredColumnChart from "./ClusteredColumnChart";
 import { useAuthFetch } from "../../utils/useAuthFetch";
+import { calculateChangePercentage } from "../../utils/kpiDataUtils";
 
 interface ReportsOverviewProps {
     userRole: string;
@@ -74,19 +75,6 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
         fetchAnalytics();
     }, [userRole,timeRange]);
 
-    const calculateChange = (current: number, previous: number): string => {
-        if (previous === 0) {
-            if (current === 0) return "0% from last period";
-            return `+ ${current * 100}% from last period`;
-        }
-
-        const percentChange = ((current - previous) / previous) * 100;
-        const rounded = Math.round(Math.abs(percentChange))
-        const sign = percentChange > 0 ? "+" : percentChange < 0 ? "-" : "";
-
-        return `${sign} ${rounded}% from last period`;
-    };
-
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -122,19 +110,19 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
         {
             title: "Total Questions",
             value: analyticsData.kpis.total_questions,
-            change: calculateChange(analyticsData.kpis.total_questions, analyticsData.kpis.previous_total_questions),
+            change: calculateChangePercentage(analyticsData.kpis.total_questions, analyticsData.kpis.previous_total_questions),
             icon: faSearch
         },
         {
             title: "Documents Viewed",
             value: analyticsData.kpis.documents_viewed,
-            change: calculateChange(analyticsData.kpis.documents_viewed, analyticsData.kpis.previous_documents_viewed),
+            change: calculateChangePercentage(analyticsData.kpis.documents_viewed, analyticsData.kpis.previous_documents_viewed),
             icon: faFileText
         },
         {
             title: "Users Created",
             value: analyticsData.kpis.total_users,
-            change: calculateChange(analyticsData.kpis.total_users, analyticsData.kpis.previous_total_users),
+            change: calculateChangePercentage(analyticsData.kpis.total_users, analyticsData.kpis.previous_total_users),
             icon: faUsers
         }
     ];

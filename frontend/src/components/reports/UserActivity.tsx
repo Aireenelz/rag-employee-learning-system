@@ -17,14 +17,9 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
             change: "+5 from last period"
         },
         {
-            title: "Avg Session Duration",
-            value: "12.5 min",
-            change: "+1.2 from last period"
-        },
-        {
-            title: "Peak Usage Hour",
-            value: "2:00 PM",
-            change: "52 active users"
+            title: "Avg Badges Per User",
+            value: "12",
+            change: "+1 from last period"
         },
         {
             title: "User Retention",
