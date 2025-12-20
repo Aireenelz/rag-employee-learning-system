@@ -65,7 +65,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
             console.log(data)
         } catch (error) {
             console.error("Error fetch analytics:", error);
-            setError("An error occured occured");
+            setError("An error occured");
         } finally {
             setLoading(false);
         }
