@@ -121,7 +121,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
     
     const kpiData = [
         {
-            title: "Daily Active Users",
+            title: "Average Daily Active Users",
             value: analyticsData.kpis.daily_active_users,
             change: calculateChange(
                 analyticsData.kpis.daily_active_users,
@@ -156,9 +156,9 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
     }));
 
     const pieChartColors = {
-        admin: "#3B82F6",
-        "internal-employee": "#8B5CF6",
-        partner: "#10B981"
+        admin: "#f66a3bff",
+        "internal-employee": "#f6e75cff",
+        partner: "#3B82F6"
     };
 
     const userData = analyticsData.role_distribution.map(dist => ({
