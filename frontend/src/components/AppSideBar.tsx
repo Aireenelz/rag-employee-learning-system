@@ -107,7 +107,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
             <>
                 <div className={`
                     fixed lg:static inset-y-0 left-0 z-50
-                    w-64 bg-white flex flex-col h-screen shadow-xl border-r border-gray-200 transition-all duration-300 ease-in-out lg:translate-x-0
+                    w-64 bg-white flex flex-col h-dvh shadow-xl border-r border-gray-200 transition-all duration-300 ease-in-out lg:translate-x-0
                     ${isOpen ? "translate-x-0" : "-translate-x-full"}
                 `}>
                     {/* Header with toggle button */}
@@ -234,7 +234,7 @@ const AppSideBar: React.FC<AppSideBarProps> = ({ isOpen, onToggle }) => {
     return (
         <div className={`
             hidden lg:flex
-            w-16 bg-white flex flex-col h-screen shadow-xl border-r border-gray-200 transition-all duration-300 ease-in-out
+            w-16 bg-white flex flex-col h-dvh shadow-xl border-r border-gray-200 transition-all duration-300 ease-in-out
         `}>
             {/* Toggle button */}
             <div className="h-16 flex items-center justify-center border-b border-gray-200">

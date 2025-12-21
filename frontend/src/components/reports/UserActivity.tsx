@@ -3,7 +3,7 @@ import KPICard from "./KPICard";
 import DataTable from "./DataTable";
 import PieChart from "./PieChart";
 import { useAuthFetch } from "../../utils/useAuthFetch";
-import { calculateChange, calculateChangePercentage } from "../../utils/kpiDataUtils";
+import { calculateChange, calculateChangeWholeNumber } from "../../utils/kpiDataUtils";
 
 interface UserActivityProps {
     userRole: string;
@@ -99,7 +99,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center h-64">
-                <div className="text-red-500 mb-2">Error loading user activity analytics</div>
+                <div className="text-red-500 mb-2">Error loading user activity</div>
                 <div className="text-sm text-gray-500">{error}</div>
                 <button
                     onClick={fetchAnalytics}
@@ -133,7 +133,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
         {
             title: "User Retention",
             value: analyticsData.kpis.user_retention_rate + "%",
-            change: `${calculateChangePercentage(analyticsData.kpis.user_retention_rate, analyticsData.kpis.previous_user_retention_rate)} compared to last period`
+            change: `${calculateChangeWholeNumber(analyticsData.kpis.user_retention_rate, analyticsData.kpis.previous_user_retention_rate)}% compared to last period`
         }
     ];
 
