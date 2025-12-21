@@ -7,6 +7,7 @@ import {
 import KPICard from "./KPICard";
 import ClusteredColumnChart from "./ClusteredColumnChart";
 import { useAuthFetch } from "../../utils/useAuthFetch";
+import { calculateChangePercentage } from "../../utils/kpiDataUtils";
 
 interface ReportsOverviewProps {
     userRole: string;
@@ -64,7 +65,7 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
             console.log(data)
         } catch (error) {
             console.error("Error fetch analytics:", error);
-            setError("An error occured occured");
+            setError("An error occured");
         } finally {
             setLoading(false);
         }
@@ -73,22 +74,6 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
     useEffect(() => {
         fetchAnalytics();
     }, [userRole,timeRange]);
-
-    const calculateChange = (current: number, previous: number): string => {
-        if (previous === 0) {
-            if (current > 0) return "+100% from last period";
-            if (current < 0) return "-100% from last period";
-            return "0% from last period";
-        }
-
-        const percentChange = ((current - previous) / previous) * 100;
-
-        let sign = "";
-        if (percentChange > 0) sign = "+";
-        else if (percentChange < 0) sign = "-";
-
-        return `${sign}${Math.abs(percentChange).toFixed(1)}% from last period`;
-    };
 
     if (loading) {
         return (
@@ -125,19 +110,19 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
         {
             title: "Total Questions",
             value: analyticsData.kpis.total_questions,
-            change: calculateChange(analyticsData.kpis.total_questions, analyticsData.kpis.previous_total_questions),
+            change: `${calculateChangePercentage(analyticsData.kpis.total_questions, analyticsData.kpis.previous_total_questions)} compared to last period`,
             icon: faSearch
         },
         {
             title: "Documents Viewed",
             value: analyticsData.kpis.documents_viewed,
-            change: calculateChange(analyticsData.kpis.documents_viewed, analyticsData.kpis.previous_documents_viewed),
+            change: `${calculateChangePercentage(analyticsData.kpis.documents_viewed, analyticsData.kpis.previous_documents_viewed)} compared to last period`,
             icon: faFileText
         },
         {
             title: "Users Created",
             value: analyticsData.kpis.total_users,
-            change: calculateChange(analyticsData.kpis.total_users, analyticsData.kpis.previous_total_users),
+            change: `${calculateChangePercentage(analyticsData.kpis.total_users, analyticsData.kpis.previous_total_users)} compared to last period`,
             icon: faUsers
         }
     ];

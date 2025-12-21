@@ -58,6 +58,8 @@ const AiAssistant: React.FC = () => {
         setInput("");
         setIsLoading(true);
 
+        const startTime = Date.now();
+
         try {
             // Send POST request to backend API to get AI response
             const response = await authFetch(`${API_BASE_URL}/api/chat`, {
@@ -66,6 +68,9 @@ const AiAssistant: React.FC = () => {
                 body: JSON.stringify({ message: input}),
             });
 
+            const endTime = Date.now()
+            const responseTimeMs = endTime - startTime;
+
             if (response.ok) {
                 const data = await response.json();
 
@@ -73,6 +78,9 @@ const AiAssistant: React.FC = () => {
                 if (user?.id) {
                     await trackActivity("question_asked", {
                         question: questionText,
+                        response_time_ms: responseTimeMs,
+                        success: data.sources?.length > 0,
+                        sources_count: data.sources?.length || 0,
                         timestamp: new Date().toISOString()
                     });
                 }
@@ -86,6 +94,16 @@ const AiAssistant: React.FC = () => {
                 setMessages((prev) => [...prev, assistantMessage]);
                 
             } else {
+                if (user?.id) {
+                    await trackActivity("question_asked", {
+                        question: questionText,
+                        response_time_ms: responseTimeMs,
+                        success: false,
+                        sources_count: 0,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+
                 setMessages((prev) => [
                     ...prev,
                     {
@@ -96,6 +114,19 @@ const AiAssistant: React.FC = () => {
             }
 
         } catch (error) {
+            const endTime = Date.now();
+            const responseTimeMs = endTime - startTime;
+            
+            if (user?.id) {
+                await trackActivity("question_asked", {
+                    question: questionText,
+                    response_time_ms: responseTimeMs,
+                    success: false,
+                    sources_count: 0,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
             setMessages((prev) => [
                 ...prev,
                 {

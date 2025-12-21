@@ -45,12 +45,14 @@ const PieChart: React.FC<PieChartProps> = ({ title, description, data }) => {
 
         const largeArcFlag = parseFloat(item.percentage) > 50 ? 1 : 0;
 
-        const pathData = [
-            `M ${centerX} ${centerY}`,
-            `L ${x1} ${y1}`,
-            `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-            'Z'
-        ].join(' ');
+        const pathData = parseFloat(item.percentage) >= 99.5 
+            ? `M ${centerX} ${centerY} m -${radius}, 0 a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
+            : [
+                `M ${centerX} ${centerY}`,
+                `L ${x1} ${y1}`,
+                `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                'Z'
+            ].join(' ');
 
         // Calculate label position (outside the slice)
         const labelAngle = (startAngle + endAngle) / 2;
