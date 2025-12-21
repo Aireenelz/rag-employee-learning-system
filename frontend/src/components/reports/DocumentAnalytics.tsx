@@ -111,7 +111,7 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
         {
             title: "Total Documents",
             value: analyticsData.kpis.total_documents,
-            change: calculateChangeWholeNumber(analyticsData.kpis.total_documents, analyticsData.kpis.previous_total_documents)
+            change: `${calculateChangeWholeNumber(analyticsData.kpis.total_documents, analyticsData.kpis.previous_total_documents)} documents compared to last period`
         },
         // {
         //     title: "% Documents Accessed",
@@ -121,7 +121,7 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
         {
             title: "Storage Used",
             value: `${analyticsData.kpis.storage_used_mb.toFixed(2)} MB`,
-            change: `${analyticsData.kpis.storage_limit_mb.toFixed(2)} MB (${storageUsagePercentage}%)`
+            change: `out of ${analyticsData.kpis.storage_limit_mb.toFixed(2)} MB (${storageUsagePercentage}%)`
         }
     ];
 

@@ -128,18 +128,12 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
         {
             title: "Average Daily Active Users",
             value: analyticsData.kpis.daily_active_users,
-            change: calculateChange(
-                analyticsData.kpis.daily_active_users,
-                analyticsData.kpis.previous_daily_active_users
-            )
+            change: `${calculateChange(analyticsData.kpis.daily_active_users, analyticsData.kpis.previous_daily_active_users)} users compared to last period`
         },
         {
             title: "User Retention",
             value: analyticsData.kpis.user_retention_rate + "%",
-            change: calculateChangePercentage(
-                analyticsData.kpis.user_retention_rate,
-                analyticsData.kpis.previous_user_retention_rate
-            )
+            change: `${calculateChangePercentage(analyticsData.kpis.user_retention_rate, analyticsData.kpis.previous_user_retention_rate)} compared to last period`
         }
     ];
 

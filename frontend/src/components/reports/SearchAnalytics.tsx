@@ -3,7 +3,7 @@ import KPICard from "./KPICard";
 import ClusteredColumnChart from "./ClusteredColumnChart";
 // import DataTable from "./DataTable";
 import { useAuthFetch } from "../../utils/useAuthFetch";
-import { calculateChange, calculateChangePercentage } from "../../utils/kpiDataUtils";
+import { calculateChange } from "../../utils/kpiDataUtils";
 
 interface SearchAnalyticsProps {
     userRole: string;
@@ -106,19 +106,19 @@ const SearchAnalytics:React.FC<SearchAnalyticsProps> = ({ userRole, timeRange })
         {
             title: "Average Response Time",
             value: analyticsData.kpis.avg_response_time_display,
-            change: calculateChange(analyticsData.kpis.avg_response_time_ms / 1000, analyticsData.kpis.previous_avg_response_time_ms / 1000),
+            change: `${calculateChange(analyticsData.kpis.avg_response_time_ms / 1000, analyticsData.kpis.previous_avg_response_time_ms / 1000)}s compared to last period`,
             positiveIsBad: true,
         },
         {
             title: "Search Success Rate",
             value: `${analyticsData.kpis.search_success_rate.toFixed(1)}%`,
-            change: calculateChangePercentage(analyticsData.kpis.search_success_rate, analyticsData.kpis.previous_search_success_rate),
+            change: `${calculateChange(analyticsData.kpis.search_success_rate, analyticsData.kpis.previous_search_success_rate)}% compared to last period`,
             positiveIsBad: false,
         },
         {
             title: "Zero Results Rate",
             value: `${analyticsData.kpis.zero_results_rate.toFixed(1)}%`,
-            change: calculateChangePercentage(analyticsData.kpis.zero_results_rate, analyticsData.kpis.previous_zero_results_rate),
+            change: `${calculateChange(analyticsData.kpis.zero_results_rate, analyticsData.kpis.previous_zero_results_rate)}% compared to last period`,
             positiveIsBad: true,
         }
     ];

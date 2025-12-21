@@ -110,19 +110,19 @@ const ReportsOverview:React.FC<ReportsOverviewProps> = ({ userRole, timeRange })
         {
             title: "Total Questions",
             value: analyticsData.kpis.total_questions,
-            change: calculateChangePercentage(analyticsData.kpis.total_questions, analyticsData.kpis.previous_total_questions),
+            change: `${calculateChangePercentage(analyticsData.kpis.total_questions, analyticsData.kpis.previous_total_questions)} compared to last period`,
             icon: faSearch
         },
         {
             title: "Documents Viewed",
             value: analyticsData.kpis.documents_viewed,
-            change: calculateChangePercentage(analyticsData.kpis.documents_viewed, analyticsData.kpis.previous_documents_viewed),
+            change: `${calculateChangePercentage(analyticsData.kpis.documents_viewed, analyticsData.kpis.previous_documents_viewed)} compared to last period`,
             icon: faFileText
         },
         {
             title: "Users Created",
             value: analyticsData.kpis.total_users,
-            change: calculateChangePercentage(analyticsData.kpis.total_users, analyticsData.kpis.previous_total_users),
+            change: `${calculateChangePercentage(analyticsData.kpis.total_users, analyticsData.kpis.previous_total_users)} compared to last period`,
             icon: faUsers
         }
     ];
