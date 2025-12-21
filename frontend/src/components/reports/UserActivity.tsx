@@ -3,7 +3,7 @@ import KPICard from "./KPICard";
 import DataTable from "./DataTable";
 import PieChart from "./PieChart";
 import { useAuthFetch } from "../../utils/useAuthFetch";
-import { calculateChange, calculateChangePercentage } from "../../utils/kpiDataUtils";
+import { calculateChange, calculateChangeWholeNumber } from "../../utils/kpiDataUtils";
 
 interface UserActivityProps {
     userRole: string;
@@ -133,7 +133,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
         {
             title: "User Retention",
             value: analyticsData.kpis.user_retention_rate + "%",
-            change: `${calculateChangePercentage(analyticsData.kpis.user_retention_rate, analyticsData.kpis.previous_user_retention_rate)} compared to last period`
+            change: `${calculateChangeWholeNumber(analyticsData.kpis.user_retention_rate, analyticsData.kpis.previous_user_retention_rate)}% compared to last period`
         }
     ];
 
