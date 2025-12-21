@@ -99,7 +99,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center h-64">
-                <div className="text-red-500 mb-2">Error loading user activity analytics</div>
+                <div className="text-red-500 mb-2">Error loading user activity</div>
                 <div className="text-sm text-gray-500">{error}</div>
                 <button
                     onClick={fetchAnalytics}
