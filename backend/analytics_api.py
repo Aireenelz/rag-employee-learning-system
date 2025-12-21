@@ -50,6 +50,24 @@ class DocumentAnalyticsKPIResponse(BaseModel):
     previous_total_documents: int
     # previous_documents_accessed_percentage: float
 
+class SearchAnalyticsKPIResponse(BaseModel):
+    avg_response_time_ms: float
+    avg_response_time_display: str
+    search_success_rate: float
+    zero_results_rate: float
+    previous_avg_response_time_ms: float
+    previous_search_success_rate: float
+    previous_zero_results_rate: float
+
+class SearchAnalyticsDailySearchTrend(BaseModel):
+    label: str
+    totalSearches: int
+    successfulSearches: int
+
+class SearchAnalyticsResponse(BaseModel):
+    kpis: SearchAnalyticsKPIResponse
+    daily_trends: List[SearchAnalyticsDailySearchTrend]
+
 class DocumentAnalyticsMostViewedDocument(BaseModel):
     filename: str
     total_views: int
@@ -96,6 +114,10 @@ def get_role_filter(user_role: str):
     if user_role == "all":
         return None
     return user_role
+
+# Helper function to format time
+def format_response_time(ms: float) -> str:
+    return f"{ms / 1000:.1f}s"
 
 # Helper function to format bytes to MB
 def format_bytes_to_mb(bytes_value: int) -> float:
@@ -193,6 +215,108 @@ async def get_overview_analytics(user_role: str = "all", time_range: int = 30, c
     except Exception as e:
         print(f"Analytics error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch analytics data")
+
+# Endpoint to get overview data
+@router.get("/api/analytics/search-analytics", response_model=SearchAnalyticsResponse)
+async def get_search_analytics(user_role: str = "all", time_range: int = 30, current_user: UserContext = Depends(get_current_user)):
+    try:
+        # Only admin can view analytics
+        if current_user.role not in ["admin"]:
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+        
+        start_date, end_date = get_date_range(time_range)
+        role_filter = get_role_filter(user_role)
+        prev_start_date = start_date - timedelta(days=time_range)
+        prev_end_date = start_date - timedelta(days=1)
+
+        print(f"Fetching search analytics from {start_date} to {end_date} for role: {user_role}")
+
+        # KPIS ==========================================================================================
+        # Current period
+        kpis_result = supabase.rpc(
+            "get_search_analytics_kpis",
+            {
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "user_role": role_filter
+            }
+        ).execute()
+
+        if not kpis_result.data or len(kpis_result.data) == 0:
+            kpis = SearchAnalyticsKPIResponse(
+                avg_response_time_ms=0.0,
+                avg_response_time_display="0ms",
+                search_success_rate=0.0,
+                zero_results_rate=0.0,
+                previous_avg_response_time_ms=0.0,
+                previous_search_success_rate=0.0,
+                previous_zero_results_rate=0.0
+            )
+            daily_trends = []
+
+            return SearchAnalyticsResponse(kpis=kpis, daily_trends=daily_trends)
+        
+        current_kpis = kpis_result.data[0]
+
+        avg_response_time_ms = float(current_kpis.get("avg_response_time_ms") or 0)
+        search_success_rate = float(current_kpis.get("success_rate") or 0)
+        zero_results_rate = float(current_kpis.get("zero_results_rate") or 0)
+
+        # Previous period
+        prev_kpis_result = supabase.rpc(
+            "get_search_analytics_kpis",
+            {
+                "start_date": prev_start_date.isoformat(),
+                "end_date": prev_end_date.isoformat(),
+                "user_role": role_filter
+            }
+        ).execute()
+        
+        if prev_kpis_result.data and len(prev_kpis_result.data) > 0:
+            prev_kpis = prev_kpis_result.data[0]
+            previous_avg_response_time_ms = float(prev_kpis.get("avg_response_time_ms") or 0)
+            previous_search_success_rate = float(prev_kpis.get("success_rate") or 0)
+            previous_zero_results_rate = float(prev_kpis.get("zero_results_rate") or 0)
+        else:
+            previous_avg_response_time_ms = 0.0
+            previous_search_success_rate = 0.0
+            previous_zero_results_rate = 0.0
+        
+        # Build KPI response
+        kpis = SearchAnalyticsKPIResponse(
+            avg_response_time_ms=avg_response_time_ms,
+            avg_response_time_display=format_response_time(avg_response_time_ms),
+            search_success_rate=search_success_rate,
+            zero_results_rate=zero_results_rate,
+            previous_avg_response_time_ms=previous_avg_response_time_ms,
+            previous_search_success_rate=previous_search_success_rate,
+            previous_zero_results_rate=previous_zero_results_rate
+        )
+
+        # DAILY SEARCH TRENDS ==========================================================================================
+        trends_result = supabase.rpc(
+            "get_daily_search_trends",
+            {
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "user_role": role_filter
+            }
+        ).execute()
+        
+        daily_trends = []
+        for row in trends_result.data:
+            daily_trends.append(SearchAnalyticsDailySearchTrend(
+                label=row["day_label"],
+                totalSearches=int(row["total_searches"]),
+                successfulSearches=int(row["successful_searches"])
+            ))
+        
+        return SearchAnalyticsResponse(kpis=kpis, daily_trends=daily_trends)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Search analytics error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch search analytics data")
 
 # Endpoint to get document analytics data
 @router.get("/api/analytics/document-analytics", response_model=DocumentAnalyticsResponse)

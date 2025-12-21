@@ -17,7 +17,7 @@ export const calculateChangeWholeNumber = (current: number, previous: number): s
 export const calculateChangePercentage = (current: number, previous: number): string => {
     if (previous === 0) {
         if (current === 0) return "0% from last period";
-        return `+ ${current * 100}% from last period`;
+        return `+${current * 100}% from last period`;
     }
 
     const percentChange = ((current - previous) / previous) * 100;
