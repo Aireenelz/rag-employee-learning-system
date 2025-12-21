@@ -126,8 +126,8 @@ const DocumentAnalytics:React.FC<DocumentAnalyticsProps> = ({ userRole, timeRang
     ];
 
     const documentsColumns = [
-        { key: 'filename', label: 'Document', align: 'left' as const, width: 'col-span-9' },
-        { key: 'total_views', label: 'Views', align: 'right' as const, width: 'col-span-3' }
+        { key: 'filename', label: 'Document', align: 'left' as const, width: 'col-span-10' },
+        { key: 'total_views', label: 'Views', align: 'right' as const, width: 'col-span-2' }
     ];
 
     const documentsData = analyticsData.most_viewed_documents.map(doc => ({

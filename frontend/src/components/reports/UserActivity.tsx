@@ -144,9 +144,9 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
     ];
 
     const usersColumns = [
-        { key: 'name', label: 'User', align: 'left' as const, width: 'col-span-5' },
+        { key: 'name', label: 'User', align: 'left' as const, width: 'col-span-6' },
         { key: 'role', label: 'Role', align: 'left' as const, width: 'col-span-4' },
-        { key: 'total_exp', label: 'XP', align: 'right' as const, width: 'col-span-3' }
+        { key: 'total_exp', label: 'XP', align: 'right' as const, width: 'col-span-2' }
     ];
 
     const usersData = analyticsData.most_active_users.map(user => ({
