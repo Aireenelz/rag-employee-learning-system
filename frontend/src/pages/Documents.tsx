@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import DocumentTable from "../components/DocumentTable";
+import Pagination from "../components/Pagination";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faFilter,
@@ -7,7 +8,8 @@ import {
     faTrashCan,
     faUpload,
     faTimes,
-    faChevronDown
+    faChevronDown,
+    faSpinner
 } from "@fortawesome/free-solid-svg-icons";
 import UploadModal from "../components/UploadModal";
 import { useAuth } from "../context/AuthContext";
@@ -22,6 +24,14 @@ interface Document {
     access_level: string;
 }
 
+interface PaginatedResponse {
+    documents: Document[];
+    total: number;
+    page: number;
+    page_size: number;
+    total_pages: number;
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const AVAILABLE_TAGS = ["HR", "IT", "Policies", "Operations", "Products", "Services"];
 
@@ -34,25 +44,31 @@ const Documents: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isTagFilterOpen, setIsTagFilterOpen] = useState(false);
 
-    // Check if user can upload documents
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalDocuments, setTotalDocuments] = useState(0);
+
+    // Check if user can upload/delete documents
     const canUpload = profile?.role === "admin" || profile?.role === "internal-employee";
+    const canDelete = profile?.role === "admin" || profile?.role === "internal-employee";
 
-    // Check if user can delete documents
-    const canDelete = profile?.role === "admin" || profile?.role === "internal-employee";;
-
-    // Fetch documents from  API
+    // Fetch documents from API
     const fetchDocuments = async () => {
         try {
             setIsLoading(true);
-            const response = await authFetch(`${API_BASE_URL}/api/documents`);
+            const response = await authFetch(`${API_BASE_URL}/api/documents?page=${currentPage}&page_size=${pageSize}`);
             
             if (response.ok) {
-                const data = await response.json();
-                setDocuments(data);
-                setFilteredDocuments(data);
+                const data: PaginatedResponse = await response.json();
+                setDocuments(data.documents);
+                setFilteredDocuments(data.documents);
+                setTotalPages(data.total_pages);
+                setTotalDocuments(data.total);
             } else {
                 const error = await response.json();
                 console.error("Failed to fetch documents:", error);
@@ -64,10 +80,10 @@ const Documents: React.FC = () => {
         }
     };
 
-    // Load documents on component mount
+    // Load documents when page or page size changes
     useEffect(() => {
         fetchDocuments();
-    }, []);
+    }, [currentPage, pageSize]);
 
     // Filter documents based on search term and selected tags
     useEffect(() => {
@@ -109,6 +125,7 @@ const Documents: React.FC = () => {
 
     // Refresh document list after successful upload
     const handleUploadSuccess = () => {
+        setCurrentPage(1);
         fetchDocuments();
     };
 
@@ -126,6 +143,7 @@ const Documents: React.FC = () => {
 
         if (confirm(`Are you sure you want to delete ${selectedDocuments.length} document(s)?`)) {
             try {
+                setIsDeleting(true);
                 const response = await authFetch(`${API_BASE_URL}/api/documents`, {
                     method: "DELETE",
                     headers: {
@@ -137,6 +155,7 @@ const Documents: React.FC = () => {
                 if (response.ok) {
                     alert(`${selectedDocuments.length} document(s) deleted successfully!`);
                     setSelectedDocuments([]);
+                    setCurrentPage(1);
                     fetchDocuments();
                 } else {
                     alert("Failed to delete documents.");
@@ -144,14 +163,27 @@ const Documents: React.FC = () => {
             } catch (error) {
                 console.error("Delete error: ", error);
                 alert("Error deleting documents.");
+            } finally {
+                setIsDeleting(false);
             }
         }
+    };
+
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+        setSelectedDocuments([]);
+    };
+
+    const handlePageSizeChange = (newPageSize: number) => {
+        setPageSize(newPageSize);
+        setCurrentPage(1);
+        setSelectedDocuments([]);
     };
 
     return (
         <div className="pb-5">
             {/* Header */}
-            <h1 className="text-xl sm:text-2xl font-bold mb-3">
+            <h1 className="text-2xl font-bold mb-3">
                 Document Management
             </h1>
 
@@ -159,23 +191,32 @@ const Documents: React.FC = () => {
             <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground overflow-hidden">
                 {/* Buttons */}
                 <div className="flex flex-col sm:flex-row justify-end gap-2 p-3 border-b">
-                    {/* Delete button (admin only) */}
+                    {/* Delete button (admin and internal employee only) */}
                     {canDelete && (
                         <button
                             onClick={handleDelete}
-                            disabled={selectedDocuments.length === 0}
+                            disabled={selectedDocuments.length === 0 || isDeleting || isLoading}
                             className="flex items-center justify-center gap-2 bg-els-secondarybutton text-sm text-red-700 font-semibold py-2 px-4 sm:px-5 rounded-lg hover:bg-els-deletebuttonhover hover:text-white disabled:text-gray-400 disabled:cursor-not-allowed"
                         >
-                            <FontAwesomeIcon icon={faTrashCan} className="h-3 w-3" />
-                            <span>Delete ({selectedDocuments.length})</span>
+                            <FontAwesomeIcon 
+                                icon={isDeleting ? faSpinner : faTrashCan} 
+                                className={`h-3 w-3 ${isDeleting ? 'animate-spin' : ''}`}
+                            />
+                            <span>
+                                {isDeleting 
+                                    ? `Deleting...` 
+                                    : `Delete (${selectedDocuments.length})`
+                                }
+                            </span>
                         </button>
                     )}
 
-                    {/* Upload button (admin and internal employee only)*/}
+                    {/* Upload button (admin and internal employee only) */}
                     {canUpload && (
                         <button
                             onClick={() => setIsUploadModalOpen(true)}
-                            className="flex items-center justify-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-4 sm:px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
+                            disabled={isDeleting || isLoading}
+                            className="flex items-center justify-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-4 sm:px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <FontAwesomeIcon icon={faUpload} className="h-3 w-3" />
                             <span>Upload</span>
@@ -193,7 +234,8 @@ const Documents: React.FC = () => {
                             placeholder="Search by document name or tags..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-4 py-2 bg-els-secondarybackground text-sm font-semibold focus:outline-none min-w-0"
+                            disabled={isDeleting}
+                            className="w-full px-4 py-2 bg-els-secondarybackground text-sm font-semibold focus:outline-none min-w-0 disabled:opacity-50"
                         />
                     </div>
 
@@ -202,7 +244,8 @@ const Documents: React.FC = () => {
                         {/* Filter button */}
                         <button
                             onClick={() => setIsTagFilterOpen(!isTagFilterOpen)}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-els-secondarybackground text-sm font-semibold text-gray-500 border px-4 py-2 rounded-lg hover:bg-els-secondarybuttonhover"
+                            disabled={isDeleting}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-els-secondarybackground text-sm font-semibold text-gray-500 border px-4 py-2 rounded-lg hover:bg-els-secondarybuttonhover disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <FontAwesomeIcon icon={faFilter} className="h-4 w-3" />
                             <span>Filter</span>
@@ -270,7 +313,8 @@ const Documents: React.FC = () => {
                                     {tag}
                                     <button
                                         onClick={() => handleTagToggle(tag)}
-                                        className="hover:bg-els-deletebuttonhover hover:text-white rounded-full p-1 flex items-center"
+                                        disabled={isDeleting}
+                                        className="hover:bg-els-deletebuttonhover hover:text-white rounded-full p-1 flex items-center disabled:opacity-50"
                                     >
                                         <FontAwesomeIcon icon={faTimes} className="h-2 w-2" />
                                     </button>
@@ -280,8 +324,20 @@ const Documents: React.FC = () => {
                     </div>
                 )}
 
+                {/* Deleting overlay message */}
+                {isDeleting && (
+                    <div className="px-3 pb-2">
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2">
+                            <FontAwesomeIcon icon={faSpinner} className="h-4 w-4 text-yellow-600 animate-spin" />
+                            <span className="text-sm font-semibold text-yellow-800">
+                                Deleting {selectedDocuments.length} document(s)...
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 {/* Document table */}
-                <div className="px-3 pb-3 overflow-x-auto">
+                <div className="px-3 pb-3 overflow-x-auto flex-1">
                     <DocumentTable
                         documents={filteredDocuments}
                         selectedDocuments={selectedDocuments}
@@ -289,6 +345,20 @@ const Documents: React.FC = () => {
                         isLoading={isLoading}
                     />
                 </div>
+
+                {/* Pagination */}
+                {!isLoading && filteredDocuments.length > 0 && (
+                    <div className="px-3 pb-3">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            pageSize={pageSize}
+                            totalItems={totalDocuments}
+                            onPageChange={handlePageChange}
+                            onPageSizeChange={handlePageSizeChange}
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Upload Modal */}

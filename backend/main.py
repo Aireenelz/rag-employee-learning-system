@@ -100,6 +100,13 @@ class DocumentResponse(BaseModel):
     size: str
     access_level: str
 
+class PaginatedDocumentsResponse(BaseModel):
+    documents: List[DocumentResponse]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
 class DocumentDelete(BaseModel):
     document_ids: List[str]
 
@@ -251,11 +258,24 @@ async def upload_document(file: UploadFile = File(...), tags: str = Form(...), a
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 # Retrieve documents endpoint
-@app.get("/api/documents", response_model=List[DocumentResponse])
-async def get_documents(current_user: UserContext = Depends(get_current_user)):
+@app.get("/api/documents", response_model=PaginatedDocumentsResponse)
+async def get_documents(page: int = 1, page_size: int = 10, current_user: UserContext = Depends(get_current_user)):
     try:
+        if page < 1:
+            page = 1
+        if page_size < 1 or page_size > 100:
+            page_size = 10
+        
         query = {"access_level_num": {"$lte": current_user.min_access_level}}
 
+        # Get total count
+        total_documents = company_documents_collection.count_documents(query)
+
+        # Calculate pagination
+        skip = (page - 1) * page_size
+        total_pages = (total_documents + page_size - 1) // page_size
+
+        # Fetch paginated documents
         documents = [
             DocumentResponse(
                 id=str(doc["_id"]),
@@ -265,10 +285,19 @@ async def get_documents(current_user: UserContext = Depends(get_current_user)):
                 size=doc["size"],
                 access_level=doc["access_level"]
             )
-            for doc in company_documents_collection.find(query).sort("filename", 1)
+            for doc in company_documents_collection.find(query)
+                .sort("filename", 1)
+                .skip(skip) # Ignore the first N documents, then start returning results
+                .limit(page_size)
         ]
 
-        return documents
+        return PaginatedDocumentsResponse(
+            documents=documents,
+            total=total_documents,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages
+        )
     except Exception as e:
         print(f"Error fetching documents: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch documents")
