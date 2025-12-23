@@ -382,7 +382,7 @@ async def delete_documents(request: DocumentDelete, current_user: UserContext = 
 async def chat(request: ChatRequest, current_user: UserContext = Depends(get_current_user)):
     try:
         # Initialise llm
-        llm = ChatOpenAI(api_key=openai_api_key, model="gpt-3.5-turbo", temperature=0.2)
+        llm = ChatOpenAI(api_key=openai_api_key, model="gpt-4o-mini", temperature=0.2)
         
         # Initialise retriever with filter based on user access level
         retriever = chroma_client.as_retriever(

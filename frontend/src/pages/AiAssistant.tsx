@@ -238,7 +238,7 @@ const AiAssistant: React.FC = () => {
     return (
         <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground p-3">
             {/* Header */}
-            <h1 className="border-b pb-2 pl-2 text-2xl font-bold">
+            <h1 className="border-b pb-2 pl-2 text-xl font-bold">
                 AI Learning Assistant
             </h1>
 
