@@ -47,7 +47,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pageSi
                 pages.push(i);
             }
 
-            // Add ellipses before last page if needed
+            // Add ellipsis before last page if needed
             if (endPage < totalPages - 1) {
                 pages.push("...");
             }

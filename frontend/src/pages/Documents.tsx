@@ -24,7 +24,7 @@ interface Document {
 }
 
 interface PaginatedResponse {
-    documents: Document[]
+    documents: Document[];
     total: number;
     page: number;
     page_size: number;
@@ -55,7 +55,7 @@ const Documents: React.FC = () => {
     const canUpload = profile?.role === "admin" || profile?.role === "internal-employee";
     const canDelete = profile?.role === "admin" || profile?.role === "internal-employee";
 
-    // Fetch documents from  API
+    // Fetch documents from API
     const fetchDocuments = async () => {
         try {
             setIsLoading(true);
@@ -78,7 +78,7 @@ const Documents: React.FC = () => {
         }
     };
 
-    // Load documents on component mount
+    // Load documents when page or page size changes
     useEffect(() => {
         fetchDocuments();
     }, [currentPage, pageSize]);
@@ -185,7 +185,7 @@ const Documents: React.FC = () => {
             <div className="flex flex-col h-full w-full border rounded-lg bg-els-mainpanelbackground overflow-hidden">
                 {/* Buttons */}
                 <div className="flex flex-col sm:flex-row justify-end gap-2 p-3 border-b">
-                    {/* Delete button (admin only) */}
+                    {/* Delete button (admin and internal employee only) */}
                     {canDelete && (
                         <button
                             onClick={handleDelete}
@@ -197,7 +197,7 @@ const Documents: React.FC = () => {
                         </button>
                     )}
 
-                    {/* Upload button (admin and internal employee only)*/}
+                    {/* Upload button (admin and internal employee only) */}
                     {canUpload && (
                         <button
                             onClick={() => setIsUploadModalOpen(true)}
