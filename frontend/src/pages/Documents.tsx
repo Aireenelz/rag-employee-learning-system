@@ -151,7 +151,7 @@ const Documents: React.FC = () => {
     return (
         <div className="pb-5">
             {/* Header */}
-            <h1 className="text-xl sm:text-2xl font-bold mb-3">
+            <h1 className="text-2xl font-bold mb-3">
                 Document Management
             </h1>
 
