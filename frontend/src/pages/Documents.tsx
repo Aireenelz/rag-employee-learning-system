@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import DocumentTable from "../components/DocumentTable";
+import Pagination from "../components/Pagination";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faFilter,
@@ -22,6 +23,14 @@ interface Document {
     access_level: string;
 }
 
+interface PaginatedResponse {
+    documents: Document[]
+    total: number;
+    page: number;
+    page_size: number;
+    total_pages: number;
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const AVAILABLE_TAGS = ["HR", "IT", "Policies", "Operations", "Products", "Services"];
 
@@ -37,22 +46,27 @@ const Documents: React.FC = () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isTagFilterOpen, setIsTagFilterOpen] = useState(false);
 
-    // Check if user can upload documents
-    const canUpload = profile?.role === "admin" || profile?.role === "internal-employee";
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalDocuments, setTotalDocuments] = useState(0);
 
-    // Check if user can delete documents
-    const canDelete = profile?.role === "admin" || profile?.role === "internal-employee";;
+    // Check if user can upload/delete documents
+    const canUpload = profile?.role === "admin" || profile?.role === "internal-employee";
+    const canDelete = profile?.role === "admin" || profile?.role === "internal-employee";
 
     // Fetch documents from  API
     const fetchDocuments = async () => {
         try {
             setIsLoading(true);
-            const response = await authFetch(`${API_BASE_URL}/api/documents`);
+            const response = await authFetch(`${API_BASE_URL}/api/documents?page=${currentPage}&page_size=${pageSize}`);
             
             if (response.ok) {
-                const data = await response.json();
-                setDocuments(data);
-                setFilteredDocuments(data);
+                const data: PaginatedResponse = await response.json();
+                setDocuments(data.documents);
+                setFilteredDocuments(data.documents);
+                setTotalPages(data.total_pages);
+                setTotalDocuments(data.total);
             } else {
                 const error = await response.json();
                 console.error("Failed to fetch documents:", error);
@@ -67,7 +81,7 @@ const Documents: React.FC = () => {
     // Load documents on component mount
     useEffect(() => {
         fetchDocuments();
-    }, []);
+    }, [currentPage, pageSize]);
 
     // Filter documents based on search term and selected tags
     useEffect(() => {
@@ -109,6 +123,7 @@ const Documents: React.FC = () => {
 
     // Refresh document list after successful upload
     const handleUploadSuccess = () => {
+        setCurrentPage(1);
         fetchDocuments();
     };
 
@@ -146,6 +161,17 @@ const Documents: React.FC = () => {
                 alert("Error deleting documents.");
             }
         }
+    };
+
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+        setSelectedDocuments([]);
+    };
+
+    const handlePageSizeChange = (newPageSize: number) => {
+        setPageSize(newPageSize);
+        setCurrentPage(1);
+        setSelectedDocuments([]);
     };
 
     return (
@@ -281,7 +307,7 @@ const Documents: React.FC = () => {
                 )}
 
                 {/* Document table */}
-                <div className="px-3 pb-3 overflow-x-auto">
+                <div className="px-3 pb-3 overflow-x-auto flex-1">
                     <DocumentTable
                         documents={filteredDocuments}
                         selectedDocuments={selectedDocuments}
@@ -289,6 +315,20 @@ const Documents: React.FC = () => {
                         isLoading={isLoading}
                     />
                 </div>
+
+                {/* Pagination */}
+                {!isLoading && filteredDocuments.length > 0 && (
+                    <div className="px-3 pb-3">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            pageSize={pageSize}
+                            totalItems={totalDocuments}
+                            onPageChange={handlePageChange}
+                            onPageSizeChange={handlePageSizeChange}
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Upload Modal */}
