@@ -198,10 +198,13 @@ const Documents: React.FC = () => {
                             disabled={selectedDocuments.length === 0 || isDeleting || isLoading}
                             className="flex items-center justify-center gap-2 bg-els-secondarybutton text-sm text-red-700 font-semibold py-2 px-4 sm:px-5 rounded-lg hover:bg-els-deletebuttonhover hover:text-white disabled:text-gray-400 disabled:cursor-not-allowed"
                         >
-                            <FontAwesomeIcon icon={isDeleting ? faSpinner : faTrashCan} className={`h-3 w-3 ${isDeleting ? "animate-spin" : ""}`} />
+                            <FontAwesomeIcon 
+                                icon={isDeleting ? faSpinner : faTrashCan} 
+                                className={`h-3 w-3 ${isDeleting ? 'animate-spin' : ''}`}
+                            />
                             <span>
-                                {isDeleting
-                                    ? `Deleting ${selectedDocuments.length}...`
+                                {isDeleting 
+                                    ? `Deleting...` 
                                     : `Delete (${selectedDocuments.length})`
                                 }
                             </span>
@@ -327,7 +330,7 @@ const Documents: React.FC = () => {
                         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2">
                             <FontAwesomeIcon icon={faSpinner} className="h-4 w-4 text-yellow-600 animate-spin" />
                             <span className="text-sm font-semibold text-yellow-800">
-                                Deleting {selectedDocuments.length} documents(s)...
+                                Deleting {selectedDocuments.length} document(s)...
                             </span>
                         </div>
                     </div>
