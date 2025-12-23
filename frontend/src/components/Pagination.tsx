@@ -64,7 +64,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pageSi
     };
 
     return (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3">
             {/* Items info and page size selector */}
             <div className="flex flex-col sm:flex-row items-center gap-4 text-sm text-gray-600">
                 <span className="font-semibold">

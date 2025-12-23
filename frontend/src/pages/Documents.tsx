@@ -8,7 +8,8 @@ import {
     faTrashCan,
     faUpload,
     faTimes,
-    faChevronDown
+    faChevronDown,
+    faSpinner
 } from "@fortawesome/free-solid-svg-icons";
 import UploadModal from "../components/UploadModal";
 import { useAuth } from "../context/AuthContext";
@@ -43,6 +44,7 @@ const Documents: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isTagFilterOpen, setIsTagFilterOpen] = useState(false);
 
@@ -141,6 +143,7 @@ const Documents: React.FC = () => {
 
         if (confirm(`Are you sure you want to delete ${selectedDocuments.length} document(s)?`)) {
             try {
+                setIsDeleting(true);
                 const response = await authFetch(`${API_BASE_URL}/api/documents`, {
                     method: "DELETE",
                     headers: {
@@ -152,6 +155,7 @@ const Documents: React.FC = () => {
                 if (response.ok) {
                     alert(`${selectedDocuments.length} document(s) deleted successfully!`);
                     setSelectedDocuments([]);
+                    setCurrentPage(1);
                     fetchDocuments();
                 } else {
                     alert("Failed to delete documents.");
@@ -159,6 +163,8 @@ const Documents: React.FC = () => {
             } catch (error) {
                 console.error("Delete error: ", error);
                 alert("Error deleting documents.");
+            } finally {
+                setIsDeleting(false);
             }
         }
     };
@@ -189,11 +195,16 @@ const Documents: React.FC = () => {
                     {canDelete && (
                         <button
                             onClick={handleDelete}
-                            disabled={selectedDocuments.length === 0}
+                            disabled={selectedDocuments.length === 0 || isDeleting || isLoading}
                             className="flex items-center justify-center gap-2 bg-els-secondarybutton text-sm text-red-700 font-semibold py-2 px-4 sm:px-5 rounded-lg hover:bg-els-deletebuttonhover hover:text-white disabled:text-gray-400 disabled:cursor-not-allowed"
                         >
-                            <FontAwesomeIcon icon={faTrashCan} className="h-3 w-3" />
-                            <span>Delete ({selectedDocuments.length})</span>
+                            <FontAwesomeIcon icon={isDeleting ? faSpinner : faTrashCan} className={`h-3 w-3 ${isDeleting ? "animate-spin" : ""}`} />
+                            <span>
+                                {isDeleting
+                                    ? `Deleting ${selectedDocuments.length}...`
+                                    : `Delete (${selectedDocuments.length})`
+                                }
+                            </span>
                         </button>
                     )}
 
@@ -201,7 +212,8 @@ const Documents: React.FC = () => {
                     {canUpload && (
                         <button
                             onClick={() => setIsUploadModalOpen(true)}
-                            className="flex items-center justify-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-4 sm:px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer"
+                            disabled={isDeleting || isLoading}
+                            className="flex items-center justify-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-4 sm:px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <FontAwesomeIcon icon={faUpload} className="h-3 w-3" />
                             <span>Upload</span>
@@ -219,7 +231,8 @@ const Documents: React.FC = () => {
                             placeholder="Search by document name or tags..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-4 py-2 bg-els-secondarybackground text-sm font-semibold focus:outline-none min-w-0"
+                            disabled={isDeleting}
+                            className="w-full px-4 py-2 bg-els-secondarybackground text-sm font-semibold focus:outline-none min-w-0 disabled:opacity-50"
                         />
                     </div>
 
@@ -228,7 +241,8 @@ const Documents: React.FC = () => {
                         {/* Filter button */}
                         <button
                             onClick={() => setIsTagFilterOpen(!isTagFilterOpen)}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-els-secondarybackground text-sm font-semibold text-gray-500 border px-4 py-2 rounded-lg hover:bg-els-secondarybuttonhover"
+                            disabled={isDeleting}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-els-secondarybackground text-sm font-semibold text-gray-500 border px-4 py-2 rounded-lg hover:bg-els-secondarybuttonhover disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <FontAwesomeIcon icon={faFilter} className="h-4 w-3" />
                             <span>Filter</span>
@@ -296,12 +310,25 @@ const Documents: React.FC = () => {
                                     {tag}
                                     <button
                                         onClick={() => handleTagToggle(tag)}
-                                        className="hover:bg-els-deletebuttonhover hover:text-white rounded-full p-1 flex items-center"
+                                        disabled={isDeleting}
+                                        className="hover:bg-els-deletebuttonhover hover:text-white rounded-full p-1 flex items-center disabled:opacity-50"
                                     >
                                         <FontAwesomeIcon icon={faTimes} className="h-2 w-2" />
                                     </button>
                                 </span>
                             ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Deleting overlay message */}
+                {isDeleting && (
+                    <div className="px-3 pb-2">
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2">
+                            <FontAwesomeIcon icon={faSpinner} className="h-4 w-4 text-yellow-600 animate-spin" />
+                            <span className="text-sm font-semibold text-yellow-800">
+                                Deleting {selectedDocuments.length} documents(s)...
+                            </span>
                         </div>
                     </div>
                 )}
