@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import RobotAvatar from "../components/RobotAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 

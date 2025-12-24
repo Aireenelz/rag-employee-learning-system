@@ -412,7 +412,7 @@ async def chat(request: ChatRequest, current_user: UserContext = Depends(get_cur
             messages=[
                 {
                     "role": "system", 
-                    "content": "You are an AI assistant for ThinkCodex Sdn Bhd. Answer concisely based on context. If the context is insufficient, provide a general response based on your knowledge or say you do not know."
+                    "content": "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd. Use the following context to answer the question. Answer concisely based on context. If the context is insufficient, provide a general response based on your knowledge or say you do not know."
                 },
                 {
                     "role": "user", 
@@ -464,7 +464,7 @@ async def chat_stream(request: ChatRequest, current_user: UserContext = Depends(
             messages=[
                 {
                     "role": "system", 
-                    "content": "You are an AI assistant for ThinkCodex Sdn Bhd. Answer concisely based on context. If the context is insufficient, provide a general response based on your knowledge or say you do not know."
+                    "content": "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd. Use the following context to answer the question. Answer concisely based on context. If the context is insufficient, provide a general response based on your knowledge or say you do not know."
                 },
                 {
                     "role": "user", 
