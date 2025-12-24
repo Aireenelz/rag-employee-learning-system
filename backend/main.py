@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel
 from typing import List
 import os
@@ -403,14 +403,21 @@ async def chat(request: ChatRequest, current_user: UserContext = Depends(get_cur
         )
 
         docs = await docs_task
+
         context = "\n\n".join([doc.page_content for doc in docs[:3]])
 
         # OpenAI call
         response = await async_openai_client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an AI assistant for ThinkCodex Sdn Bhd. Answer concisely based on context. If the context is insufficient, provide a general response based on your knowledge or say you do not know."},
-                {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {request.message}"}
+                {
+                    "role": "system", 
+                    "content": "You are an AI assistant for ThinkCodex Sdn Bhd. Answer concisely based on context. If the context is insufficient, provide a general response based on your knowledge or say you do not know."
+                },
+                {
+                    "role": "user", 
+                    "content": f"Context:\n{context}\n\nQuestion: {request.message}"
+                }
             ],
             temperature=0.2,
             max_tokens=500
@@ -433,6 +440,85 @@ async def chat(request: ChatRequest, current_user: UserContext = Depends(get_cur
     except Exception as e:
         print(f"Chat error: {str(e)}")
         return ChatResponse(response="Error: An issue occured. Please try again.")
+
+# Chat endpoint (streaming)
+@app.post("/api/chat-streaming")
+async def chat_stream(request: ChatRequest, current_user: UserContext = Depends(get_current_user)):
+    try:
+        # Retriever
+        retriever = get_cached_retriever(current_user.min_access_level)
+
+        # Parallel execution for chromadb retrieval
+        docs_task = asyncio.to_thread(
+            retriever.get_relevant_documents,
+            request.message
+        )
+
+        docs = await docs_task
+
+        context = "\n\n".join([doc.page_content for doc in docs[:3]])
+
+        # Async OpenAI client with streaming
+        stream = await async_openai_client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system", 
+                    "content": "You are an AI assistant for ThinkCodex Sdn Bhd. Answer concisely based on context. If the context is insufficient, provide a general response based on your knowledge or say you do not know."
+                },
+                {
+                    "role": "user", 
+                    "content": f"Context:\n{context}\n\nQuestion: {request.message}"
+                }
+            ],
+            temperature=0.2,
+            max_tokens=500,
+            stream=True
+        )
+
+        # Process sources
+        sources_info = []
+        seen_doc_ids = set()
+        for doc in docs:
+            doc_id = doc.metadata.get("doc_id")
+            if doc_id and doc_id not in seen_doc_ids:
+                sources_info.append(SourceInfo(
+                    document_id=doc_id,
+                    filename=doc.metadata.get("filename", "Unknown Document"),
+                    tags=doc.metadata.get("tags", "")
+                ))
+                seen_doc_ids.add(doc_id)
+        
+        sources_list = [source.model_dump() for source in sources_info]
+
+        # Stream response to client
+        async def generate():
+            try:
+                # Stream content chunks
+                async for chunk in stream:
+                    if chunk.choices[0].delta.content:
+                        content = chunk.choices[0].delta.content
+                        yield f"data: {json.dumps({'content': content})}\n\n"
+                
+                # Send sources after content completes
+                yield f"data: {json.dumps({'sources': sources_list, 'done': True})}\n\n"
+                
+            except Exception as e:
+                print(f"Streaming error: {str(e)}")
+                yield f"data: {json.dumps({'error': 'Streaming failed', 'done': True})}\n\n"
+
+        return StreamingResponse(
+            generate(), 
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no"  # Disable nginx buffering
+            }
+        )
+    except Exception as e:
+        print(f"Chat error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Chat processing failed")
 
 # Endpoint to fetch metadata of multiple specific documents from mongodb, to display a user's bookmarked documents in YourBookmarks page
 @app.post("/api/documents/batch", response_model=List[DocumentResponse])
