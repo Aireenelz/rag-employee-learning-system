@@ -56,10 +56,10 @@ const AiAssistant: React.FC = () => {
         const userMessage: Message = {
             role: "user",
             content: input
-        }
+        };
 
         const questionText = input; // For tracking question_asked
-        setMessages([...messages, userMessage]);
+        setMessages(prev => [...prev, userMessage]);
         setInput("");
         setIsLoading(true);
         setStreamingContent("");
@@ -72,7 +72,7 @@ const AiAssistant: React.FC = () => {
         try {
             const response = await authFetch(`${API_BASE_URL}/api/chat-streaming`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: questionText }),
                 signal: abortControllerRef.current.signal
             });
@@ -81,12 +81,15 @@ const AiAssistant: React.FC = () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
+            // Check if response is streaming (SSE)
             const contentType = response.headers.get("content-type");
             const isStreamResponse = contentType?.includes("text/event-stream");
 
             if (isStreamResponse) {
+                // Handle streaming response
                 await handleStreamingResponse(response, questionText, startTime);
             } else {
+                // Handle non-streaming (regular JSON) response
                 await handleRegularResponse(response, questionText, startTime);
             }
 
@@ -110,7 +113,7 @@ const AiAssistant: React.FC = () => {
                     });
                 }
 
-                setMessages((prev) => [
+                setMessages(prev => [
                     ...prev,
                     {
                         role: "assistant",
@@ -217,7 +220,7 @@ const AiAssistant: React.FC = () => {
 
         const data = await response.json();
 
-        // Track activity
+        // Track question_asked activity
         if (user?.id) {
             await trackActivity("question_asked", {
                 question: questionText,
@@ -270,7 +273,7 @@ const AiAssistant: React.FC = () => {
     // Bookmark source document (toggle bookmark)
     const handleBookmarkToggle = async (e: React.MouseEvent, documentId: string) => {
         // Prevent opening document when clicking bookmark
-        e.stopPropagation()
+        e.stopPropagation();
 
         if (!user?.id) {
             alert("Please sign in to bookmark documents");
@@ -302,10 +305,10 @@ const AiAssistant: React.FC = () => {
         inputRef.current?.focus();
     }, []);
 
-    // Scroll to the latest message when messages or isLoading changes
+    // Scroll to the latest message
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth"});
-    }, [messages, isLoading]);
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, streamingContent]);
 
     // Global keydown handler for auto focus
     useEffect(() => {
@@ -327,7 +330,6 @@ const AiAssistant: React.FC = () => {
 
         document.addEventListener("keydown", handleGlobalKeyDown);
         return () => document.removeEventListener("keydown", handleGlobalKeyDown);
-
     }, [isLoading]);
 
     return (
@@ -343,7 +345,9 @@ const AiAssistant: React.FC = () => {
                 {messages.map((msg, idx) => (
                     <div
                         key={idx}
-                        className={`flex items-start gap-2 py-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                        className={`flex items-start gap-2 py-2 ${
+                            msg.role === "user" ? "justify-end" : "justify-start"
+                        }`}
                     >
                         {/* Render robot avatar if role is assistant */}
                         {msg.role === "assistant" && (
@@ -356,8 +360,8 @@ const AiAssistant: React.FC = () => {
                         <div
                             className={`min-w-0 max-w-md px-4 py-2 rounded-lg text-sm break-words ${
                                 msg.role === "user" 
-                                ? "bg-els-chatuser text-white rounded-lg" 
-                                : "bg-els-chatrobot rounded-lg"
+                                    ? "bg-els-chatuser text-white rounded-lg" 
+                                    : "bg-els-chatrobot rounded-lg"
                             }`}
                         >
                             {msg.content}
@@ -380,7 +384,10 @@ const AiAssistant: React.FC = () => {
                                                     onClick={() => handleDocumentClick(source.document_id)}
                                                     disabled={isOpeningDocument}
                                                 >
-                                                    <FontAwesomeIcon icon={faFileText} className="w-3 h-3 text-blue-600 flex-shrink-0 mt-1" />
+                                                    <FontAwesomeIcon 
+                                                        icon={faFileText} 
+                                                        className="w-3 h-3 text-blue-600 flex-shrink-0 mt-1" 
+                                                    />
                                                     <div className="flex flex-col items-start min-w-0 flex-1">
                                                         <span className="text-start text-xs font-semibold text-gray-800">
                                                             {source.filename}
@@ -422,7 +429,7 @@ const AiAssistant: React.FC = () => {
 
                 {/* Streaming message */}
                 {isLoading && streamingContent && (
-                    <div className="flex items-center gap-2 py-2 justify-start">
+                    <div className="flex items-start gap-2 py-2 justify-start">
                         <div className="flex-shrink-0">
                             <RobotAvatar/>
                         </div>
@@ -452,7 +459,7 @@ const AiAssistant: React.FC = () => {
                 <div className="flex items-center gap-2">
                     <input
                         ref={inputRef}
-                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground focus: outline-none min-w-0"
+                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground focus:outline-none min-w-0"
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
