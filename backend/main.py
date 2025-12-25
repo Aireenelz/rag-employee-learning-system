@@ -133,14 +133,12 @@ class DocumentIdsRequest(BaseModel):
 class FAQCreate(BaseModel):
     question: str
     answer: str
-    tags: List[str] = []
     category: str
     access_level: str
 
 class FAQUpdate(BaseModel):
     question: Optional[str] = None
     answer: Optional[str] = None
-    tags: Optional[List[str]] = None
     category: Optional[str] = None
     access_level: Optional[str] = None
 
@@ -148,7 +146,6 @@ class FAQResponse(BaseModel):
     id: str
     question: str
     answer: str
-    tags: List[str]
     category: str
     access_level: str
     access_level_num: int
@@ -680,7 +677,6 @@ async def create_faq(faq: FAQCreate, current_user: UserContext = Depends(get_cur
         response = supabase.table("faqs").insert({
             "question": faq.question,
             "answer": faq.answer,
-            "tags": faq.tags,
             "category": faq.category,
             "access_level": faq.access_level,
             "access_level_num": access_level_num,
