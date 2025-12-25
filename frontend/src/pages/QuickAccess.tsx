@@ -72,7 +72,7 @@ const QuickAccess: React.FC = () => {
                 </div>
 
                 {/* Tab content */}
-                <div className="mt-8">
+                <div className="mt-4">
                     {activeTab === 'bookmarks' ? (
                         <YourBookmarks searchQuery={searchQuery} />
                     ) : (
