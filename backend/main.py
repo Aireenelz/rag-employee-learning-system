@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Header, Depe
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel
-from typing import List, Tuple
+from typing import List, Optional
 import os
 from dotenv import load_dotenv
 import json
@@ -25,6 +25,7 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_chroma import Chroma
+from supabase import create_client, Client
 
 # Load environment variables
 load_dotenv()
@@ -59,8 +60,10 @@ db = mongodb_client["els_db"]
 fs = GridFS(db)
 company_documents_collection = db["company_documents"]
 
-# Create index for faster query
-company_documents_collection.create_index([("access_level_num", 1)])
+# Supabase client setup
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_secret_key = os.getenv("SUPABASE_SECRET_KEY")
+supabase: Client = create_client(supabase_url, supabase_secret_key)
 
 # Initialise Chroma Cloud client
 embeddings = OpenAIEmbeddings(api_key=openai_api_key)
@@ -126,6 +129,31 @@ class ChatResponse(BaseModel):
 
 class DocumentIdsRequest(BaseModel):
     document_ids: List[str]
+
+class FAQCreate(BaseModel):
+    question: str
+    answer: str
+    tags: List[str] = []
+    category: str
+    access_level: str
+
+class FAQUpdate(BaseModel):
+    question: Optional[str] = None
+    answer: Optional[str] = None
+    tags: Optional[List[str]] = None
+    category: Optional[str] = None
+    access_level: Optional[str] = None
+
+class FAQResponse(BaseModel):
+    id: str
+    question: str
+    answer: str
+    tags: List[str]
+    category: str
+    access_level: str
+    access_level_num: int
+    created_at: str
+    updated_at: str
 
 # Helper function to format file size
 def format_file_size(size_bytes: int) -> str:
@@ -625,6 +653,84 @@ async def get_documents_batch(request: DocumentIdsRequest):
     except Exception as e:
         print(f"Error in batch fetch: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch documents")
+
+# Endpoint to get all FAQs (filtered by user access level)
+@app.get("/api/faqs", response_model=List[FAQResponse])
+async def get_faqs(current_user: UserContext = Depends(get_current_user)):
+    try:
+        response = supabase.table("faqs").select("*").lte(
+            "access_level_num", current_user.min_access_level
+            ).order("category").order("created_at").execute()
+        
+        return response.data
+    except Exception as e:
+        print(f"Error fetching FAQs: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch FAQs")
+
+# Endpoint to create FAQ (admin only)
+@app.post("/api/faqs", response_model=FAQResponse)
+async def create_faq(faq: FAQCreate, current_user: UserContext = Depends(get_current_user)):
+    try:
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Only admins can create FAQs")
+        
+        # Convert access_level string to number
+        access_level_num = ACCESS_HIERARCHY.get(faq.access_level, 0)
+
+        response = supabase.table("faqs").insert({
+            "question": faq.question,
+            "answer": faq.answer,
+            "tags": faq.tags,
+            "category": faq.category,
+            "access_level": faq.access_level,
+            "access_level_num": access_level_num,
+            "created_by": current_user.user_id
+        }).execute()
+
+        return response.data[0]
+    except Exception as e:
+        print(f"Error creating FAQ: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create FAQ")
+
+# Endpoint to update FAQ (admin only)
+@app.put("/api/faqs/{faq_id}", response_model=FAQResponse)
+async def update_faq(faq_id: str, faq: FAQUpdate, current_user: UserContext = Depends(get_current_user)):
+    try:
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Only admins can update FAQs")
+        
+        update_data = {k: v for k, v in faq.dict().items() if v is not None}
+
+        # If access_level is being updated, also update access_level_num
+        if "access_level" in update_data:
+            update_data["access_level_num"] = ACCESS_HIERARCHY.get(update_data["access_level"], 0)
+        
+        response = supabase.table("faqs").update(update_data).eq("id", faq_id).execute()
+
+        if not response.data:
+            raise HTTPException(status_code=404, detail="FAQ not found")
+
+        return response.data[0]
+    except Exception as e:
+        print(f"Error updating FAQ: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update FAQ")
+
+# Endpoint to delete FAQ (admin only)
+@app.delete("/api/faqs/{faq_id}")
+async def delete_faq(faq_id: str, current_user: UserContext = Depends(get_current_user)):
+    try:
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Only admins can delete FAQs")
+        
+        response = supabase.table("faqs").delete().eq("id", faq_id).execute()
+
+        if not response.data:
+            raise HTTPException(status_code=404, detail="FAQ not found")
+
+        return {"message": "FAQ deleted successfully"}
+    except Exception as e:
+        print(f"Error deleting FAQ: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete FAQ")
 
 # Health check endpoint
 @app.get("/healthcheck")
