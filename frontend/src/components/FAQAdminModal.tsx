@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useAuthFetch } from "../utils/useAuthFetch";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+    faBoxOpen,
+    faCog,
+    faUser,
     faTimes
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -19,34 +22,53 @@ interface FAQItem {
 
 interface FAQAdminModalProps {
     faq: FAQItem | null;
+    isOpen: boolean;
     onClose: () => void;
     onSave: () => void;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, onClose, onSave }) => {
+const CATEGORIES = ["Onboarding", "Training & Operational", "Products & Services"];
+const AVAILABLE_TAGS = ["HR", "IT", "Policies", "Operations", "Products", "Services", "Compliance", "Module"];
+const ACCESS_LEVELS = [
+    { value: "public", label: "Public", description: "Accessible to everyone" },
+    { value: "partner", label: "Partner", description: "Partners and internal employees" },
+    { value: "internal", label: "Internal", description: "Internal employees only" },
+    { value: "admin", label: "Admin", description: "Administrators only" }
+];
+
+const categoryIcons: Record<string, any> = {
+    "Onboarding": faUser,
+    "Training & Operational": faCog,
+    "Products & Services": faBoxOpen
+};
+
+const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, isOpen, onClose, onSave }) => {
     const { authFetch } = useAuthFetch();
     const [formData, setFormData] = useState({
         question: faq?.question || "",
         answer: faq?.answer || "",
-        tags: faq?.tags.join(", ") || "",
         category: faq?.category || "Onboarding",
-        access_level: faq?.access_level || "public"
+        access_level: faq?.access_level || "public",
     });
+    const [selectedTags, setSelectedTags] = useState<string[]>(faq?.tags || []);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState("");
 
-    const CATEGORIES = ["Onboarding", "Training & Operational", "Products & Services"];
-    const AVAILABLE_TAGS = ["HR", "IT", "Policies", "Operations", "Products", "Services", "Compliance", "Module"];
-    const ACCESS_LEVELS = [
-        { value: "public", label: "Public", description: "Accessible to everyone" },
-        { value: "partner", label: "Partner", description: "Partners and internal employees" },
-        { value: "internal", label: "Internal", description: "Internal employees only" },
-        { value: "admin", label: "Admin", description: "Administrators only" }
-    ];
-
-    const [selectedTags, setSelectedTags] = useState<string[]>(faq?.tags || []);
+    // Reset form when faq changes or modal opens
+    React.useEffect(() => {
+        if (isOpen) {
+            setFormData({
+                question: faq?.question || "",
+                answer: faq?.answer || "",
+                category: faq?.category || "Onboarding",
+                access_level: faq?.access_level || "public",
+            });
+            setSelectedTags(faq?.tags || []);
+            setSubmitError("");
+        }
+    }, [faq, isOpen]);
 
     const handleTagToggle = (tag: string) => {
         setSelectedTags(prev =>
@@ -97,7 +119,7 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, onClose, onSave }) =
             if (response.ok) {
                 alert(`FAQ ${faq ? 'updated' : 'created'} successfully!`);
                 onSave();
-                onClose();
+                handleClose();
             } else {
                 const errorData = await response.json();
                 setSubmitError(errorData.detail || `Failed to ${faq ? 'update' : 'create'} FAQ`);
@@ -108,14 +130,16 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, onClose, onSave }) =
         } finally {
             setIsSubmitting(false);
         }
-    }
+    };
 
     const handleClose = () => {
         if (!isSubmitting) {
             onClose();
         }
     };
-    
+
+    if (!isOpen) return null;
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -184,6 +208,7 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, onClose, onSave }) =
                                                 : "bg-els-secondarybackground text-gray-600 hover:bg-gray-300"
                                         } disabled:opacity-50`}
                                     >
+                                        <FontAwesomeIcon icon={categoryIcons[category]} className="mr-2 h-3 w-3"/>
                                         {category}
                                     </button>
                                 ))}
@@ -282,6 +307,6 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, onClose, onSave }) =
             </div>
         </div>
     );
-}
+};
 
 export default FAQAdminModal;

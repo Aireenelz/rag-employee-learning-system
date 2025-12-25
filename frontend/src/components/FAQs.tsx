@@ -60,7 +60,7 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
                 setFaqs(data);
             }
         } catch (error) {
-            console.error("Error fetching FAQs:", error)
+            console.error("Error fetching FAQs:", error);
         } finally {
             setIsLoading(false);
         }
@@ -79,11 +79,23 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
             });
 
             if (response.ok) {
+                alert("FAQ deleted successfully!");
                 await fetchFaqs();
             }
         } catch (error) {
             console.error("Error deleting FAQ:", error);
+            alert("Failed to delete FAQ");
         }
+    };
+
+    const handleOpenModal = (faq: FAQItem | null = null) => {
+        setEditingFaq(faq);
+        setShowAdminModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowAdminModal(false);
+        setEditingFaq(null);
     };
 
     // When first open, filter by category
@@ -117,14 +129,11 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
             {userRole === "admin" && (
                 <div className="flex justify-end px-1">
                     <button
-                        onClick={() => {
-                            setEditingFaq(null);
-                            setShowAdminModal(true);
-                        }}
-                        className="flex items-center justify-center gap-2 bg-els-primarybutton text-sm font-semibold py-2 px-4 sm:px-5 text-white rounded-lg hover:bg-els-primarybuttonhover cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => handleOpenModal(null)}
+                        className="bg-els-primarybackground text-white px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90"
                     >
-                        <FontAwesomeIcon icon={faPlus} className="h-3 w-3" />
-                        <span>Add New FAQ</span>
+                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                        Add New FAQ
                     </button>
                     
                 </div>
@@ -132,9 +141,7 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
             
             {/* FAQ Categories */}
             <div className="text-sm font-semibold flex flex-col gap-2 px-1 mb-4">
-                <h2>
-                    FAQ Categories
-                </h2>
+                <h2>FAQ Categories</h2>
                 <div className="flex flex-wrap gap-2">
                     {categories.map((category, idx) => (
                         <button
@@ -153,7 +160,7 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
                 </div>
             </div>
 
-            {/* FAQ card */}
+            {/* FAQ cards */}
             <div className="px-1">
                 {filteredFaqs.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
@@ -173,10 +180,7 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
                                     {userRole === "admin" && (
                                         <div className="flex gap-2">
                                             <button
-                                                onClick={() => {
-                                                    setEditingFaq(faq);
-                                                    setShowAdminModal(true);
-                                                }}
+                                                onClick={() => handleOpenModal(faq)}
                                                 className="text-blue-500 hover:text-blue-800"
                                             >
                                                 <FontAwesomeIcon icon={faEdit} />
@@ -194,9 +198,7 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
 
                             {/* Answer */}
                             <div className="py-2 px-4">
-                                <p className="text-sm">
-                                    {faq.answer}
-                                </p>
+                                <p className="text-sm">{faq.answer}</p>
                             </div>
 
                             {/* Tags + category */}
@@ -225,16 +227,12 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
             </div>
 
             {/* Admin modal */}
-            {showAdminModal && (
-                <FAQAdminModal
-                    faq={editingFaq}
-                    onClose={() => {
-                        setShowAdminModal(false);
-                        setEditingFaq(null);
-                    }}
-                    onSave={fetchFaqs}
-                />
-            )}
+            <FAQAdminModal
+                faq={editingFaq}
+                isOpen={showAdminModal}
+                onClose={handleCloseModal}
+                onSave={fetchFaqs}
+            />
         </div>
     );
 };
