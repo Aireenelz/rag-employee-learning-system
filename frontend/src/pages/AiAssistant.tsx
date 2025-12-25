@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import ReactMarkdown from 'react-markdown';
 import RobotAvatar from "../components/RobotAvatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -25,6 +26,80 @@ interface Message {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// Custom markdown components for better styling
+const MarkdownComponents = {
+    // Paragraphs with spacing
+    p: ({ children }: any) => (
+        <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>
+    ),
+    // Headings
+    h1: ({ children }: any) => (
+        <h1 className="text-xl font-bold mb-3 mt-4 first:mt-0">{children}</h1>
+    ),
+    h2: ({ children }: any) => (
+        <h2 className="text-lg font-bold mb-2 mt-3 first:mt-0">{children}</h2>
+    ),
+    h3: ({ children }: any) => (
+        <h3 className="text-base font-bold mb-2 mt-3 first:mt-0">{children}</h3>
+    ),
+    // Lists
+    ul: ({ children }: any) => (
+        <ul className="list-disc list-inside mb-3 space-y-1 ml-2">{children}</ul>
+    ),
+    ol: ({ children }: any) => (
+        <ol className="list-decimal list-inside mb-3 space-y-1 ml-2">{children}</ol>
+    ),
+    li: ({ children }: any) => (
+        <li className="leading-relaxed">{children}</li>
+    ),
+    // Blockquotes
+    blockquote: ({ children }: any) => (
+        <blockquote className="border-l-4 border-gray-300 pl-4 italic my-3 text-gray-700">
+            {children}
+        </blockquote>
+    ),
+    // Links
+    a: ({ children, href }: any) => (
+        <a 
+            href={href} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+        >
+            {children}
+        </a>
+    ),
+    // Tables
+    table: ({ children }: any) => (
+        <div className="overflow-x-auto my-3">
+            <table className="min-w-full border-collapse border border-gray-300">
+                {children}
+            </table>
+        </div>
+    ),
+    thead: ({ children }: any) => (
+        <thead className="bg-gray-100">{children}</thead>
+    ),
+    th: ({ children }: any) => (
+        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-sm">
+            {children}
+        </th>
+    ),
+    td: ({ children }: any) => (
+        <td className="border border-gray-300 px-3 py-2 text-sm">{children}</td>
+    ),
+    // Horizontal rule
+    hr: () => <hr className="my-4 border-gray-300" />,
+    // Strong/bold
+    strong: ({ children }: any) => (
+        <strong className="font-semibold">{children}</strong>
+    ),
+    // Emphasis/italic
+    em: ({ children }: any) => (
+        <em className="italic">{children}</em>
+    ),
+};
 
 const AiAssistant: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
@@ -345,42 +420,52 @@ const AiAssistant: React.FC = () => {
                 {messages.map((msg, idx) => (
                     <div
                         key={idx}
-                        className={`flex items-start gap-2 py-2 ${
+                        className={`flex items-start gap-3 mb-4 ${
                             msg.role === "user" ? "justify-end" : "justify-start"
                         }`}
                     >
                         {/* Render robot avatar if role is assistant */}
                         {msg.role === "assistant" && (
-                            <div className="flex-shrink-0">
+                            <div className="flex-shrink-0 mt-1">
                                 <RobotAvatar/>
                             </div>
                         )}
 
                         {/* Render the message content */}
                         <div
-                            className={`min-w-0 max-w-md px-4 py-2 rounded-lg text-sm break-words ${
+                            className={`min-w-0 max-w-2xl px-4 py-3 rounded-lg text-sm ${
                                 msg.role === "user" 
-                                    ? "bg-els-chatuser text-white rounded-lg" 
-                                    : "bg-els-chatrobot rounded-lg"
+                                    ? "bg-els-chatuser text-white" 
+                                    : "bg-els-chatrobot"
                             }`}
                         >
-                            {msg.content}
+                            {msg.role === "assistant" ? (
+                                <div className="prose prose-sm max-w-none">
+                                    <ReactMarkdown components={MarkdownComponents}>
+                                        {msg.content}
+                                    </ReactMarkdown>
+                                </div>
+                            ) : (
+                                <div className="whitespace-pre-wrap break-words">
+                                    {msg.content}
+                                </div>
+                            )}
 
                             {/* Render sources if available */}
                             {msg.role === "assistant" && msg.sources && msg.sources.length > 0 && (
-                                <div className="mt-3 pt-2 border-t border-gray-200">
+                                <div className="mt-4 pt-3 border-t border-gray-200">
                                     <span className="text-xs text-gray-600 font-semibold block mb-2">
-                                        Sources:
+                                        📚 Sources ({msg.sources.length})
                                     </span>
                                     <div className="flex flex-col gap-2">
                                         {msg.sources.map((source, sourceIdx) => (
                                             <div
                                                 key={sourceIdx}
-                                                className="group flex items-start justify-between gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
+                                                className="group flex items-start justify-between gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer"
                                             >
                                                 {/* Document info - clickable */}
                                                 <button
-                                                    className="flex items-start gap-2 flex-1 cursor-pointer min-w-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="flex items-start gap-2 flex-1 min-w-0 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                                     onClick={() => handleDocumentClick(source.document_id)}
                                                     disabled={isOpeningDocument}
                                                 >
@@ -389,11 +474,11 @@ const AiAssistant: React.FC = () => {
                                                         className="w-3 h-3 text-blue-600 flex-shrink-0 mt-1" 
                                                     />
                                                     <div className="flex flex-col items-start min-w-0 flex-1">
-                                                        <span className="text-start text-xs font-semibold text-gray-800">
+                                                        <span className="text-xs font-semibold text-gray-800 hover:text-blue-600 transition-colors">
                                                             {source.filename}
                                                         </span>
                                                         {source.tags && (
-                                                            <span className="text-xs text-gray-500 break-all">
+                                                            <span className="text-xs text-gray-500 mt-0.5">
                                                                 {source.tags}
                                                             </span>
                                                         )}
@@ -429,12 +514,16 @@ const AiAssistant: React.FC = () => {
 
                 {/* Streaming message */}
                 {isLoading && streamingContent && (
-                    <div className="flex items-start gap-2 py-2 justify-start">
-                        <div className="flex-shrink-0">
+                    <div className="flex items-start gap-3 mb-4 justify-start">
+                        <div className="flex-shrink-0 mt-1">
                             <RobotAvatar/>
                         </div>
-                        <div className="min-w-0 max-w-md px-4 py-2 rounded-lg text-sm bg-els-chatrobot break-words">
-                            {streamingContent}
+                        <div className="min-w-0 max-w-2xl px-4 py-3 rounded-lg text-sm bg-els-chatrobot">
+                            <div className="prose prose-sm max-w-none">
+                                <ReactMarkdown components={MarkdownComponents}>
+                                    {streamingContent}
+                                </ReactMarkdown>
+                            </div>
                             <span className="inline-block w-1 h-4 bg-gray-600 ml-1 animate-pulse" />
                         </div>
                     </div>
@@ -442,10 +531,19 @@ const AiAssistant: React.FC = () => {
 
                 {/* Loading indicator */}
                 {isLoading && !streamingContent && (
-                    <div className="flex items-center gap-2 py-2 justify-start">
-                        <RobotAvatar/>
-                        <div className="max-w-md px-4 py-2 rounded-lg text-sm bg-els-chatrobot">
-                            Thinking...
+                    <div className="flex items-center gap-3 mb-4 justify-start">
+                        <div className="flex-shrink-0">
+                            <RobotAvatar/>
+                        </div>
+                        <div className="px-4 py-2 rounded-lg text-sm bg-els-chatrobot">
+                            <div className="flex items-center gap-2">
+                                <div className="flex gap-1">
+                                    <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                    <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                    <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                </div>
+                                <span>Thinking...</span>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -459,7 +557,7 @@ const AiAssistant: React.FC = () => {
                 <div className="flex items-center gap-2">
                     <input
                         ref={inputRef}
-                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground focus:outline-none min-w-0"
+                        className="flex-1 border rounded-lg px-4 py-2 text-sm bg-els-secondarybackground focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0"
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -469,7 +567,7 @@ const AiAssistant: React.FC = () => {
                     />
                     <button
                         onClick={handleSend}
-                        className="bg-els-primarybutton text-white px-4 py-2 rounded-lg hover:bg-els-primarybuttonhover disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                        className="bg-els-primarybutton text-white px-4 py-2 rounded-lg hover:bg-els-primarybuttonhover disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 transition-colors"
                         disabled={isLoading}
                     >
                         <FontAwesomeIcon icon={faPaperPlane}/>

@@ -487,13 +487,22 @@ async def chat_stream(request: ChatRequest, current_user: UserContext = Depends(
 
         general_system_message = (
             "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd. "
-            "The user's question doesn't match specific company documents, "
-            "so provide a helpful general response based on your knowledge."
+            "The user's question doesn't match specific company documents. "
+            "Provide a helpful general response using markdown formatting for clarity:\n"
+            "- Use **bold** for key points\n"
+            "- Use bullet points for lists\n"
+            "- Use headings (##) to organize longer responses\n"
+            "- Break content into digestible paragraphs"
         )
         
         context_system_message = (
-            "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd "
+            "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd. "
             "Answer based on the provided context. "
+            "Format your responses using markdown for better readability:\n"
+            "- Use **bold** for key points\n"
+            "- Use bullet points for lists\n"
+            "- Use headings (##) to organize longer responses\n"
+            "- Break content into digestible paragraphs"
             "If the context is insufficient, provide a general response."
         )
 
