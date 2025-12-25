@@ -62,7 +62,7 @@ const QuickAccess: React.FC = () => {
                             <FontAwesomeIcon icon={faSearch} className="h-4 w-4 text-gray-400 ml-3"/>
                             <input
                                 type="text"
-                                placeholder="Search by document name or tags..."
+                                placeholder="Search by document name"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full px-4 py-2 bg-els-secondarybackground text-sm font-semibold focus:outline-none"

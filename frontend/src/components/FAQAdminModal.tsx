@@ -12,7 +12,6 @@ interface FAQItem {
     id: string;
     question: string;
     answer: string;
-    tags: string[];
     category: string;
     access_level: string;
     access_level_num: number;
@@ -30,7 +29,6 @@ interface FAQAdminModalProps {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const CATEGORIES = ["Onboarding", "Training & Operational", "Products & Services"];
-const AVAILABLE_TAGS = ["HR", "IT", "Policies", "Operations", "Products", "Services", "Compliance", "Module"];
 const ACCESS_LEVELS = [
     { value: "public", label: "Public", description: "Accessible to everyone" },
     { value: "partner", label: "Partner", description: "Partners and internal employees" },
@@ -52,7 +50,6 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, isOpen, onClose, onS
         category: faq?.category || "Onboarding",
         access_level: faq?.access_level || "public",
     });
-    const [selectedTags, setSelectedTags] = useState<string[]>(faq?.tags || []);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState("");
 
@@ -65,18 +62,9 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, isOpen, onClose, onS
                 category: faq?.category || "Onboarding",
                 access_level: faq?.access_level || "public",
             });
-            setSelectedTags(faq?.tags || []);
             setSubmitError("");
         }
     }, [faq, isOpen]);
-
-    const handleTagToggle = (tag: string) => {
-        setSelectedTags(prev =>
-            prev.includes(tag)
-                ? prev.filter(t => t !== tag)
-                : [...prev, tag]
-        );
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -89,10 +77,6 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, isOpen, onClose, onS
             setSubmitError("Answer is required");
             return;
         }
-        if (selectedTags.length === 0) {
-            setSubmitError("Please select at least one tag");
-            return;
-        }
 
         setIsSubmitting(true);
         setSubmitError("");
@@ -100,7 +84,6 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, isOpen, onClose, onS
         const payload = {
             question: formData.question.trim(),
             answer: formData.answer.trim(),
-            tags: selectedTags,
             category: formData.category,
             access_level: formData.access_level,
         };
@@ -215,35 +198,6 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, isOpen, onClose, onS
                             </div>
                         </div>
 
-                        {/* Tags */}
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Tags
-                            </label>
-                            <div className="flex flex-wrap gap-2">
-                                {AVAILABLE_TAGS.map(tag => (
-                                    <button
-                                        key={tag}
-                                        type="button"
-                                        onClick={() => handleTagToggle(tag)}
-                                        disabled={isSubmitting}
-                                        className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                                            selectedTags.includes(tag)
-                                                ? "bg-els-primarybutton text-white"
-                                                : "bg-els-secondarybackground text-gray-600 hover:bg-gray-300"
-                                        } disabled:opacity-50`}
-                                    >
-                                        {tag}
-                                    </button>
-                                ))}
-                            </div>
-                            {selectedTags.length > 0 && (
-                                <p className="text-xs text-gray-500 mt-2">
-                                    Selected: {selectedTags.join(", ")}
-                                </p>
-                            )}
-                        </div>
-
                         {/* Access Level */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -297,7 +251,7 @@ const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, isOpen, onClose, onS
                         </button>
                         <button
                             type="submit"
-                            disabled={isSubmitting || !formData.question.trim() || !formData.answer.trim() || selectedTags.length === 0}
+                            disabled={isSubmitting || !formData.question.trim() || !formData.answer.trim()}
                             className="px-4 py-2 bg-els-primarybutton text-white rounded-lg hover:bg-els-primarybuttonhover disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? (faq ? "Updating..." : "Creating...") : (faq ? "Update FAQ" : "Create FAQ")}

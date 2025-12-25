@@ -17,7 +17,6 @@ interface FAQItem {
     id: string;
     question: string;
     answer: string;
-    tags: string[];
     category: string;
     access_level: string;
     access_level_num: number;
@@ -38,6 +37,13 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
         "Onboarding": faUser,
         "Training & Operational": faCog,
         "Products & Services": faBoxOpen
+    };
+
+    const ACCESS_LEVEL_CONFIG: Record<string, { label: string; color: string }> = {
+        public: { label: "Public", color: "bg-green-100 text-green-800" },
+        partner: { label: "Partner", color: "bg-blue-100 text-blue-800" },
+        internal: { label: "Internal", color: "bg-yellow-100 text-yellow-800" },
+        admin: { label: "Admin", color: "bg-red-100 text-red-800" },
     };
 
     const { profile } = useAuth();
@@ -109,8 +115,7 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
             const query = searchQuery.toLowerCase();
             return (
                 faq.question.toLowerCase().includes(query) ||
-                faq.answer.toLowerCase().includes(query) ||
-                faq.tags.some(tag => tag.toLowerCase().includes(query))
+                faq.answer.toLowerCase().includes(query)
             );
         });
     }
@@ -201,22 +206,14 @@ const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
                                 <p className="text-sm">{faq.answer}</p>
                             </div>
 
-                            {/* Tags + category */}
+                            {/* Category */}
                             <div className="py-2 px-4 flex flex-wrap gap-2">
-                                {faq.tags.map((tag, idx) => (
-                                    <span
-                                        key={idx}
-                                        className="bg-gray-100 text-gray-800 text-xs font-semibold px-2 py-0.5 rounded-full"
-                                    >
-                                        {tag}
-                                    </span>
-                                ))}
                                 <span className="bg-els-mainpanelbackground text-xs font-semibold px-2 py-0.5 rounded-full border">
                                     <FontAwesomeIcon icon={categoryIcons[faq.category]} className="mr-2 h-3 w-2"/>
                                     {faq.category}
                                 </span>
                                 {userRole === "admin" && (
-                                    <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                                    <span className={`${ACCESS_LEVEL_CONFIG[faq.access_level]?.color} text-xs font-semibold px-2 py-0.5 rounded-full`}>
                                         Access: {faq.access_level}
                                     </span>
                                 )}
