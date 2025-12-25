@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Header, Depe
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel
-from typing import List
+from typing import List, Tuple
 import os
 from dotenv import load_dotenv
 import json
@@ -179,13 +179,14 @@ def process_and_store_document(file_content: bytes, doc_id: str, filename: str, 
 
 # Function to return retriever instance, retriever instances are cached per access level
 @lru_cache(maxsize=10)
-def get_cached_retriever(access_level: int):
-    return chroma_client.as_retriever(
-        search_kwargs={
-            "k":3,
-            "filter": {"access_level_num": {"$lte": access_level}}
-        }
-    )
+def get_cached_retriever_with_scores(access_level: int):
+    def search_with_scores(query: str, k: int = 3):
+        return chroma_client.similarity_search_with_score(
+            query,
+            k=k,
+            filter={"access_level_num": {"$lte": access_level}}
+        )
+    return search_with_scores
 
 # Upload endpoint
 @app.post("/api/upload")
@@ -394,39 +395,66 @@ async def delete_documents(request: DocumentDelete, current_user: UserContext = 
 async def chat(request: ChatRequest, current_user: UserContext = Depends(get_current_user)):
     try:
         # Retriever
-        retriever = get_cached_retriever(current_user.min_access_level)
+        search_func = get_cached_retriever_with_scores(current_user.min_access_level)
 
+        # Relevance threshold
+        # For cosine distance: lower is better (typically 0.3-0.5)
+        RELEVANCE_THRESHOLD = 0.4
+        
         # Parallel execution for chromadb retrieval
-        docs_task = asyncio.to_thread(
-            retriever.get_relevant_documents,
-            request.message
+        docs_task = asyncio.create_task(
+            asyncio.to_thread(search_func, request.message, k=3)
         )
 
-        docs = await docs_task
+        general_system_message = (
+            "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd. "
+            "The user's question doesn't match specific company documents, "
+            "so provide a helpful general response based on your knowledge."
+        )
+        
+        context_system_message = (
+            "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd "
+            "Answer based on the provided context. "
+            "If the context is insufficient, provide a general response."
+        )
 
-        context = "\n\n".join([doc.page_content for doc in docs[:3]])
+        docs_with_scores = await docs_task
 
+        # Filter by relevance score
+        relevant_docs = [
+            doc for doc, score in docs_with_scores
+            if score <= RELEVANCE_THRESHOLD
+        ]
+
+        # Determine if should show sources
+        # show_sources = len(relevant_docs) > 0
+
+        # Prepare context and messages
+        if relevant_docs:
+            context = "\n\n".join([doc.page_content for doc in relevant_docs])
+            user_content = f"Context:\n{context}\n\nQuestion: {request.message}"
+            system_message = context_system_message
+        else:
+            user_content = f"Question: {request.message}"
+            system_message = general_system_message
+        
         # OpenAI call
         response = await async_openai_client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {
-                    "role": "system", 
-                    "content": "You are an AI assistant for ThinkCodex Sdn Bhd. Answer concisely based on context. If the context is insufficient, provide a general response based on your knowledge or say you do not know."
-                },
-                {
-                    "role": "user", 
-                    "content": f"Context:\n{context}\n\nQuestion: {request.message}"
-                }
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_content}
             ],
             temperature=0.2,
             max_tokens=500
         )
 
+        answer = response.choices[0].message.content.strip()
+
         # Process sources
         sources_info = []
         seen_doc_ids = set()
-        for doc in docs:
+        for doc in relevant_docs:
             doc_id = doc.metadata.get("doc_id")
             if doc_id and doc_id not in seen_doc_ids:
                 sources_info.append(SourceInfo(
@@ -436,7 +464,7 @@ async def chat(request: ChatRequest, current_user: UserContext = Depends(get_cur
                 ))
                 seen_doc_ids.add(doc_id)
 
-        return ChatResponse(response=response.choices[0].message.content.strip(), sources=sources_info)
+        return ChatResponse(response=answer, sources=sources_info)
     except Exception as e:
         print(f"Chat error: {str(e)}")
         return ChatResponse(response="Error: An issue occured. Please try again.")
@@ -446,30 +474,64 @@ async def chat(request: ChatRequest, current_user: UserContext = Depends(get_cur
 async def chat_stream(request: ChatRequest, current_user: UserContext = Depends(get_current_user)):
     try:
         # Retriever
-        retriever = get_cached_retriever(current_user.min_access_level)
+        search_func = get_cached_retriever_with_scores(current_user.min_access_level)
 
+        # Relevance threshold
+        # For cosine distance: lower is better (typically 0.3-0.5)
+        RELEVANCE_THRESHOLD = 0.4
+        
         # Parallel execution for chromadb retrieval
-        docs_task = asyncio.to_thread(
-            retriever.get_relevant_documents,
-            request.message
+        docs_task = asyncio.create_task(
+            asyncio.to_thread(search_func, request.message, k=3)
         )
 
-        docs = await docs_task
+        general_system_message = (
+            "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd. "
+            "The user's question doesn't match specific company documents. "
+            "Provide a helpful general response using markdown formatting for clarity:\n"
+            "- Use **bold** for key points\n"
+            "- Use bullet points for lists\n"
+            "- Use headings (##) to organize longer responses\n"
+            "- Break content into digestible paragraphs"
+        )
+        
+        context_system_message = (
+            "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd. "
+            "Answer based on the provided context. "
+            "Format your responses using markdown for better readability:\n"
+            "- Use **bold** for key points\n"
+            "- Use bullet points for lists\n"
+            "- Use headings (##) to organize longer responses\n"
+            "- Break content into digestible paragraphs"
+            "If the context is insufficient, provide a general response."
+        )
 
-        context = "\n\n".join([doc.page_content for doc in docs[:3]])
+        docs_with_scores = await docs_task
+
+        # Filter by relevance score
+        relevant_docs = [
+            doc for doc, score in docs_with_scores
+            if score <= RELEVANCE_THRESHOLD
+        ]
+
+        # Determine if should show sources
+        show_sources = len(relevant_docs) > 0
+
+        # Prepare context and messages
+        if relevant_docs:
+            context = "\n\n".join([doc.page_content for doc in relevant_docs])
+            user_content = f"Context:\n{context}\n\nQuestion: {request.message}"
+            system_message = context_system_message
+        else:
+            user_content = f"Question: {request.message}"
+            system_message = general_system_message
 
         # Async OpenAI client with streaming
         stream = await async_openai_client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {
-                    "role": "system", 
-                    "content": "You are an AI assistant for ThinkCodex Sdn Bhd. Answer concisely based on context. If the context is insufficient, provide a general response based on your knowledge or say you do not know."
-                },
-                {
-                    "role": "user", 
-                    "content": f"Context:\n{context}\n\nQuestion: {request.message}"
-                }
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_content}
             ],
             temperature=0.2,
             max_tokens=500,
@@ -477,19 +539,27 @@ async def chat_stream(request: ChatRequest, current_user: UserContext = Depends(
         )
 
         # Process sources
-        sources_info = []
-        seen_doc_ids = set()
-        for doc in docs:
-            doc_id = doc.metadata.get("doc_id")
-            if doc_id and doc_id not in seen_doc_ids:
-                sources_info.append(SourceInfo(
-                    document_id=doc_id,
-                    filename=doc.metadata.get("filename", "Unknown Document"),
-                    tags=doc.metadata.get("tags", "")
-                ))
-                seen_doc_ids.add(doc_id)
+        async def process_sources():
+            if not show_sources:
+                return []
+            
+            sources_info = []
+            seen_doc_ids = set()
+
+            for doc in relevant_docs:
+                doc_id = doc.metadata.get("doc_id")
+                if doc_id and doc_id not in seen_doc_ids:
+                    sources_info.append(SourceInfo(
+                        document_id=doc_id,
+                        filename=doc.metadata.get("filename", "Unknown Document"),
+                        tags=doc.metadata.get("tags", "")
+                    ))
+                    seen_doc_ids.add(doc_id)
+            
+            sources_list = [source.model_dump() for source in sources_info]
+            return sources_list
         
-        sources_list = [source.model_dump() for source in sources_info]
+        sources_task = asyncio.create_task(process_sources())
 
         # Stream response to client
         async def generate():
@@ -501,7 +571,8 @@ async def chat_stream(request: ChatRequest, current_user: UserContext = Depends(
                         yield f"data: {json.dumps({'content': content})}\n\n"
                 
                 # Send sources after content completes
-                yield f"data: {json.dumps({'sources': sources_list, 'done': True})}\n\n"
+                sources = await sources_task
+                yield f"data: {json.dumps({'sources': sources, 'done': True, 'used_context': show_sources})}\n\n"
                 
             except Exception as e:
                 print(f"Streaming error: {str(e)}")
