@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faTimes,
@@ -37,6 +37,7 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({ isOpen, onClose, 
     const [error, setError] = useState("");
     const { authFetch } = useAuthFetch();
 
+    // Load available tags and initialize form
     useEffect(() => {
         if (isOpen && document) {
             fetchAvailableTags();
@@ -62,7 +63,7 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({ isOpen, onClose, 
         } finally {
             setIsLoadingTags(false);
         }
-    }
+    };
 
     const handleTagToggle = (tag: string) => {
         setSelectedTags(prev =>
@@ -126,7 +127,7 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({ isOpen, onClose, 
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white">
                     <div>
-                        <h2 className="text-xl font-bold">Upload Document</h2>
+                        <h2 className="text-xl font-bold">Edit Document</h2>
                         <p className="text-sm text-gray-500 mt-1">{document.filename}</p>
                     </div>
                     <button
@@ -246,7 +247,7 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({ isOpen, onClose, 
                 </div>
             </div>
         </div>
-        );
+    );
 };
 
 export default EditDocumentModal;
