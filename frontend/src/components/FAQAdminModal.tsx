@@ -28,7 +28,7 @@ interface FAQAdminModalProps {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const CATEGORIES = ["Onboarding", "Training & Operational", "Products & Services"];
+const CATEGORIES = ["Onboarding", "Workflows", "Products"];
 const ACCESS_LEVELS = [
     { value: "public", label: "Public", description: "Accessible to everyone" },
     { value: "partner", label: "Partner", description: "Partners and internal employees" },
@@ -38,8 +38,8 @@ const ACCESS_LEVELS = [
 
 const categoryIcons: Record<string, any> = {
     "Onboarding": faUser,
-    "Training & Operational": faCog,
-    "Products & Services": faBoxOpen
+    "Workflows": faCog,
+    "Products": faBoxOpen
 };
 
 const FAQAdminModal: React.FC<FAQAdminModalProps> = ({ faq, isOpen, onClose, onSave }) => {

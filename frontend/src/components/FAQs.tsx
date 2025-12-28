@@ -31,12 +31,12 @@ interface FAQsProps {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const FAQs: React.FC<FAQsProps> = ({ searchQuery }) => {
-    const categories = ["All", "Onboarding", "Training & Operational", "Products & Services"];
+    const categories = ["All", "Onboarding", "Workflows", "Products"];
     const categoryIcons: Record<string, any> = {
         "All": faList,
         "Onboarding": faUser,
-        "Training & Operational": faCog,
-        "Products & Services": faBoxOpen
+        "Workflows": faCog,
+        "Products": faBoxOpen
     };
 
     const ACCESS_LEVEL_CONFIG: Record<string, { label: string; color: string }> = {

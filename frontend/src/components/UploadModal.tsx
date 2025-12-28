@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faFileAlt,
     faTimes,
     faUpload,
+    faSpinner
 } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "../utils/supabaseClient";
+import { useAuthFetch } from "../utils/useAuthFetch";
 
 interface UploadModalProps {
     isOpen: boolean;
@@ -15,20 +17,52 @@ interface UploadModalProps {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
-const AVAILABLE_TAGS = ["HR", "IT", "Policies", "Operations", "Products", "Services"];
+
 const ACCESS_LEVELS = [
     { value: "public", label: "Public", description: "Accessible to everyone" },
     { value: "partner", label: "Partner", description: "Partners and internal employees" },
     { value: "internal", label: "Internal", description: "Internal employees only" },
     { value: "admin", label: "Admin", description: "Administrators only" }
-]
+];
 
 const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSuccess }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [availableTags, setAvailableTags] = useState<string[]>([]);
     const [accessLevel, setAccessLevel] = useState<string>("internal");
     const [isUploading, setIsUploading] = useState(false);
+    const [isLoadingTags, setIsLoadingTags] = useState(false);
     const [uploadError, setUploadError] = useState<string>("");
+    const { authFetch } = useAuthFetch();
+
+    // Fetch available tags when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            fetchAvailableTags();
+        }
+    }, [isOpen]);
+
+    const fetchAvailableTags = async () => {
+        try {
+            setIsLoadingTags(true);
+            const response = await authFetch(`${API_BASE_URL}/api/tags`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                setAvailableTags(data.tags);
+            } else {
+                console.error("Failed to fetch tags");
+                // Fallback to default tags
+                setAvailableTags(["HR", "IT", "Policies", "Operations", "Products", "Services"]);
+            }
+        } catch (error) {
+            console.error("Error fetching tags:", error);
+            // Fallback to default tags
+            setAvailableTags(["HR", "IT", "Policies", "Operations", "Products", "Services"]);
+        } finally {
+            setIsLoadingTags(false);
+        }
+    };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -49,7 +83,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
 
         // Validate file size
         if (file.size > MAX_FILE_SIZE) {
-            setUploadError("File size must be less that 10MB.");
+            setUploadError("File size must be less than 10MB.");
             setSelectedFile(null);
             event.target.value = "";
             return;
@@ -79,7 +113,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
         }
 
         if (selectedFile.size > MAX_FILE_SIZE) {
-            setUploadError("File size must be less than 10MB")
+            setUploadError("File size must be less than 10MB");
             return;
         }
 
@@ -117,12 +151,12 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                 onClose();
             } else {
                 const errorData = await response.json();
-                setUploadError("Upload failed. Please try again")
+                setUploadError("Upload failed. Please try again");
                 throw new Error(errorData.detail || "Upload failed.");
             }
         } catch (error) {
             console.error("Upload error: ", error);
-            setUploadError("An error occured during upload.")
+            setUploadError("An error occurred during upload.");
         } finally {
             setIsUploading(false);
         }
@@ -245,26 +279,38 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                             Tags
                         </label>
-                        <div className="flex flex-wrap gap-2">
-                            {AVAILABLE_TAGS.map(tag => (
-                                <button
-                                    key={tag}
-                                    onClick={() => handleTagToggle(tag)}
-                                    disabled={isUploading}
-                                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                                        selectedTags.includes(tag)
-                                            ? "bg-els-primarybutton text-white"
-                                            : "bg-els-secondarybackground text-gray-600 hover:bg-gray-300"
-                                    } disabled:opacity-50`}
-                                >
-                                    {tag}
-                                </button>
-                            ))}
-                        </div>
-                        {selectedTags.length > 0 && (
-                            <p className="text-xs text-gray-500 mt-2">
-                                Selected: {selectedTags.join(", ")}
+                        {isLoadingTags ? (
+                            <div className="flex justify-center items-center py-4">
+                                <FontAwesomeIcon icon={faSpinner} className="h-5 w-5 animate-spin text-gray-400" />
+                            </div>
+                        ) : availableTags.length === 0 ? (
+                            <p className="text-sm text-gray-500 text-center py-4">
+                                No tags available
                             </p>
+                        ) : (
+                            <>
+                                <div className="flex flex-wrap gap-2">
+                                    {availableTags.map(tag => (
+                                        <button
+                                            key={tag}
+                                            onClick={() => handleTagToggle(tag)}
+                                            disabled={isUploading}
+                                            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                                                selectedTags.includes(tag)
+                                                    ? "bg-els-primarybutton text-white"
+                                                    : "bg-els-secondarybackground text-gray-600 hover:bg-gray-300"
+                                            } disabled:opacity-50`}
+                                        >
+                                            {tag}
+                                        </button>
+                                    ))}
+                                </div>
+                                {selectedTags.length > 0 && (
+                                    <p className="text-xs text-gray-500 mt-2">
+                                        Selected: {selectedTags.join(", ")}
+                                    </p>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
@@ -283,7 +329,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
                     {/* Upload button */}
                     <button
                         onClick={handleUpload}
-                        disabled={isUploading || !selectedFile || selectedTags.length === 0 || !!uploadError}
+                        disabled={isUploading || !selectedFile || selectedTags.length === 0 || !!uploadError || isLoadingTags}
                         className="px-4 py-2 bg-els-primarybutton text-white rounded-lg hover:bg-els-primarybuttonhover disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isUploading ? "Uploading..." : "Upload"}
