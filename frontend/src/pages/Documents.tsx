@@ -12,6 +12,8 @@ import {
     faSpinner
 } from "@fortawesome/free-solid-svg-icons";
 import UploadModal from "../components/UploadModal";
+import TagsManagementModal from "../components/TagsManagementModal";
+import EditDocumentModal from "../components/EditDocumentModal";
 import { useAuth } from "../context/AuthContext";
 import { useAuthFetch } from "../utils/useAuthFetch";
 
@@ -33,7 +35,6 @@ interface PaginatedResponse {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const AVAILABLE_TAGS = ["HR", "IT", "Policies", "Operations", "Products", "Services"];
 
 const Documents: React.FC = () => {
     const { profile } = useAuth();
@@ -41,21 +42,38 @@ const Documents: React.FC = () => {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingDocument, setEditingDocument] = useState<Document | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [availableTags, setAvailableTags] = useState<string[]>([]);
     const [isTagFilterOpen, setIsTagFilterOpen] = useState(false);
-
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalDocuments, setTotalDocuments] = useState(0);
 
-    // Check if user can upload/delete documents
+    // Check if user can perform actions
+    const isAdmin = profile?.role === "admin";
     const canUpload = profile?.role === "admin" || profile?.role === "internal-employee";
     const canDelete = profile?.role === "admin" || profile?.role === "internal-employee";
+
+    // Fetch available tags
+    const fetchTags = async () => {
+        try {
+            const response = await authFetch(`${API_BASE_URL}/api/tags`);
+            if (response.ok) {
+                const data = await response.json();
+                setAvailableTags(data.tags);
+            }
+        } catch (error) {
+            console.error("Error fetching tags:", error);
+        }
+    };
 
     // Fetch documents from API
     const fetchDocuments = async () => {
@@ -80,9 +98,10 @@ const Documents: React.FC = () => {
         }
     };
 
-    // Load documents when page or page size changes
+    // Load documents and tags when page or page size changes
     useEffect(() => {
         fetchDocuments();
+        fetchTags();
     }, [currentPage, pageSize]);
 
     // Filter documents based on search term and selected tags
@@ -127,6 +146,28 @@ const Documents: React.FC = () => {
     const handleUploadSuccess = () => {
         setCurrentPage(1);
         fetchDocuments();
+    };
+
+    // Refresh after tags update
+    const handleTagsUpdateSuccess = () => {
+        fetchTags();
+        fetchDocuments();
+    };
+
+    // Refresh after document edit
+    const handleEditSuccess = () => {
+        fetchDocuments();
+    };
+
+    // Open edit modal for a document
+    const handleEditDocument = (document: Document) => {
+        setEditingDocument(document);
+        setIsEditModalOpen(true);
+    };
+
+    // Open tags management modal
+    const handleManageTags = () => {
+        setIsTagsModalOpen(true);
     };
 
     // Handle delete operation
@@ -204,7 +245,7 @@ const Documents: React.FC = () => {
                             />
                             <span>
                                 {isDeleting 
-                                    ? `Deleting...` 
+                                    ? "Deleting..." 
                                     : `Delete (${selectedDocuments.length})`
                                 }
                             </span>
@@ -275,24 +316,25 @@ const Documents: React.FC = () => {
                                         )}
                                     </div>
 
-                                    {/* Tags with checkbox */}
-                                    <div className="space-y-1.5">
-                                        {AVAILABLE_TAGS.map(tag => (
-                                            <label key={tag} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
-                                                {/* Checkbox for tags */}
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedTags.includes(tag)}
-                                                    onChange={() => handleTagToggle(tag)}
-                                                    className="mr-3 h-4 w-4 focus:ring-els-primarybutton border-gray-300 rounded"
-                                                />
-                                                {/* Tag label */}
-                                                <span className="text-sm text-gray-700">
-                                                    {tag}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
+                                    {availableTags.length === 0 ? (
+                                        <p className="text-sm text-gray-500 text-center py-2">No tags available</p>
+                                    ) : (
+                                        <div className="space-y-1.5">
+                                            {availableTags.map(tag => (
+                                                <label key={tag} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedTags.includes(tag)}
+                                                        onChange={() => handleTagToggle(tag)}
+                                                        className="mr-3 h-4 w-4 focus:ring-els-primarybutton border-gray-300 rounded"
+                                                    />
+                                                    <span className="text-sm text-gray-700">
+                                                        {tag}
+                                                    </span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -342,6 +384,8 @@ const Documents: React.FC = () => {
                         documents={filteredDocuments}
                         selectedDocuments={selectedDocuments}
                         onSelectionChange={setSelectedDocuments}
+                        onEditDocument={handleEditDocument}
+                        onManageTags={handleManageTags}
                         isLoading={isLoading}
                     />
                 </div>
@@ -369,6 +413,26 @@ const Documents: React.FC = () => {
                     onUploadSuccess={handleUploadSuccess}
                 />
             )}
+
+            {/* Tags Management Modal (admin only) */}
+            {isAdmin && (
+                <TagsManagementModal
+                    isOpen={isTagsModalOpen}
+                    onClose={() => setIsTagsModalOpen(false)}
+                    onUpdateSuccess={handleTagsUpdateSuccess}
+                />
+            )}
+
+            {/* Edit Document Modal (admin only) */}
+            <EditDocumentModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setEditingDocument(null);
+                }}
+                onUpdateSuccess={handleEditSuccess}
+                document={editingDocument}
+            />
 
             {/* Click outside to close filter dropdown */}
             {isTagFilterOpen && (

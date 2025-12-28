@@ -6,6 +6,8 @@ import {
     faCalendar,
     faBookmark,
     faExternalLink,
+    faPencil,
+    faCog
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
@@ -26,6 +28,8 @@ interface DocumentTableProps {
     documents: Document[];
     selectedDocuments: string[];
     onSelectionChange: (selectedIds: string[]) => void;
+    onEditDocument: (document: Document) => void;
+    onManageTags: () => void;
     isLoading: boolean;
 }
 
@@ -50,7 +54,7 @@ const ACCESS_LEVEL_CONFIG = {
     }
 };
 
-const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocuments, onSelectionChange, isLoading }) => {
+const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocuments, onSelectionChange, onEditDocument, onManageTags, isLoading }) => {
     const [openActionMenu, setOpenActionMenu] = useState<string | null>(null);
     const [bookmarkLoading, setBookmarkLoading] = useState<Set<string>>(new Set());
     const [isOpeningDocument, setIsOpeningDocument] = useState(false);
@@ -150,6 +154,12 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
         }
     };
 
+    // Action to edit a document
+    const handleEditClick = (document: Document) => {
+        onEditDocument(document);
+        setOpenActionMenu(null);
+    };
+
     // Open action menu
     const toggleActionMenu = (documentId: string) => {
         setOpenActionMenu(openActionMenu === documentId ? null : documentId);
@@ -197,7 +207,20 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                             </th>
                         )}
                         <th className="p-2 text-sm font-semibold text-gray-400">Document</th>
-                        <th className="p-2 text-sm font-semibold text-gray-400">Tags</th>
+                        <th className="p-2 text-sm font-semibold text-gray-400">
+                            <div className="flex items-center gap-2">
+                                <span>Tags</span>
+                                {isAdmin && (
+                                    <button
+                                        onClick={onManageTags}
+                                        className="text-gray-400 hover:text-els-primarybutton transition-colors"
+                                        title="Manage Tags"
+                                    >
+                                        <FontAwesomeIcon icon={faCog} className="h-3.5 w-3.5" />
+                                    </button>
+                                )}
+                            </div>
+                        </th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Upload Date</th>
                         <th className="p-2 text-sm font-semibold text-gray-400">Size</th>
                         <th className="p-2 text-sm font-semibold text-gray-400 text-center">Actions</th>
@@ -318,6 +341,20 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                                                 : "Bookmark"
                                                         }
                                                     </button>
+
+                                                    {/* Action button to edit (admin only) */}
+                                                    {isAdmin && (
+                                                        <>
+                                                            <div className="border-t my-1"></div>
+                                                            <button
+                                                                onClick={() => handleEditClick(doc)}
+                                                                className="w-full text-left px-4 py-2 text-sm font-normal hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            >
+                                                                <FontAwesomeIcon icon={faPencil} className="h-3 w-3"/>
+                                                                Edit document
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
