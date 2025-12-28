@@ -134,9 +134,6 @@ async def check_and_award_badges(user_id: str):
                 requirement_met = stats["bookmarks_created"] >= req_value
             elif req_type == "level_reached":
                 requirement_met = stats["level"] >= req_value
-            elif req_type == "thinkinsight_documents_viewed":
-                thinkinsight_count = await count_unique_thinkinsight_documents(user_id)
-                requirement_met = thinkinsight_count >= req_value
             
             if requirement_met:
                 # Award badge
@@ -156,36 +153,6 @@ async def check_and_award_badges(user_id: str):
     
     except Exception as e:
         print(f"Error checking badges: {e}")
-
-
-async def count_unique_thinkinsight_documents(user_id: str) -> int:
-    """
-    Count unique ThinkInsight documents viewed by user
-    """
-    try:
-        # Query activity log for document_viewed activities
-        result = supabase.table("activity_log")\
-            .select("metadata")\
-            .eq("user_id", user_id)\
-            .eq("activity_type", "document_viewed")\
-            .execute()
-        
-        # Extract unique ThinkInsight document IDs
-        thinkinsight_docs = set()
-        for activity in result.data:
-            metadata = activity.get("metadata", {})
-            filename = metadata.get("filename", "")
-            document_id = metadata.get("document_id", "")
-            
-            # Check if filename contains "ThinkInsight" (case-insensitive)
-            if "thinkinsight" in filename.lower() and document_id:
-                thinkinsight_docs.add(document_id)
-        
-        return len(thinkinsight_docs)
-    
-    except Exception as e:
-        print(f"Error counting ThinkInsight documents: {e}")
-        return 0
 
 @router.get("/api/gamification/stats/{user_id}")
 async def get_user_stats(user_id: str):
