@@ -152,6 +152,13 @@ class FAQResponse(BaseModel):
     created_at: str
     updated_at: str
 
+class TagsManagement(BaseModel):
+    tags: List[str]
+
+class DocumentUpdate(BaseModel):
+    tags: Optional[List[str]] = None
+    access_level: Optional[str] = None
+
 # Helper function to format file size
 def format_file_size(size_bytes: int) -> str:
     if size_bytes == 0:
@@ -727,6 +734,118 @@ async def delete_faq(faq_id: str, current_user: UserContext = Depends(get_curren
     except Exception as e:
         print(f"Error deleting FAQ: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to delete FAQ")
+
+# Endpoint to get current tags list
+@app.get("/api/tags")
+async def get_tags(current_user: UserContext = Depends(get_current_user)):
+    try:
+        tags_config = db["system_config"].find_one({"type": "tags"})
+        if tags_config:
+            return {"tags": tags_config["values"]}
+        else:
+            default_tags = ["HR", "IT", "Policies", "Operations", "Products", "Services"]
+            return {"tags": default_tags}
+    except Exception as e:
+        print(f"Error fetching tags: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch tags")
+
+# Endpoint to update tags list (admin only)
+@app.put("/api/tags")
+async def update_tags(request: TagsManagement, current_user: UserContext = Depends(get_current_user)):
+    try:
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Only admins can update tags")
+        
+        if not request.tags or len(request.tags) == 0:
+            raise HTTPException(status_code=400, detail="Tags list cannot be empty")
+        
+        cleaned_tags = list(set([tag.strip() for tag in request.tags if tag.strip()]))
+
+        # Update or create tags configuration
+        db["system_config"].update_one(
+            {"type": "tags"},
+            {"$set": {"values": cleaned_tags, "updated_at": datetime.now()}},
+            upsert=True
+        )
+
+        return {
+            "message": "Tags updated successfully",
+            "tags": cleaned_tags
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating tags: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update tags")
+
+# Endpoint to update document metadata (admin)
+@app.patch("/api/documents/{document_id}")
+async def update_document(document_id: str, request: DocumentUpdate, current_user: UserContext = Depends(get_current_user)):
+    try:
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Only admins can update document metadata")
+        
+        # Find document
+        document = company_documents_collection.find_one({"_id": ObjectId(document_id)})
+        if not document:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        # Prepare update data
+        update_data = {}
+
+        if request.tags is not None:
+            if len(request.tags) == 0:
+                raise HTTPException(status_code=400, detail="Tags cannot be empty")
+            update_data["tags"] = request.tags
+        
+        if request.access_level is not None:
+            if request.access_level not in ACCESS_HIERARCHY:
+                raise HTTPException(status_code=400, detail="Invalid access level")
+            update_data["access_level"] = request.access_level
+            update_data["access_level_num"] = ACCESS_HIERARCHY[request.access_level]
+        
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No updates provided")
+        
+        update_data["updated_at"] = datetime.now()
+        update_data["updated_by"] = current_user.email
+
+        # Update mongodb
+        company_documents_collection.update_one(
+            {"_id": ObjectId(document_id)},
+            {"$set": update_data}
+        )
+
+        # Update chroma
+        try:
+            results = chroma_client.get(where={"doc_id": document_id})
+            if results and results["ids"]:
+                chroma_metadata = {}
+                if request.tags is not None:
+                    chroma_metadata["tags"] = ",".join(request.tags)
+                if request.access_level is not None:
+                    chroma_metadata["access_level"] = request.access_level
+                    chroma_metadata["access_level_num"] = ACCESS_HIERARCHY[request.access_level]
+                
+                # Update all chunks for this document
+                for chunk_id in results["ids"]:
+                    chroma_client.update(
+                        ids=[chunk_id],
+                        metadatas=[chroma_metadata]
+                    )
+        except Exception as e:
+            print(f"Error updating Chroma metadata: {e}")
+        
+        return {
+            "message": "Document updated successfully",
+            "document_id": document_id,
+            "updates": update_data
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating document metadata: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update document metadata")
 
 # Health check endpoint
 @app.get("/healthcheck")
