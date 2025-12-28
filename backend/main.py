@@ -431,7 +431,7 @@ async def chat(request: ChatRequest, current_user: UserContext = Depends(get_cur
 
         # Relevance threshold
         # For cosine distance: lower is better (typically 0.3-0.5)
-        RELEVANCE_THRESHOLD = 0.4
+        RELEVANCE_THRESHOLD = 0.5
         
         # Parallel execution for chromadb retrieval
         docs_task = asyncio.create_task(
@@ -510,7 +510,7 @@ async def chat_stream(request: ChatRequest, current_user: UserContext = Depends(
 
         # Relevance threshold
         # For cosine distance: lower is better (typically 0.3-0.5)
-        RELEVANCE_THRESHOLD = 0.4
+        RELEVANCE_THRESHOLD = 0.5
         
         # Parallel execution for chromadb retrieval
         docs_task = asyncio.create_task(
