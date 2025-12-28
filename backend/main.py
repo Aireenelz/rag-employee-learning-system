@@ -740,10 +740,10 @@ async def delete_faq(faq_id: str, current_user: UserContext = Depends(get_curren
 async def get_tags(current_user: UserContext = Depends(get_current_user)):
     try:
         tags_config = db["system_config"].find_one({"type": "tags"})
-        if tags_config:
-            return {"tags": tags_config["values"]}
+        if isinstance(tags_config, dict) and "values" in tags_config:
+            return {"tags": sorted(tags_config["values"])}
         else:
-            default_tags = ["Onboarding", "HR", "Workflows", "Products"]
+            default_tags = ["HR", "IT", "Policies", "Operations", "Products", "Services"]
             return {"tags": default_tags}
     except Exception as e:
         print(f"Error fetching tags: {str(e)}")
