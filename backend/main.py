@@ -819,7 +819,7 @@ async def update_document(document_id: str, request: DocumentUpdate, current_use
         # Update chroma
         try:
             results = chroma_client.get(where={"doc_id": document_id})
-            if results and results["ids"]:
+            if results and results.get("ids"):
                 chroma_metadata = {}
                 if request.tags is not None:
                     chroma_metadata["tags"] = ",".join(request.tags)
@@ -829,7 +829,7 @@ async def update_document(document_id: str, request: DocumentUpdate, current_use
                 
                 # Update all chunks for this document
                 for chunk_id in results["ids"]:
-                    chroma_client.update(
+                    chroma_client._collection.update(
                         ids=[chunk_id],
                         metadatas=[chroma_metadata]
                     )

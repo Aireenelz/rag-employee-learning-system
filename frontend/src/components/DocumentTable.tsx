@@ -310,7 +310,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                             <div
                                                 ref={menuRef}
                                                 className={`absolute right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-48 ${
-                                                    index === 0 ? "top-full" : "bottom-full"
+                                                    index <= 1 ? "top-full" : "bottom-full"
                                                 }`}
                                             >
                                                 <div className="py-1">
