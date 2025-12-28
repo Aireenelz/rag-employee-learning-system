@@ -53,12 +53,12 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUploadSucc
             } else {
                 console.error("Failed to fetch tags");
                 // Fallback to default tags
-                setAvailableTags(["HR", "IT", "Policies", "Operations", "Products", "Services"]);
+                setAvailableTags(["Onboarding", "HR", "Workflows", "Products"]);
             }
         } catch (error) {
             console.error("Error fetching tags:", error);
             // Fallback to default tags
-            setAvailableTags(["HR", "IT", "Policies", "Operations", "Products", "Services"]);
+            setAvailableTags(["Onboarding", "HR", "Workflows", "Products"]);
         } finally {
             setIsLoadingTags(false);
         }

@@ -743,7 +743,7 @@ async def get_tags(current_user: UserContext = Depends(get_current_user)):
         if tags_config:
             return {"tags": tags_config["values"]}
         else:
-            default_tags = ["HR", "IT", "Policies", "Operations", "Products", "Services"]
+            default_tags = ["Onboarding", "HR", "Workflows", "Products"]
             return {"tags": default_tags}
     except Exception as e:
         print(f"Error fetching tags: {str(e)}")
