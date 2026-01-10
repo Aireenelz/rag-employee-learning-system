@@ -3,7 +3,7 @@ import KPICard from "./KPICard";
 import DataTable from "./DataTable";
 import PieChart from "./PieChart";
 import { useAuthFetch } from "../../utils/useAuthFetch";
-import { calculateChange, calculateChangeWholeNumber } from "../../utils/kpiDataUtils";
+import { calculateChange } from "../../utils/kpiDataUtils";
 
 interface UserActivityProps {
     userRole: string;
