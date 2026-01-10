@@ -456,7 +456,7 @@ async def get_user_activity_analytics(user_role: str = "all", time_range: int = 
         if dau_data.data:
             total_active = sum(row["active_users"] for row in dau_data.data)
             num_days = len(set(row["date"] for row in dau_data.data))
-            daily_active_users = round(total_active / num_days, 2) if num_days > 0 else 0
+            daily_active_users = round(total_active / num_days, 1) if num_days > 0 else 0
         else:
             daily_active_users = 0
 
@@ -472,7 +472,7 @@ async def get_user_activity_analytics(user_role: str = "all", time_range: int = 
         if previous_dau_data.data:
             prev_total_active = sum(row["active_users"] for row in previous_dau_data.data)
             prev_num_days = len(set(row["date"] for row in previous_dau_data.data))
-            previous_daily_active_users = round(prev_total_active / prev_num_days, 2) if prev_num_days > 0 else 0
+            previous_daily_active_users = round(prev_total_active / prev_num_days, 1) if prev_num_days > 0 else 0
         else:
             previous_daily_active_users = 0
         
@@ -503,7 +503,7 @@ async def get_user_activity_analytics(user_role: str = "all", time_range: int = 
         ).execute()
 
         if retention_result.data and len(retention_result.data) > 0:
-            user_retention_rate = float(retention_result.data[0]["retention_rate"] or 0)
+            user_retention_rate = round(float(retention_result.data[0]["retention_rate"] or 0), 1)
         else:
             user_retention_rate = 0.0
         

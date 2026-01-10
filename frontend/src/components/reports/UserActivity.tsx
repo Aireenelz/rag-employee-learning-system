@@ -133,7 +133,7 @@ const UserActivity:React.FC<UserActivityProps> = ({ userRole, timeRange }) => {
         {
             title: "User Retention",
             value: analyticsData.kpis.user_retention_rate + "%",
-            change: `${calculateChangeWholeNumber(analyticsData.kpis.user_retention_rate, analyticsData.kpis.previous_user_retention_rate)}% compared to last period`
+            change: `${calculateChange(analyticsData.kpis.user_retention_rate, analyticsData.kpis.previous_user_retention_rate)}% compared to last period`
         }
     ];
 
