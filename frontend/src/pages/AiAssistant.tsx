@@ -259,7 +259,7 @@ const AiAssistant: React.FC = () => {
                                             question: questionText,
                                             response_time_ms: responseTimeMs,
                                             time_to_first_token_ms: timeToFirstToken,
-                                            success: sources.length > 0,
+                                            success: true,
                                             sources_count: sources.length,
                                             streaming: true,
                                             timestamp: new Date().toISOString()
@@ -300,7 +300,7 @@ const AiAssistant: React.FC = () => {
             await trackActivity("question_asked", {
                 question: questionText,
                 response_time_ms: responseTimeMs,
-                success: data.sources?.length > 0,
+                success: true,
                 sources_count: data.sources?.length || 0,
                 streaming: false,
                 timestamp: new Date().toISOString()

@@ -1,8 +1,8 @@
 export const calculateChange = (current: number, previous: number): string => {
     const diff = current - previous;
 
-    if (diff > 0) return `+${diff.toFixed(2)}`;
-    if (diff < 0) return `${diff.toFixed(2)}`;
+    if (diff > 0) return `+${diff.toFixed(1)}`;
+    if (diff < 0) return `${diff.toFixed(1)}`;
     return "0";
 };
 
@@ -17,7 +17,7 @@ export const calculateChangeWholeNumber = (current: number, previous: number): s
 export const calculateChangePercentage = (current: number, previous: number): string => {
     if (previous === 0) {
         if (current === 0) return "0%";
-        return `+${Math.round(current * 100)}%`;
+        return `+${Math.round(current)}%`;
     }
 
     const percentChange = ((current - previous) / previous) * 100;
