@@ -104,7 +104,7 @@ const SearchAnalytics:React.FC<SearchAnalyticsProps> = ({ userRole, timeRange })
     
     const kpiData = [
         {
-            title: "Average Response Time",
+            title: "Average Latency",
             value: analyticsData.kpis.avg_response_time_display,
             change: `${calculateChange(analyticsData.kpis.avg_response_time_ms / 1000, analyticsData.kpis.previous_avg_response_time_ms / 1000)}s compared to last period`,
             positiveIsBad: true,
