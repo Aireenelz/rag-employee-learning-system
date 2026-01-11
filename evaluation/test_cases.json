@@ -20,6 +20,11 @@
         "ground_truth": "Think Codex unlocks business success by providing industry-tailored gamified solutions that empower employees to learn, apply their skills, and excel at work, delivering tangible results through engaging training."
     },
     {
+        "_source": "About Think Codex.pdf",
+        "question": "Where is the Think Codex office located?",
+        "ground_truth": "The office is located at 9-13A, Infinity Tower, No. 28, Jalan SS6/3, 47301 Kelana Jaya, Petaling Jaya, Selangor."
+    },
+    {
         "_source": "Business Experience Workshops (BEW).pdf",
         "question": "How do Business Experience Workshops (BEW) differ from full-fledged business simulations?",
         "ground_truth": "BEWs are described as being 'lighter' than full business simulations and are priced more competitively."
@@ -38,6 +43,11 @@
         "_source": "Business Experience Workshops (BEW).pdf",
         "question": "What methodology do BEWs use to ensure skill retention?",
         "ground_truth": "BEWs utilize a Habit-Building Model that uses habit loops to create skill retention."
+    },
+    {
+        "_source": "Business Experience Workshops (BEW).pdf",
+        "question": "What are the two delivery formats available for Business Experience Workshops?",
+        "ground_truth": "BEWs are available as fully digital or Face-To-Face sessions."
     },
     {
         "_source": "Employee Handbook v1.2.pdf",
@@ -60,6 +70,11 @@
         "ground_truth": "All intellectual property remains the property of Think Codex, and employees are forbidden from using it outside of their employment."
     },
     {
+        "_source": "Employee Handbook v1.2.pdf",
+        "question": "What is the general practice while working remotely?",
+        "ground_truth": "Employees must be near their devices (laptop and phone) and be within reach for both scheduled and unscheduled calls."
+    },
+    {
         "_source": "How To Do Your Claims v1.0.pdf",
         "question": "When is the monthly deadline for submitting expense claims?",
         "ground_truth": "Claims must be submitted by the 1st week of every month to be paid before the end of that same month."
@@ -80,6 +95,11 @@
         "ground_truth": "Parking claims must include a Touch N Go receipt."
     },
     {
+        "_source": "How To Do Your Claims v1.0.pdf",
+        "question": "What happens to claims that are submitted after the first week of the month?",
+        "ground_truth": "Claims that miss the deadline are processed in the following month instead."
+    },
+    {
         "_source": "LEAD - Leadership & Talent.pdf",
         "question": "What are the five stages of the TRACE Leadership Development Framework?",
         "ground_truth": "The framework consists of five core stages: Theory, Replication, Application, Cultivation, and Evaluation."
@@ -98,5 +118,10 @@
         "_source": "LEAD - Leadership & Talent.pdf",
         "question": "How is the effectiveness of Leadership Journeys measured at Think Codex?",
         "ground_truth": "Think Codex uses the Kirkpatrick model to evaluate the effectiveness of their Leadership Journeys."
+    },
+    {
+        "_source": "LEAD - Leadership & Talent.pdf",
+        "question": "According to the TRACE framework, what are the two main outcomes for leaders and the organization?",
+        "ground_truth": "The outcomes are greater self-awareness and personal growth for leaders, and better business results and decisions through behavior change for the organization."
     }
 ]
