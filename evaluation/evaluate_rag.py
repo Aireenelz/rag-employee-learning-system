@@ -13,12 +13,14 @@ load_dotenv()
 
 class EmployeeLearningRAGEvaluator:
     def __init__(self):
+        # Load environment variables
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.mongodb_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
         self.chroma_api_key = os.getenv("CHROMA_API_KEY")
         self.chroma_tenant = os.getenv("CHROMA_TENANT")
         self.chroma_database = os.getenv("CHROMA_DATABASE")
 
+        # Initialize clients
         self.async_openai_client = AsyncOpenAI(api_key=self.openai_api_key)
         self.mongodb_client = MongoClient(self.mongodb_uri, tls=True, tlsAllowInvalidCertificates=True)
 
@@ -31,8 +33,10 @@ class EmployeeLearningRAGEvaluator:
             database=self.chroma_database
         )
 
+        # Initialize Ragas evaluator
         self.ragas_evaluator = RAGEvaluator(self.openai_api_key)
 
+        # Relevance threshold
         self.RELEVANCE_THRESHOLD = 0.45
     
     async def get_rag_response(self, question: str, access_level: int = 3) -> Dict[str, any]:
@@ -63,7 +67,7 @@ class EmployeeLearningRAGEvaluator:
             user_content = f"Question: {question}"
             system_message = (
                 "You are an AI assistant for an employee learning system in ThinkCodex Sdn Bhd. "
-                "The user's question doesn't match specific company documents. "
+                "The user's question doesn't match specific company documents, "
                 "so provide a helpful general response based on your knowledge."
             )
         
@@ -96,11 +100,12 @@ class EmployeeLearningRAGEvaluator:
         contexts = []
         ground_truths = []
 
-        print("Generating response for test cases...")
+        print("Generating responses for test cases...")
 
         for i, test_case in enumerate(test_cases):
             print(f"Processing {i+1}/{len(test_cases)}: {test_case['question'][:50]}...")
 
+            # Get RAG response
             result = await self.get_rag_response(
                 test_case["question"],
                 access_level=access_level
@@ -115,6 +120,7 @@ class EmployeeLearningRAGEvaluator:
         
         print("\nPreparing dataset for Ragas evaluation...")
 
+        # Prepare dataset
         dataset = self.ragas_evaluator.prepare_evaluation_dataset(
             questions=questions,
             answers=answers,
@@ -124,6 +130,7 @@ class EmployeeLearningRAGEvaluator:
 
         print("Running Ragas evaluation...\n")
 
+        # Run evaluation
         results = self.ragas_evaluator.evaluate_rag(dataset)
 
         return results
@@ -133,12 +140,12 @@ def load_test_cases(path: str):
         return json.load(f)
     
 async def main():
-    """
-    Main evaluation function
-    """
-
+    """Main evaluation function"""
+    
+    # Initialize evaluator
     evaluator = EmployeeLearningRAGEvaluator()
-
+    
+    # Load test cases
     test_cases = load_test_cases("test_cases.json")
 
     print("="*60)
@@ -146,29 +153,8 @@ async def main():
     print("="*60)
     print(f"\nEvaluating {len(test_cases)} test cases...\n")
 
+    # Run evaluation
     results = await evaluator.evaluate_test_set(test_cases)
-
-    print("\n" + "="*60)
-    print("EVALUATION RESULTS")
-    print("="*60 + "\n")
-
-    # if hasattr(results, "to_pandas"):
-    #     df = results.to_pandas()
-        
-    #     # Show per-question results
-    #     print("Per-Question Metrics:")
-    #     print("-" * 60)
-    #     print(df.to_string())
-        
-    #     # Show average metrics
-    #     print("\n\nAverage Metrics:")
-    #     print("-" * 60)
-    #     metric_cols = [col for col in df.columns if col not in ["question", "answer", "contexts", "ground_truth"]]
-    #     averages = df[metric_cols].mean()
-    #     for metric, value in averages.items():
-    #         print(f"{metric:.<30} {value:.4f}")
-    # else:
-    #     print(results)
     
     # Save results
     print("\n" + "="*60)
