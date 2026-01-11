@@ -22,14 +22,13 @@ class RAGEvaluator:
         """
         Setup evaluator for ragas testing
         """
-
-        self.openai_api_key - openai_api_key
+        self.openai_api_key = openai_api_key
         self.llm = ChatOpenAI(
             model="gpt-4o-mini",
             api_key=openai_api_key,
             temperature=0
         )
-        self.embedding = OpenAIEmbeddings(api_key=openai_api_key)
+        self.embeddings = OpenAIEmbeddings(api_key=openai_api_key)
     
     def prepare_evaluation_dataset(self, questions: List[str], answers: List[str], contexts: List[List[str]], ground_truths: Optional[List[str]] = None) -> Dataset:
         """
@@ -86,7 +85,7 @@ class RAGEvaluator:
             dataset,
             metrics=metrics,
             llm=self.llm,
-            embeddings=self.embedding
+            embeddings=self.embeddings
         )
 
         return result
