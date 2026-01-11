@@ -1,0 +1,102 @@
+[
+    {
+        "_source": "About Think Codex.pdf",
+        "question": "What is the core methodology used by Think Codex for behavior change?",
+        "ground_truth": "Think Codex uses the 3C Behavioural Change Model, which targets three factors: Cognitive (Building Knowledge), Competency (Building Habits), and Confidence (Building Improvements)."
+    },
+    {
+        "_source": "About Think Codex.pdf",
+        "question": "What is the advantage of gamification in corporate training?",
+        "ground_truth": "Gamification improves engagement in corporate training by adding enthusiasm and competition, thereby transforming the learning process into an exhilarating journey compared to traditional training methods."
+    },
+    {
+        "_source": "About Think Codex.pdf",
+        "question": "Which specific industry challenge areas do Think Codex’s gamified solutions address?",
+        "ground_truth": "The solutions address Leadership, Talent Management, Learning & Development, Culture & Engagement, and Sustainability."
+    },
+    {
+        "_source": "About Think Codex.pdf",
+        "question": "How does Think Codex unlock business success through behaviour change?",
+        "ground_truth": "Think Codex unlocks business success by providing industry-tailored gamified solutions that empower employees to learn, apply their skills, and excel at work, delivering tangible results through engaging training."
+    },
+    {
+        "_source": "Business Experience Workshops (BEW).pdf",
+        "question": "How do Business Experience Workshops (BEW) differ from full-fledged business simulations?",
+        "ground_truth": "BEWs are described as being 'lighter' than full business simulations and are priced more competitively."
+    },
+    {
+        "_source": "Business Experience Workshops (BEW).pdf",
+        "question": "What topics are included in the Digital Transformation Bundle for BEWs?",
+        "ground_truth": "The bundle includes Embracing & Leveraging Data, The Digital Customer, Virtual Teams & Collaboration, The Digital Culture, and Engaging & Managing Developers."
+    },
+    {
+        "_source": "Business Experience Workshops (BEW).pdf",
+        "question": "What topics are included in the Business Skills Bundle?",
+        "ground_truth": "The Business Skills Bundle includes Agile Project Management, Agility Mindset, and Presentation Skills."
+    },
+    {
+        "_source": "Business Experience Workshops (BEW).pdf",
+        "question": "What methodology do BEWs use to ensure skill retention?",
+        "ground_truth": "BEWs utilize a Habit-Building Model that uses habit loops to create skill retention."
+    },
+    {
+        "_source": "Employee Handbook v1.2.pdf",
+        "question": "What are the official and flexible working hours at the company?",
+        "ground_truth": "Official working hours are 9:00 am to 5:00 pm, but employees can use extended flexible hours within 8:00 am and 8:00 pm as long as core hours are met."
+    },
+    {
+        "_source": "Employee Handbook v1.2.pdf",
+        "question": "What is the non-competition policy for staff leaving the company?",
+        "ground_truth": "A staff member may not join competitors or partners, or start a company in the same industry, for a period of one year after leaving Think Codex."
+    },
+    {
+        "_source": "Employee Handbook v1.2.pdf",
+        "question": "What are the rules regarding working from a location outside of Malaysia?",
+        "ground_truth": "Working outside Malaysia is limited to 2 times a year for a maximum of 5 working days at a time, and requires prior discussion from a manager."
+    },
+    {
+        "_source": "Employee Handbook v1.2.pdf",
+        "question": "Who owns the intellectual property created by an employee during their employment?",
+        "ground_truth": "All intellectual property remains the property of Think Codex, and employees are forbidden from using it outside of their employment."
+    },
+    {
+        "_source": "How To Do Your Claims v1.0.pdf",
+        "question": "When is the monthly deadline for submitting expense claims?",
+        "ground_truth": "Claims must be submitted by the 1st week of every month to be paid before the end of that same month."
+    },
+    {
+        "_source": "How To Do Your Claims v1.0.pdf",
+        "question": "What is the reimbursement rate for mileage claims?",
+        "ground_truth": "The reimbursement rate for mileage is RM0.60 per kilometer."
+    },
+    {
+        "_source": "How To Do Your Claims v1.0.pdf",
+        "question": "What is the maximum amount an employee can claim for a single medical doctor visit?",
+        "ground_truth": "Medical claims for doctor visits are capped at RM100 per visit."
+    },
+    {
+        "_source": "How To Do Your Claims v1.0.pdf",
+        "question": "What documentation is required specifically for parking claims?",
+        "ground_truth": "Parking claims must include a Touch N Go receipt."
+    },
+    {
+        "_source": "LEAD - Leadership & Talent.pdf",
+        "question": "What are the five stages of the TRACE Leadership Development Framework?",
+        "ground_truth": "The framework consists of five core stages: Theory, Replication, Application, Cultivation, and Evaluation."
+    },
+    {
+        "_source": "LEAD - Leadership & Talent.pdf",
+        "question": "How does applying the Agile Model benefit leadership programme execution?",
+        "ground_truth": "It makes the programme flexible and iterative, prevents leader burnout through prioritization, and maintains focus on 1-2 learning objectives at a time."
+    },
+    {
+        "_source": "LEAD - Leadership & Talent.pdf",
+        "question": "What are the two core questions the Think Codex Leadership Model is based on?",
+        "ground_truth": "The model is based on: 1. Which areas do leaders spend their time on? and 2. How much time do leaders spend on those areas?"
+    },
+    {
+        "_source": "LEAD - Leadership & Talent.pdf",
+        "question": "How is the effectiveness of Leadership Journeys measured at Think Codex?",
+        "ground_truth": "Think Codex uses the Kirkpatrick model to evaluate the effectiveness of their Leadership Journeys."
+    }
+]
