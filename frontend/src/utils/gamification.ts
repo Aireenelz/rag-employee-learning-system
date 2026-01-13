@@ -29,4 +29,4 @@ export interface BadgesResponse {
     total_earned: number;
 }
 
-export type ActivityType = "question_asked" | "document_viewed" | "bookmark_created";
+export type ActivityType = "question_asked" | "document_viewed" | "bookmark_created" | "document_viewed_thinkinsight";
