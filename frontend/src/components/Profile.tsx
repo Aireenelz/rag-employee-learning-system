@@ -255,7 +255,7 @@ const Profile: React.FC = () => {
                                 onChange={(e) => handleProfileChange("firstName", e.target.value)}
                                 disabled={!isEditingProfile}
                                 className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${
-                                    !isEditingProfile ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""
+                                    !isEditingProfile ? "bg-gray-50 text-gray-600" : ""
                                 }`}
                             />
                         </div>
@@ -267,7 +267,7 @@ const Profile: React.FC = () => {
                                 onChange={(e) => handleProfileChange("lastName", e.target.value)}
                                 disabled={!isEditingProfile}
                                 className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${
-                                    !isEditingProfile ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""
+                                    !isEditingProfile ? "bg-gray-50 text-gray-600" : ""
                                 }`}
                             />
                         </div>
@@ -283,7 +283,7 @@ const Profile: React.FC = () => {
                                 onChange={(e) => handleProfileChange("department", e.target.value)}
                                 disabled={!isEditingProfile}
                                 className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${
-                                    !isEditingProfile ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""
+                                    !isEditingProfile ? "bg-gray-50 text-gray-600" : ""
                                 }`}
                             />
                         </div>
@@ -295,7 +295,7 @@ const Profile: React.FC = () => {
                                 onChange={(e) => handleProfileChange("position", e.target.value)}
                                 disabled={!isEditingProfile}
                                 className={`w-full px-4 py-2 border border-gray-300 rounded-lg ${
-                                    !isEditingProfile ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""
+                                    !isEditingProfile ? "bg-gray-50 text-gray-600" : ""
                                 }`}
                             />
                         </div>
