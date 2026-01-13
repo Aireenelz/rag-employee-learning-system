@@ -106,7 +106,13 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                 // Track document_viewed activity
                 if (user?.id) {
                     const document = documents.find(doc => doc.id === documentId);
-                    await trackActivity("document_viewed", {
+                    
+                    const normalisedFilename = document?.filename.replace(/\s+/g, "").toLowerCase() || "";
+                    const isThinkInsightDoc = normalisedFilename.includes("thinkinsight");
+
+                    const activityType = isThinkInsightDoc ? "document_viewed_thinkinsight" : "document_viewed";
+
+                    await trackActivity(activityType, {
                         document_id: documentId,
                         filename: document?.filename,
                         timestamp: new Date().toISOString()

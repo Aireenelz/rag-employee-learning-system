@@ -19,7 +19,8 @@ supabase: Client = create_client(supabase_url, supabase_secret_key)
 EXP_REWARDS = {
     "question_asked": 10,
     "document_viewed": 5,
-    "bookmark_created": 15
+    "bookmark_created": 15,
+    "document_viewed_thinkinsight": 5
 }
 
 async def track_activity(user_id: str, activity_type: str, metadata: Optional[dict] = None):
@@ -134,6 +135,13 @@ async def check_and_award_badges(user_id: str):
                 requirement_met = stats["bookmarks_created"] >= req_value
             elif req_type == "level_reached":
                 requirement_met = stats["level"] >= req_value
+            elif req_type == "documents_viewed_thinkinsight":
+                activity_check = supabase.table("activity_log")\
+                    .select("id")\
+                    .eq("user_id", user_id)\
+                    .eq("activity_type", "document_viewed_thinkinsight")\
+                    .execute()
+                requirement_met = len(activity_check.data) >= req_value
             
             if requirement_met:
                 # Award badge
@@ -247,6 +255,14 @@ async def get_user_badges(user_id: str):
                     progress = min(100, (stats.get("bookmarks_created", 0) / req_value) * 100)
                 elif req_type == "level_reached":
                     progress = min(100, (stats.get("level", 1) / req_value) * 100)
+                elif req_type == "documents_viewed_thinkinsight":
+                    activity_count = supabase.table("activity_log")\
+                        .select("id", count="exact")\
+                        .eq("user_id", user_id)\
+                        .eq("activity_type", "document_viewed_thinkinsight")\
+                        .execute()
+                    count = activity_count.count if activity_count.count else 0
+                    progress = min(100, (count / req_value) * 100)
             elif is_earned:
                 progress = 100
             
