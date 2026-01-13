@@ -5,7 +5,6 @@ import {
     faEllipsisVertical,
     faCalendar,
     faBookmark,
-    faExternalLink,
     faPencil,
     faCog
 } from "@fortawesome/free-solid-svg-icons";
@@ -250,9 +249,15 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                 
                                 {/* Document name */}
                                 <td className="py-4 px-2 text-sm font-semibold">
-                                    <div className="flex items-center gap-2">
-                                        <FontAwesomeIcon icon={faFileAlt} className="text-blue-400 flex-shrink-0"/>
-                                        {doc.filename}
+                                    <button
+                                        onClick={() => handleOpenDocument(doc.id)}
+                                        disabled={isOpeningDocument}
+                                        className="flex items-center gap-2 hover:text-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group text-left w-full"
+                                    >
+                                        <FontAwesomeIcon icon={faFileAlt} className="text-blue-400 flex-shrink-0 group-hover:text-blue-600 transition-colors"/>
+                                        <span className="underline decoration-transparent group-hover:decoration-blue-600 transition-all">
+                                            {doc.filename}
+                                        </span>
                                         {isAdmin && (() => {
                                             const accessConfig = ACCESS_LEVEL_CONFIG[doc.access_level as keyof typeof ACCESS_LEVEL_CONFIG] || ACCESS_LEVEL_CONFIG.public;
 
@@ -265,7 +270,7 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                         {isBookmarked(doc.id) && (
                                             <FontAwesomeIcon icon={faBookmark} className="text-yellow-400 flex-shrink-0" title="Bookmarked"/>
                                         )}
-                                    </div>
+                                    </button>
                                 </td>
 
                                 {/* Tags */}
@@ -296,11 +301,11 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                 </td>
 
                                 {/* Actions */}
-                                <td className="py-4 px-2 text-sm font-semibold relative">
+                                <td className="px-2 text-sm font-semibold relative">
                                     <div className="flex items-center justify-center">
                                         <button
                                             onClick={() => toggleActionMenu(doc.id)}
-                                            className="px-2 rounded-full hover:bg-els-secondarybuttonhover"
+                                            className="p-2 rounded-full hover:bg-els-secondarybuttonhover"
                                         >
                                             <FontAwesomeIcon icon={faEllipsisVertical}/>
                                         </button>
@@ -315,14 +320,14 @@ const DocumentTable: React.FC<DocumentTableProps> = ({ documents, selectedDocume
                                             >
                                                 <div className="py-1">
                                                     {/* Action button to open file */}
-                                                    <button
+                                                    {/* <button
                                                         onClick={() => handleOpenDocument(doc.id)}
                                                         disabled={isOpeningDocument}
                                                         className="w-full text-left px-4 py-2 text-sm font-normal hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         <FontAwesomeIcon icon={faExternalLink} className="h-3 w-3"/>
                                                         {isOpeningDocument ? "Opening..." : "Open in new tab"}
-                                                    </button>
+                                                    </button> */}
 
                                                     {/* Action button to bookmark */}
                                                     <button

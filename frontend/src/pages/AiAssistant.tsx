@@ -102,10 +102,12 @@ const MarkdownComponents = {
 };
 
 const AiAssistant: React.FC = () => {
+    const { user, profile } = useAuth();
+
     const [messages, setMessages] = useState<Message[]>([
         {
             role: "assistant",
-            content: "Hello! How can I assist you today with company policies, procedures, or products?",
+            content: `Hello${profile?.first_name ? ` ${profile.first_name}` : ""}! How can I assist you today with company policies, procedures, or products?`,
         }
     ]);
     const [input, setInput] = useState("");
@@ -119,7 +121,6 @@ const AiAssistant: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
         
-    const { user } = useAuth();
     const { isBookmarked, toggleBookmark } = useBookmarks();
     const { trackActivity } = useGamification();
     const { authFetch } = useAuthFetch();
