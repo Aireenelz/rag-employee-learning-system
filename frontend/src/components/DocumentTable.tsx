@@ -5,7 +5,6 @@ import {
     faEllipsisVertical,
     faCalendar,
     faBookmark,
-    faExternalLink,
     faPencil,
     faCog
 } from "@fortawesome/free-solid-svg-icons";
