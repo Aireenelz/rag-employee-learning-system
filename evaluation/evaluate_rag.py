@@ -146,7 +146,7 @@ async def main():
     evaluator = EmployeeLearningRAGEvaluator()
     
     # Load test cases
-    test_cases = load_test_cases("test_cases.json")
+    test_cases = load_test_cases("test_cases4.json")
 
     print("="*60)
     print("RAG EVALUATION FOR EMPLOYEE LEARNING SYSTEM")

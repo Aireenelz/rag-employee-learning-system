@@ -1,0 +1,127 @@
+[
+    {
+        "_source": "ThinkCritical (Critical Thinking).pdf",
+        "question": "What is THINKCRITICAL about?",
+        "ground_truth": "THINKCRITICAL is a program about developing critical thinking skills in participants when faced with different situations within a technology-driven organization."
+    },
+    {
+        "_source": "ThinkCritical (Critical Thinking).pdf",
+        "question": "What core challenge does THINKCRITICAL address in a modern business environment?",
+        "ground_truth": "It addresses whether critical thinking has taken a back seat due to the push for faster decisions."
+    },
+    {
+        "_source": "ThinkCritical (Critical Thinking).pdf",
+        "question": "How does THINKCRITICAL simulate a business environment for participants?",
+        "ground_truth": "Participants manage a technology-driven organization and must navigate situations by thinking both 'fast and slow."
+    },
+    {
+        "_source": "ThinkCritical (Critical Thinking).pdf",
+        "question": "Is there an evaluation component included in the THINKCRITICAL program?",
+        "ground_truth": "Yes, there is an assessment available for the program."
+    },
+    {
+        "_source": "ThinkCritical (Critical Thinking).pdf",
+        "question": "Which group of skills does THINKCRITICAL fall under?",
+        "ground_truth": "It is categorized under Leadership, Business, Cognitive, and People."
+    },
+    {
+        "_source": "ThinkCrucial (Performance Management & Coaching).pdf",
+        "question": "What is THINKCRUCIAL about?",
+        "ground_truth": "THINKCRUCIAL is a program about performance management and coaching, to equip managers to have crucial conversations with employees."
+    },
+    {
+        "_source": "ThinkCrucial (Performance Management & Coaching).pdf",
+        "question": "What are the phases of performance cycle covered in THINKCRUCIAL?",
+        "ground_truth": "The three phases are Goal setting, Coaching & Monitoring, and Appraisal."
+    },
+    {
+        "_source": "ThinkCrucial (Performance Management & Coaching).pdf",
+        "question": "How to structure the team during THINKCRUCIAL simulation?",
+        "ground_truth": "Teams shall operate in a siloed environment split into three functions: procurement, manufacturing, and sales."
+    },
+    {
+        "_source": "ThinkCrucial (Performance Management & Coaching).pdf",
+        "question": "What specific coaching skills will participants practice in the THINKCRUCIAL program?",
+        "ground_truth": "Participants will practice providing feedback and coaching for improvement while dealing with various business and people scenarios."
+    },
+    {
+        "_source": "ThinkCrucial (Performance Management & Coaching).pdf",
+        "question": "What is the contact hotline for inquiries regarding the THINKCRUCIAL program?",
+        "ground_truth": "The hotline is 0903 980 025."
+    },
+    {
+        "_source": "ThinkDisrupt (Business Acumen & Financial Modelling).pdf",
+        "question": "What is THINKDISRUPT about?",
+        "ground_truth": "THINKDISRUPT is a program about business acumen and financial modelling."
+    },
+    {
+        "_source": "ThinkDisrupt (Business Acumen & Financial Modelling).pdf",
+        "question": "What is the purpose of the THINKDISRUPT program?",
+        "ground_truth": "The program helps participants develop key skills needed to transition from functional leaders to business leaders."
+    },
+    {
+        "_source": "ThinkDisrupt (Business Acumen & Financial Modelling).pdf",
+        "question": "What business functions will teams manage during the THINKDISRUPT simulation?",
+        "ground_truth": "Teams will manage sales, marketing, finance, talent management, product development, and business operations."
+    },
+    {
+        "_source": "ThinkDisrupt (Business Acumen & Financial Modelling).pdf",
+        "question": "What specific financial skills are participants expected to apply?",
+        "ground_truth": "Participants will use financial statements for forecasting, monitoring company health, and managing top-line and bottom-line performance."
+    },
+    {
+        "_source": "ThinkDisrupt (Business Acumen & Financial Modelling).pdf",
+        "question": "Who is THINKDISRUPT program for?",
+        "ground_truth": "The program is designed for Middle management, Junior management, and High-Potential (Hi-Po) employees."
+    },
+    {
+        "_source": "ThinkInsight - Base Game Rules v2.pdf",
+        "question": "What is the ultimate objective and winning condition of the ThinkInsight simulation?",
+        "ground_truth": "The objective is to hit revenue targets by securing contracts and market share; the winner is the team with the most revenue at the end."
+    },
+    {
+        "_source": "ThinkInsight - Base Game Rules v2.pdf",
+        "question": "How is time managed within the ThinkInsight simulation rounds?",
+        "ground_truth": "The game is played across 4 Quarters, with each month in a Quarter consisting of 10 operating days."
+    },
+    {
+        "_source": "ThinkInsight - Base Game Rules v2.pdf",
+        "question": "What is the 'Supplier Rule' for movement in the game?",
+        "ground_truth": "If the starting location is a Supplier, the first leg must be to a Distribution Centre (DC) in the same region, costing 1 day per product."
+    },
+    {
+        "_source": "ThinkInsight - Base Game Rules v2.pdf",
+        "question": "How does the 'Direct Buyer' rule affect revenue and product movement?",
+        "ground_truth": "Direct Buyers provide revenue regardless of competition; once products are offered to them, they cannot be moved away."
+    },
+    {
+        "_source": "ThinkInsight - Base Game Rules v2.pdf",
+        "question": "What are the rules and costs for upgrading a Tender Buyer's price?",
+        "ground_truth": "A team can spend 2 days to increase price by $1M or 4 days for $2M, provided they have at least 1 product at that buyer."
+    },
+    {
+        "_source": "ThinkResolve (Problem Solving & Decision-Making).pdf",
+        "question": "What is THINKRESOLVE about?",
+        "ground_truth": "THINKRESOLVE is a program about problem-solving and decision-making, to solve problems in a structured way that ensures consistent quality decisions."
+    },
+    {
+        "_source": "ThinkResolve (Problem Solving & Decision-Making).pdf",
+        "question": "What are the steps involved in the evidence-based reasoning used in THINKRESOLVE?",
+        "ground_truth": "The process involves forming hypotheses and validating them through evidence-based reasoning."
+    },
+    {
+        "_source": "ThinkResolve (Problem Solving & Decision-Making).pdf",
+        "question": "What is the overall goal for participants during the THINKRESOLVE simulation?",
+        "ground_truth": "The goal is to achieve profitability while making systematically thought-out decisions."
+    },
+    {
+        "_source": "ThinkResolve (Problem Solving & Decision-Making).pdf",
+        "question": "How to contact client support regarding THINKRESOLVE program?",
+        "ground_truth": "Through email address at client_support@athenaretailconsulting.com."
+    },
+    {
+        "_source": "ThinkResolve (Problem Solving & Decision-Making).pdf",
+        "question": "How long is THINKRESOLVE program?",
+        "ground_truth": "The program takes 1.5 to 2 days or can be split into three half-day sessions."
+    }
+]

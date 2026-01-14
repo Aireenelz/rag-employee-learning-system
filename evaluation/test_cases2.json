@@ -1,0 +1,127 @@
+[
+    {
+        "_source": "How to Disable Pop-up Blocker.pdf",
+        "question": "How can a user disable the pop-up blocker in Google Chrome?",
+        "ground_truth": "User should open Chrome, go to Settings via the three-dot menu, select 'Privacy and security,' then 'Site Settings,' click 'Pop-ups and redirects,' and toggle the switch next to 'Blocked' to 'Allowed'."
+    },
+    {
+        "_source": "How to Disable Pop-up Blocker.pdf",
+        "question": "What is the process for disabling pop-ups in Safari on a Mac?",
+        "ground_truth": "Open Safari, click the Safari menu to select 'Preferences,' click 'Websites', and toggle off the 'Block Pop-up Windows' option."
+    },
+    {
+        "_source": "How to Disable Pop-up Blocker.pdf",
+        "question": "How does a user turn off the pop-up blocker in Internet Explorer?",
+        "ground_truth": "Click the gear-like Settings icon, select 'Internet Options,' go to the 'Privacy' tab, and uncheck 'Turn on Pop-up Blocker'."
+    },
+    {
+        "_source": "How to Disable Pop-up Blocker.pdf",
+        "question": "Where is the 'Pop-ups and redirects' option located in the Microsoft Edge settings menu?",
+        "ground_truth": "It is located under 'Cookies and site permissions' within the Edge settings."
+    },
+    {
+        "_source": "How to Disable Pop-up Blocker.pdf",
+        "question": "How can a user re-enable the pop-up blocker in Google Chrome?",
+        "ground_truth": "A user can toggle the switch back to 'Blocked' on the 'Pop-ups and redirects' settings page."
+    },
+    {
+        "_source": "Physical ThinkInsight Play Deck Market Change (Q1-Q4).pdf",
+        "question": "What is the primary goal of the ThinkInsight Strategic Thinking Simulation?",
+        "ground_truth": "The goal is to strategize to hit revenue targets by securing contracts with buyers and gaining market share."
+    },
+    {
+        "_source": "Physical ThinkInsight Play Deck Market Change (Q1-Q4).pdf",
+        "question": "How many operating days are available to teams each month in the simulation?",
+        "ground_truth": "Teams have 10 operating days each month to perform activities like ordering from suppliers or delivering to buyers."
+    },
+    {
+        "_source": "Physical ThinkInsight Play Deck Market Change (Q1-Q4).pdf",
+        "question": "How much does it cost to invest in 'Environment Certification' for E3 zones?",
+        "ground_truth": "E3 Certification costs $3M per zone."
+    },
+    {
+        "_source": "Physical ThinkInsight Play Deck Market Change (Q1-Q4).pdf",
+        "question": "What are the consequences of opening the South Region in Quarter 4 during the worker strike?",
+        "ground_truth": "If a team chooses to open the South Region, they will have only 12 working days in November and December"
+    },
+    {
+        "_source": "Physical ThinkInsight Play Deck Market Change (Q1-Q4).pdf",
+        "question": "How is team revenue calculated for Quarter 3?",
+        "ground_truth": "Revenue is calculated by totaling the earnings from the North, East, and West regions."
+    },
+    {
+        "_source": "QUEST Gamified Self-Led Digital Programmes.pdf",
+        "question": "What is QUEST as defined by Think Codex?",
+        "ground_truth": "QUEST is a gamified, modular digital programme designed to help users learn crucial soft skills through workplace application and challenges."
+    },
+    {
+        "_source": "QUEST Gamified Self-Led Digital Programmes.pdf",
+        "question": "What is the recommended duration for a QUEST programme to ensure maximum learning retention?",
+        "ground_truth": "The optimal duration is 2 to 4 weeks."
+    },
+    {
+        "_source": "QUEST Gamified Self-Led Digital Programmes.pdf",
+        "question": "On what devices can participants access the QUEST platform?",
+        "ground_truth": "The digital platform is accessible via both desktop and mobile devices."
+    },
+    {
+        "_source": "QUEST Gamified Self-Led Digital Programmes.pdf",
+        "question": "Do QUEST programmes require internal IT integration to roll out?",
+        "ground_truth": "No, they can be rolled out immediately with no internal integration required."
+    },
+    {
+        "_source": "QUEST Gamified Self-Led Digital Programmes.pdf",
+        "question": "What kind of data-driven feedback do employers receive from the QUEST programme?",
+        "ground_truth": "Employers receive behavioral-focused reporting on key employee metrics and performance."
+    },
+    {
+        "_source": "STRATEGY __ Mission Possible.pdf",
+        "question": "What is the standard price per person for the Mission Possible program?",
+        "ground_truth": "The standard price is 2.200.000 VND per person."
+    },
+    {
+        "_source": "STRATEGY __ Mission Possible.pdf",
+        "question": "Since what year has N.E.W.S. Navigation been delivering its integrated suite of Leadership Solutions?",
+        "ground_truth": "N.E.W.S. Navigation has been delivering these solutions since 2006."
+    },
+    {
+        "_source": "STRATEGY __ Mission Possible.pdf",
+        "question": "What specific skills does the Mission Possible program aim to equip managers with?",
+        "ground_truth": "It equips managers with practical tools to increase focus on important issues and manage activities effectively in a disruptive work space."
+    },
+    {
+        "_source": "STRATEGY __ Mission Possible.pdf",
+        "question": "In how many countries are N.E.W.S. Navigation's solutions delivered?",
+        "ground_truth": "The solutions are delivered in 34 countries."
+    },
+    {
+        "_source": "STRATEGY __ Mission Possible.pdf",
+        "question": "What is included in the registration price for the program?",
+        "ground_truth": "The price includes two tea breaks and 8% VAT per person."
+    },
+    {
+        "_source": "Sustainability.pdf",
+        "question": "Who are the two main partners collaborating to offer sustainability upskilling",
+        "ground_truth": "The partners are Think Codex and Sustainability Unlocked."
+    },
+    {
+        "_source": "Sustainability.pdf",
+        "question": "What types of courses are offered by the Sustainability Unlocked platform?",
+        "ground_truth": "The platform offers courses on the Climate Crisis, Corporate Governance, ESG Financial Markets, and more."
+    },
+    {
+        "_source": "Sustainability.pdf",
+        "question": "How many subject matter experts curate the content for the Sustainability Unlocked platform?",
+        "ground_truth": "The content is curated by a global network of over 70 subject matter experts."
+    },
+    {
+        "_source": "Sustainability.pdf",
+        "question": "To which international framework are the sustainability topics aligned?",
+        "ground_truth": "The topics are aligned with the UN Sustainable Development Goals (SDGs)."
+    },
+    {
+        "_source": "Sustainability.pdf",
+        "question": "Which employee levels is the winning sustainability solution suitable for?",
+        "ground_truth": "It is suitable for professionals at all levels, from executives to interns, across various departments."
+    }
+]
