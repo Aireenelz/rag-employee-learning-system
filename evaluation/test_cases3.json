@@ -1,0 +1,127 @@
+[
+    {
+        "_source": "Think Codex - Company Values.pdf",
+        "question": "What are Think Codex company values?",
+        "ground_truth": "Always be creating, open communication, grit with a purpose, professionalism, growing together, and pioneering."
+    },
+    {
+        "_source": "Think Codex - Company Values.pdf",
+        "question": "What are key behaviors associated with always be creating value?",
+        "ground_truth": "Key behaviors include giving every idea a chance, building on other ideas, finding inspiration everywhere, learning to let go, and creating with passion and purpose."
+    },
+    {
+        "_source": "Think Codex - Company Values.pdf",
+        "question": "How to have open communication in terms of conflict?",
+        "ground_truth": "Open communication during conflict involves resolving issues rather than assigning blame."
+    },
+    {
+        "_source": "Think Codex - Company Values.pdf",
+        "question": "What does grit with purpose mean regarding failure?",
+        "ground_truth": "It means accepting and learning from failures."
+    },
+    {
+        "_source": "Think Codex - Company Values.pdf",
+        "question": "What does it mean to have pioneering mindset?",
+        "ground_truth": "Pioneering involves having a new mindset, being experimental to lead the market, pushing boundaries, and getting out of one's comfort zone to take risks."
+    },
+    {
+        "_source": "ThinkAgility (Agility Simulation).pdf",
+        "question": "What is THINKAGILITY about?",
+        "ground_truth": "THINKAGILITY is a program where participants test their agility in achieving company objectives within a multi-tiered organizational structure."
+    },
+    {
+        "_source": "ThinkAgility (Agility Simulation).pdf",
+        "question": "What is the primary objective for teams in the THINKAGILITY simulation?",
+        "ground_truth": "Teams must achieve as many company objectives as possible within a multi-tiered organizational structure."
+    },
+    {
+        "_source": "ThinkAgility (Agility Simulation).pdf",
+        "question": "How do teams interact with each other in THINKAGILITY?",
+        "ground_truth": "Teams compete with other teams externally and compete internally for resources."
+    },
+    {
+        "_source": "ThinkAgility (Agility Simulation).pdf",
+        "question": "What is the unique execution dynamic applied in THINKAGILITY?",
+        "ground_truth": "Participants must plan as a team but execute as an individual."
+    },
+    {
+        "_source": "ThinkAgility (Agility Simulation).pdf",
+        "question": "Which category is unique to THINKAGILITY compared to THINKBUILD?",
+        "ground_truth": "THINKAGILITY includes 'Business' in its categories, alongside Leadership, Cognitive, and People."
+    },
+    {
+        "_source": "ThinkApex (Sales).pdf",
+        "question": "What is THINKAPEX about?",
+        "ground_truth": "THINKAPEX is a program offered by ThinkCodex that focuses on sales."
+    },
+    {
+        "_source": "ThinkApex (Sales).pdf",
+        "question": "From which view do participants explore the sales industry in THINKAPEX?",
+        "ground_truth": "Participants explore it from both a sales executive and a customer's viewpoint."
+    },
+    {
+        "_source": "ThinkApex (Sales).pdf",
+        "question": "How do teams unlock new types of products during the THINKAPEX competition?",
+        "ground_truth": "Teams unlock new products by competing to win the best sales awards."
+    },
+    {
+        "_source": "ThinkApex (Sales).pdf",
+        "question": "What specific stages of the sales cycle are taught about in THINKAPEX program?",
+        "ground_truth": "Participants apply opening, building trust, demonstrating value proposition, closing, and customer follow-up."
+    },
+    {
+        "_source": "ThinkApex (Sales).pdf",
+        "question": "What is the website URL to get more information on THINKAPEX?",
+        "ground_truth": "The website is strategy.com.vn/product/thinkapex-241.html."
+    },
+    {
+        "_source": "ThinkBuild (Team Building).pdf",
+        "question": "What is THINKBUILD about?",
+        "ground_truth": "THINKBUILD is a team building program that brings participants to connect together and discover what teams are all about."
+    },
+    {
+        "_source": "ThinkBuild (Team Building).pdf",
+        "question": "What are the activities that teams engage in to connect during THINKBUILD?",
+        "ground_truth": "Teams work together across a series of states to build sustainable cities by planning, building, and reviewing their progress."
+    },
+    {
+        "_source": "ThinkBuild (Team Building).pdf",
+        "question": "Which postulations are used as the foundation for the THINKBUILD program?",
+        "ground_truth": "The program uses High Performance Team Theories."
+    },
+    {
+        "_source": "ThinkBuild (Team Building).pdf",
+        "question": "What are the core application areas for participants in THINKBUILD",
+        "ground_truth": "Participants apply their learning to understand different stages of a team, build a team culture and identity, and work together to ideate and solve problems."
+    },
+    {
+        "_source": "ThinkBuild (Team Building).pdf",
+        "question": "What is the maximum number of participants that can join a THINKBUILD session?",
+        "ground_truth": "The program can accommodate up to 1,000 pax."
+    },
+    {
+        "_source": "ThinkCentric (Customer Service Excellence).pdf",
+        "question": "What is THINKCENTRIC about?",
+        "ground_truth": "THINKCENTRIC is a program about customer service excellence, that gets participants to experience the service industry through 3 lenses, customer, CS Executive, and external observer."
+    },
+    {
+        "_source": "ThinkCentric (Customer Service Excellence).pdf",
+        "question": "From which perspectives do participants see the industry in THINKCENTRIC program?",
+        "ground_truth": "Participants experience the industry through the lenses of a customer, a CS Executive, and an external observer."
+    },
+    {
+        "_source": "ThinkCentric (Customer Service Excellence).pdf",
+        "question": "What do teams compete for during the THINKCENTRIC program?",
+        "ground_truth": "Teams compete to win the best customer service awards and to unlock new types of customers."
+    },
+    {
+        "_source": "ThinkCentric (Customer Service Excellence).pdf",
+        "question": "Which specific skills will participants apply regarding customer issues in THINKCENTRIC program?",
+        "ground_truth": "Participants apply skills for resolving both basic and complex problems, as well as delivering the best experience when faced with unresolvable issues."
+    },
+    {
+        "_source": "ThinkCentric (Customer Service Excellence).pdf",
+        "question": "How many people can join a THINKCENTRIC session?",
+        "ground_truth": "A THINKCENTRIC session can accommodate 12 to 24 pax."
+    }
+]
