@@ -107,7 +107,7 @@ const AiAssistant: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
         {
             role: "assistant",
-            content: `Hello${profile?.first_name ? ` ${profile.first_name}` : ""}! How can I assist you today with company policies, procedures, or products?`,
+            content: `Hello${profile?.first_name ? ` ${profile.first_name}` : ""}!\nHow can I assist you today with company policies, procedures, or products?`,
         }
     ]);
     const [input, setInput] = useState("");
